@@ -2,6 +2,7 @@ using HDF5
 using PyPlot
 
 include("kaczmarz.jl")
+include("pseudoinverse.jl")
 
 filenameSM = "../systemMatrix.h5"
 filenameMeas = "../measurement.h5"
@@ -26,13 +27,24 @@ u = u[idxMin:end,:]
 # average over all temporal frames
 u = vec(mean(u,2))
 
-# reconstruct
+# reconstruct using kaczmarz algorithm
 c = kaczmarz(S,u,1,1e6,false,true,true)
+
+# reconstruct using signular value decomposition
+SSVD = SVD(svd(S.')...)
+csvd = pseudoinverse(SSVD, u, 5e3, true, true)
 
 # reshape into an image
 N = h5read(filenameSM, "/calibration/size")
 c = reshape(c,N[1],N[2])
+csvd = reshape(csvd,N[1],N[2])
 
+# plot kaczmarz reconstruction
+figure()
 gray()
 imshow(real(c))
 
+# plot pseudoinverse reconstruction
+figure()
+gray()
+imshow(real(csvd))
