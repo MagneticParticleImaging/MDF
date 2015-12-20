@@ -1,24 +1,17 @@
+@doc """
+The kaczmarz algorithm solves the Thikonov regularized least squares Problem 
+argminₓ(‖Ax-b‖² + λ‖b‖²).
 
-function rowEnergy(A)
-  M = size(A,2)
-  energy = zeros(Float64, M)
+# Arguments
 
-  for m=1:M
-    energy[m] = norm(A[:,m])
-  end
-
-  return energy
-end
-
-function dot_with_matrix_row(A, x, k)
-  tmp = 0.0
-  for n=1:size(A,1)
-    tmp += A[n,k]*x[n]
-  end
-  tmp
-end
-
-
+* `A::AbstractMatrix`: System matrix A
+* `b::Vector`: Measurement vector b
+* `iterations::Int`: Number of iterations of the iterative solver
+* `lambd::Float64`: The regularization parameter, relative to the matrix trace
+* `shuff::Bool`: Enables random shuffeling of rows during iterations in the kaczmarz algorithm
+* `enforceReal::Bool`: Enable projection of solution on real plane during iteration
+* `enforcePositive::Bool`: Enable projection of solution onto positive halfplane during iteration
+""" ->
 function kaczmarz{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, shuff, enforceReal, enforcePositive )
   M = size(A,2)
   N = size(A,1)
@@ -26,7 +19,10 @@ function kaczmarz{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, shuf
   x = zeros(T, N)
   residual = zeros(T, M)
 
-  energy = rowEnergy(A)
+  energy = zeros(Float64, M)
+  for m=1:M
+    energy[m] = norm(A[:,m])
+  end
     
   rowIndexCycle = collect(1:M)
 
@@ -61,4 +57,21 @@ function kaczmarz{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, shuf
   end
 
   return x
+end
+
+@doc """
+Calculates the dot product between x and the k-th matrix row of A.
+
+# Arguments
+
+* `A::AbstractMatrix`: System matrix A
+* `x::Vector`: Measurement vector b
+* `k::Int: matrix row
+"""->
+function dot_with_matrix_row(A, x, k)
+  tmp = 0.0
+  for n=1:size(A,1)
+    tmp += A[n,k]*x[n]
+  end
+  tmp
 end
