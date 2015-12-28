@@ -13,6 +13,7 @@ Running the script
 reco.m
 ```
 you should obtain after roughly one minutes those three graphs:
+
 <img src="/matlab/results/SM.jpg" height="200">
 <img src="/matlab/results/SpectrumMeasure.jpg" height="200">
 <img src="/matlab/results/Reco.jpg" height="200">
