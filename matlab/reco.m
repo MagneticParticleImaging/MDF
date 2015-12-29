@@ -1,40 +1,134 @@
-#TODO convert this to Matlab!!!
+%% 1. Loading the required external functions
+disp('2. Load the required external functions');
+clear all
+close all
 
+addpath(genpath(fullfile('.','regu')))
 
-using HDF5
-using PyPlot
+%% 2. Loading the data
+disp('2. Load the data'); tic
 
-include("kaczmarz.jl")
+% For the System matrix (later named SM)
+% the filename
+filename_SM = fullfile('..','systemMatrix.h5');
+% to obtain infos on the file, use the command: infoSM = h5info(filename_SM);
+% or read the format documentation
 
-filenameSM = "../systemMatrix.h5"
-filenameMeas = "../measurement.h5"
+% read the data, saved as real numbers
+S = h5read(filename_SM, '/calibration/dataFD');
 
-# read the full system matrix
-S = h5read(filenameSM, "/calibration/dataFD")
-# reinterpret to complex data
-S = reinterpret(Complex{eltype(S)}, S, (size(S,2),size(S,3)))
+% reinterpret as complex numbers
+S = squeeze(S(1,:,:) + 1i*S(2,:,:));
 
-# read the measurement data
-u = h5read(filenameMeas, "/measurement/dataFD")
-u = reinterpret(Complex{eltype(u)}, u, (size(u,2), size(u,3)))
+% For the measurements
+% the filename
+filename_Meas = fullfile('..','measurement.h5');
 
-# we now load the frequencies
-freq = h5read(filenameMeas, "/acquisition/receiver/frequencies")
+% read and convert the data as complex numbers
+% note that these data contain 500 measurements
+u = h5read(filename_Meas, '/measurement/dataFD');
+u = squeeze(u(1,:,:) + 1i*u(2,:,:));
+toc
 
-# remove frequencies below 30 kHz
-idxMin = findfirst( freq .> 30e3)
-S = S[:,idxMin:end]
-u = u[idxMin:end,:]
+%% 3. Pre-process and display the SM
+disp('3. Pre-process and display the SM'); tic
 
-# average over all temporal frames
-u = vec(mean(u,2))
+% read the number of frequencies per channel for the SM
+freq_SM = h5read(filename_SM, '/acquisition/receiver/frequencies');
+numberFreq_SM = size(freq_SM,1);
 
-# reconstruct
-c = kaczmarz(S,u,1,1e6,false,true,true)
+% Separate all the receive channels
+% as we know how it was saved
+S2(1,:,:) = S(:,1:numberFreq_SM);
+S2(2,:,:) = S(:,numberFreq_SM+1:2*numberFreq_SM);
+S2(3,:,:) = S(:,2*numberFreq_SM+1:end);
 
-# reshape into an image
-N = h5read(filenameSM, "/calibration/size")
-c = reshape(c,N[1],N[2])
+% read the numbers of points used to discretize the 3D volume
+number_Position = h5read(filename_SM, '/calibration/size');
 
-gray()
-imshow(real(c))
+% display one part of the first channel of the SM
+figure
+for i=1:100
+    subplot(10,10,i)
+    frequencyComponent = 50+i;
+    imagesc(reshape(abs(S2(1,:,frequencyComponent)),number_Position(1),number_Position(2)));
+    axis square
+    set(gca,'XTickLabel',[],'YTickLabel',[]);
+    title(sprintf('%i FC',frequencyComponent));
+end
+colormap(gray)
+toc
+
+%% 4. Pre-process and display a measurement
+disp('4. Pre-process and display the SM'); tic
+
+% load the frequencies corresponding to the matrices indexes
+% hoping that they are the same for the SM and the phantom measurements :)
+freq_Meas = h5read(filename_Meas, '/acquisition/receiver/frequencies');
+numberFreq_Meas = size(freq_Meas,1);
+
+u2(1,:,:) = u(1:numberFreq_Meas,:);
+u2(2,:,:) = u(numberFreq_Meas+1:2*numberFreq_Meas,:);
+u2(3,:,:) = u(2*numberFreq_Meas+1:end,:);
+
+figure
+semilogy(freq_Meas,abs(u2(1,:,1)))
+title('Absolute value of a transformed FFT of the first measure on the first channel')
+ylabel('Transformed FFT (unknown unit)')
+xlabel('Frequency (Hz)')
+toc
+
+%% 5. Remove the frequencies which are lower than 30 kHz, as they are unreliable due to the anologue filter in the scanner
+disp('5. Post-processing: remove the frequencies'); tic
+
+% we supose that the same frequencies are measured on all channel for 
+% the SM and the measurements
+idxFreq = freq_Meas > 30e3;
+S_truncated = S2(:,:,idxFreq);
+u_truncated = u2(:,idxFreq,:);
+toc
+
+%% 6. Averaged the measurement used for the reconstruction over all temporal frames
+disp('6. Post-processing: average the measurements'); tic
+
+u3 = mean(u_truncated,3);
+
+%% 7. Make three simple reconstructions using a single receive channel
+disp('7. Make 3 simple recontruction'); tic
+
+%with the build in least square
+% using a maximum of 1000 iterations
+maxIteration = 1000;
+% and a small tolerance
+tolerance = 10^-6;
+c_lsqr = lsqr(squeeze(S_truncated(1,:,:)).', u3(1,:).',tolerance,maxIteration);
+
+% and an external ART function
+% using a maximum of 3 iterations
+maxIteration = 3;
+c_art = art(squeeze(S_truncated(1,:,:)).',u3(1,:),maxIteration);
+
+% and a modified version of the external ART function
+% forcing a real and non-negative solution
+% using a maximum of 3 iterations
+maxIteration = 3;
+c_artGael = artGael(squeeze(S_truncated(1,:,:)).',u3(1,:),maxIteration);
+toc
+%% 8. Display an image
+disp('8. Display the 3 reconstruction')
+
+figure
+subplot(1,3,1)
+imagesc(real(reshape(c_lsqr(:),number_Position(1),number_Position(2))));
+colormap(gray); axis square
+title({'Matlab least square - 1st channel';'1000th iterations / real part'})
+
+subplot(1,3,2)
+imagesc(real(reshape(c_art(:,1),number_Position(1),number_Position(2))));
+colormap(gray); axis square
+title({'External ART - 1st channel';'3rd iterations / real part'})
+
+subplot(1,3,3)
+imagesc(real(reshape(c_artGael(:,1),number_Position(1),number_Position(2))));
+colormap(gray); axis square
+title({'External modified ART - 1st channel';'3rd iterations / real part'})
