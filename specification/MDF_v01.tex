@@ -271,10 +271,10 @@ One measurement consists of the voltages recorded in all receive channels for al
 
 \end{multicols}
 
-\noindent \begin{tabularx}{\columnwidth}{lllllX} 
+\noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{dataFD} & \inltab{Any} & $L \times M \times 2$ & & yes & Measurement data stored in Fourier domain representation. The last dimension is used for storing the complex data. \\ \hline
-\inlvar{dataTD} & \inltab{Any} & $L \times \widetilde{M}$ & & yes & Measurement data stored in time domain representation \\ \hline 
+\inlvar{dataFD} & \inltab{Any} & $L \times C \times K \times 2$  or $L \times J \times C \times K \times 2$  & & yes & Measurement data stored in Fourier domain representation. The last dimension is used for storing the complex data. \\  \hline
+\inlvar{dataTD} & \inltab{Any} & $L \times C \times Z$ or \newline $L \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
 \end{tabularx}
 
 \subsection{Calibration (group: \inl{/calibration/})}
@@ -288,11 +288,11 @@ If a regular grid is used for sampling, the fastest index is in $x$ direction, t
 
 \end{multicols}
 
-\noindent \begin{tabularx}{\columnwidth}{lllllX} 
+\noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{dataFD} & \inltab{Any} & $M\times N \times 2$ & & yes & System matrix stored in its Fourier space representation. The last dimension is used for storing the complex data. \\ \hline
-\inlvar{snrFD} & \inltab{Float64} & $M$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
-\inlvar{dataTD} & \inltab{Float64} & $\widetilde{M}\times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
+\inlvar{dataFD} & \inltab{Any} & $C \times K \times N \times 2$ or \newline $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation. The last dimension is used for storing the complex data. \\ \hline
+\inlvar{snrFD} & \inltab{Float64} & $C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
+\inlvar{dataTD} & \inltab{Float64} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & mm & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & mm & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline

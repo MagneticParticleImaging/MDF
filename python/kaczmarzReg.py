@@ -15,7 +15,7 @@ def computeRowEnergy(A):
 
 
       
-def kaczmarz(A, b, iterations=10, lambd=0, enforceReal=False, enforcePositive=False, shuffle=False):
+def kaczmarzReg(A, b, iterations=10, lambd=0, enforceReal=False, enforcePositive=False, shuffle=False):
   M = A.shape[0]
   N = A.shape[1]
 

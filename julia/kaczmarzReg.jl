@@ -1,5 +1,5 @@
 @doc """
-The kaczmarz algorithm solves the Thikonov regularized least squares Problem 
+The regularized kaczmarz algorithm solves the Thikonov regularized least squares Problem 
 argminₓ(‖Ax-b‖² + λ‖b‖²).
 
 # Arguments
@@ -12,7 +12,7 @@ argminₓ(‖Ax-b‖² + λ‖b‖²).
 * `enforceReal::Bool`: Enable projection of solution on real plane during iteration
 * `enforcePositive::Bool`: Enable projection of solution onto positive halfplane during iteration
 """ ->
-function kaczmarz{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, shuff, enforceReal, enforcePositive )
+function kaczmarzReg{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, shuff, enforceReal, enforcePositive )
   M = size(A,2)
   N = size(A,1)
 
