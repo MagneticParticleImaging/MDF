@@ -152,6 +152,7 @@ The reference field may be used to indicate, if the background signal of the sca
 \inlvar{description} & \inltab{String} & 1 & & yes & Short description of the experiment \\ \hline
 \inlvar{subject} & \inltab{String} & 1 & & yes & Name of the subject that was imaged \\ \hline 
 \inlvar{reference} & \inltab{Int64} & 1 & & yes & Flag indicating if field of view was empty during the measurement \\ \hline
+\inlvar{simulation} & \inltab{Int64} & 1 & & yes & Flag indicating if the data in this file is simulated rather than measured \\ \hline
 \end{tabularx}
 
 
@@ -258,6 +259,7 @@ Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fie
 \inlvar{bandwidth} & \inltab{Float64} & 1 & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{numSamplingPoints} & \inltab{Float64} & 1 &  & no & Number of sampling point within one drive-field period denoted by $Z$ \\ \hline
 \inlvar{frequencies} & \inltab{Float64} & $K$ & Hz & no & Vector containing recorded frequencies \\ \hline
+\inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ &  & yes & Transfer function of the receive channel \\ \hline
 \end{tabularx}
 
 
@@ -299,6 +301,7 @@ If a regular grid is used for sampling, the fastest index is in $x$ direction, t
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{positions} & \inltab{Float64} & $N \times 3$ & mm & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \inlvar{deltaSampleSize} & \inltab{Float64} & 3 & mm & yes & Size of delta Sample used for calibration scan \\ \hline
+\inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
 \end{tabularx}
 
 
