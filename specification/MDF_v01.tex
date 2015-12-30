@@ -203,7 +203,7 @@ Note that the injection clock recording the injection time should be synchronize
 
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information, a subgroup containing data on the particle excitation and a subgroup containing data on the receive channels.
 
-In general each MPI dataset consists of the measurement data of $L$ frames. A frame groups all data together that will be used to reconstruct an image/volume. On certain MPI scanners the drive-field field-of-view (FOV) can be shifted either by magnetic fields or by mechanical movement. Therefore, a frame may consist of several sub-measurements. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
+In general each MPI dataset consists of the measurement data of $L$ frames. A frame groups all data together that will be used to reconstruct an image/volume. On certain MPI scanners the drive-field field-of-view (FOV) can be shifted either by magnetic fields or by mechanical movement. Therefore, a frame may consist of $J$ sub-measurements. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
 
 \end{multicols}
 
