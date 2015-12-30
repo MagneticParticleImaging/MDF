@@ -19,7 +19,7 @@ filename_SM = fullfile('..','systemMatrix.h5');
 S = h5read(filename_SM, '/calibration/dataFD');
 
 % reinterpret as complex numbers
-S = squeeze(S(1,:,:) + 1i*S(2,:,:));
+S = squeeze(S(1,:,:,:) + 1i*S(2,:,:,:));
 
 % For the measurements
 % the filename
@@ -28,7 +28,7 @@ filename_Meas = fullfile('..','measurement.h5');
 % read and convert the data as complex numbers
 % note that these data contain 500 measurements
 u = h5read(filename_Meas, '/measurement/dataFD');
-u = squeeze(u(1,:,:) + 1i*u(2,:,:));
+u = squeeze(u(1,:,:,:) + 1i*u(2,:,:,:));
 toc
 
 %% 3. Pre-process and display the SM
@@ -38,12 +38,6 @@ disp('3. Pre-process and display the SM'); tic
 freq_SM = h5read(filename_SM, '/acquisition/receiver/frequencies');
 numberFreq_SM = size(freq_SM,1);
 
-% Separate all the receive channels
-% as we know how it was saved
-S2(1,:,:) = S(:,1:numberFreq_SM);
-S2(2,:,:) = S(:,numberFreq_SM+1:2*numberFreq_SM);
-S2(3,:,:) = S(:,2*numberFreq_SM+1:end);
-
 % read the numbers of points used to discretize the 3D volume
 number_Position = h5read(filename_SM, '/calibration/size');
 
@@ -52,7 +46,7 @@ figure
 for i=1:100
     subplot(10,10,i)
     frequencyComponent = 50+i;
-    imagesc(reshape(abs(S2(1,:,frequencyComponent)),number_Position(1),number_Position(2)));
+    imagesc(reshape(abs(S(:,frequencyComponent,1)),number_Position(1),number_Position(2)));
     axis square
     set(gca,'XTickLabel',[],'YTickLabel',[]);
     title(sprintf('%i FC',frequencyComponent));
@@ -68,12 +62,8 @@ disp('4. Pre-process and display the SM'); tic
 freq_Meas = h5read(filename_Meas, '/acquisition/receiver/frequencies');
 numberFreq_Meas = size(freq_Meas,1);
 
-u2(1,:,:) = u(1:numberFreq_Meas,:);
-u2(2,:,:) = u(numberFreq_Meas+1:2*numberFreq_Meas,:);
-u2(3,:,:) = u(2*numberFreq_Meas+1:end,:);
-
 figure
-semilogy(freq_Meas,abs(u2(1,:,1)))
+semilogy(freq_Meas,abs(u(:,1,1)))
 title('Absolute value of a transformed FFT of the first measure on the first channel')
 ylabel('Transformed FFT (unknown unit)')
 xlabel('Frequency (Hz)')
@@ -85,14 +75,14 @@ disp('5. Post-processing: remove the frequencies'); tic
 % we supose that the same frequencies are measured on all channel for 
 % the SM and the measurements
 idxFreq = freq_Meas > 30e3;
-S_truncated = S2(:,:,idxFreq);
-u_truncated = u2(:,idxFreq,:);
+S_truncated = S(:,idxFreq,:);
+u_truncated = u(idxFreq,:,:);
 toc
 
 %% 6. Averaged the measurement used for the reconstruction over all temporal frames
 disp('6. Post-processing: average the measurements'); tic
 
-u3 = mean(u_truncated,3);
+u_mean_truncated = mean(u_truncated,3);
 
 %% 7. Make four simple reconstructions using a single receive channel
 disp('7. Make 4 simple recontruction'); tic
@@ -102,23 +92,23 @@ disp('7. Make 4 simple recontruction'); tic
 maxIteration = 1000;
 % and a small tolerance
 tolerance = 10^-6;
-c_lsqr = lsqr(squeeze(S_truncated(1,:,:)).', u3(1,:).',tolerance,maxIteration);
+c_lsqr = lsqr(squeeze(S_truncated(:,:,1)).', u_mean_truncated(:,1).',tolerance,maxIteration);
 
 % and an external ART function
 % using a maximum of 3 iterations
 maxIteration = 3;
-c_art = art(squeeze(S_truncated(1,:,:)).',u3(1,:),maxIteration);
+c_art = art(squeeze(S_truncated(:,:,1)).',u_mean_truncated(:,1),maxIteration);
 
 % and a modified version of the external ART function
 % forcing a real and non-negative solution
 % using a maximum of 3 iterations
 maxIteration = 3;
-c_artGael = artGael(squeeze(S_truncated(1,:,:)).',u3(1,:),maxIteration);
+c_artGael = artGael(squeeze(S_truncated(:,:,1)).',u_mean_truncated(:,1),maxIteration);
 
 % and a normalized regularized kaczmarz approach
 maxIteration = 1;
-c_normReguArt = regularizedKaczmarz(squeeze(S_truncated(1,:,:)),...
-                        u3(1,:),...
+c_normReguArt = regularizedKaczmarz(squeeze(S_truncated(:,:)),...
+                        u_mean_truncated(:),...
                         maxIteration,...
                         1*10^-6,0,1,1);% lambda,shuffle,enforceReal,enforcePositive
                     
