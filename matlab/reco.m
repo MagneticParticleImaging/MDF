@@ -85,56 +85,77 @@ disp('6. Post-processing: average the measurements'); tic
 u_mean_truncated = mean(u_truncated,3);
 
 %% 7. Make four simple reconstructions using a single receive channel
-disp('7. Make 4 simple recontruction'); tic
+disp('7. Make 4 simple recontruction');
 
 %with the build in least square
 % using a maximum of 1000 iterations
+tic
 maxIteration = 1000;
 % and a small tolerance
 tolerance = 10^-6;
-c_lsqr = lsqr(squeeze(S_truncated(:,:,1)).', u_mean_truncated(:,1).',tolerance,maxIteration);
+c_lsqr = lsqr(S_truncated(:,:,1).', u_mean_truncated(:,1),tolerance,maxIteration);
+disp('Least square')
+toc
 
 % and an external ART function
 % using a maximum of 3 iterations
+tic
 maxIteration = 3;
-c_art = art(squeeze(S_truncated(:,:,1)).',u_mean_truncated(:,1),maxIteration);
+c_art = art(S_truncated(:,:,1).',u_mean_truncated(:,1),maxIteration);
+disp('ART')
+toc
 
 % and a modified version of the external ART function
 % forcing a real and non-negative solution
 % using a maximum of 3 iterations
+tic
 maxIteration = 3;
-c_artGael = artGael(squeeze(S_truncated(:,:,1)).',u_mean_truncated(:,1),maxIteration);
+c_artGael = artGael(S_truncated(:,:,1).',u_mean_truncated(:,1),maxIteration);
+disp('Modified ART')
+toc
 
 % and a normalized regularized kaczmarz approach
+tic
 maxIteration = 1;
-c_normReguArt = regularizedKaczmarz(squeeze(S_truncated(:,:)),...
+c_normReguArt = regularizedKaczmarz(S_truncated(:,:),...
                         u_mean_truncated(:),...
                         maxIteration,...
                         1*10^-6,0,1,1);% lambda,shuffle,enforceReal,enforcePositive
+disp('Regularized ART')
+toc
                     
-% and an SVD approach
-
+% and an regularized pseudoinverse approach
+tic
+[U,Sigma,V] = csvd(S_truncated(:,:).');
+lambd = 5*10^3;
+c_pseudoInverse = regularizedPseudoinverse(U,Sigma,V,u_mean_truncated,lambd,1,1);
+disp('Pseudoinverse')
 toc
 %% 8. Display an image
-disp('8. Display the 4 reconstruction')
+disp('8. Display the 5 reconstruction')
 
 figure
-subplot(2,2,1)
+subplot(3,2,1)
 imagesc(real(reshape(c_lsqr(:),number_Position(1),number_Position(2))));
 colormap(gray); axis square
-title({'Matlab least square - 1st channel';'1000th iterations / real part'})
+title({'Matlab least square - 1 channel';'1000th iterations / real part'})
 
-subplot(2,2,2)
+subplot(3,2,2)
 imagesc(real(reshape(c_art(:,1),number_Position(1),number_Position(2))));
 colormap(gray); axis square
-title({'External ART - 1st channel';'1st iterations / real part'})
+title({'External ART - 1 channel';'1st iterations / real part'})
 
-subplot(2,2,3)
+subplot(3,2,3)
 imagesc(real(reshape(c_artGael(:,1),number_Position(1),number_Position(2))));
 colormap(gray); axis square
-title({'Modified ART - 1st channel';'1st iterations / real part'})
+title({'Modified ART - 1 channel';'1st iterations / real part'})
 
-subplot(2,2,4)
+subplot(3,2,4)
 imagesc(real(reshape(c_normReguArt(:),number_Position(1),number_Position(2))));
 colormap(gray); axis square
-title({'Regularized and modified ART - 1st channel';'1 iterations / lambda = 10^{-6} / real part'})
+title({'Regularized and modified ART - 3 channels';'1 iterations / lambda = 10^{-6} / real part'})
+
+subplot(3,2,5)
+imagesc(real(reshape(c_pseudoInverse(:),number_Position(1),number_Position(2))));
+colormap(gray); axis square
+title({'Pseudoinverse - 3 channels';' lambda = 5*10^{3} / real part'})
