@@ -1,19 +1,23 @@
 This folder contains exemplary Matlab codes for a simple MPI reconstruction.
 
 The data provided [here] (http://www.tuhh.de/ibi/research/mpi-data-format.html) have to be placed in the root folder, as shown in the picture below.
-![Image of the folder structure](https://gBringout.github.com/MDF/matlab/results/files.jpg)
+<img src="/matlab/results/files.jpg" height="200">
 
 The Matlab working directory should be
-    <your harddrive>\MDF\matlab\
+```
+<your hard-drive>\MDF\matlab\
+```
 	
 Running the script
-    reco.m
+```
+reco.m
+```
 you should obtain after roughly one minutes those three graphs:
-![Images of the SM strucures](https://gBringout.github.com/MDF/matlab/results/SM.jpg)
+<img src="/matlab/results/SM.jpg" height="200">
 
-![Plot of a measure](https://gBringout.github.com/MDF/matlab/results/SpectrumMeasure.jpg)
+<img src="/matlab/results/SpectrumMeasure.jpg" height="200">
 
-![5 reconstructions](https://gBringout.github.com/MDF/matlab/results/Reco.jpg)
+<img src="/matlab/results/Reco.jpg" height="200">
 
 The last one present the results of reconstruction of the concentration map a tracer using the system matrix/calibration approach. Using the same measurements, the inconsistent system of linear equations is solved using the signal acquired by a single channel of the scanner.
 
