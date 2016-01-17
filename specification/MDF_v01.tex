@@ -106,6 +106,10 @@ For most parameters a fixed datatype is used, i.e. the drive-field amplitudes ar
 
 Since storing complex data in HDF5 is not standardized, we extend the dimensionality of an existing array and store the real and imaginary part in the last dimension with size 2 (index 0 = real part, index 1 = imaginary part). In this way the real and imaginary part of a complex datum is stored sequentially on disk. When loading the data it is possible to cast it to a complex array in most programming languages.
 
+\subsection{Units}
+
+Physical quantities are given in SI units with one exception. The field strength is reported in T$\mu_0^{-1}$ = 4 $\pi$ Am$^{-1}\mu_0^{-1}$. This convention has been proposed in the first MPI publication and since that time consistently used in most MPI related publications. The aim of this convention is to report the numbers on a Tesla scale, which most readers with a background in MRI are familiar with, but, on the other hand still use the correct unit for the magnetic field strength.
+
 \subsection{Contact}
 
 If you find mistakes in this document or the specified file format or if you want to discuss extensions to this specification, please contact us by email:\\
@@ -177,7 +181,7 @@ Note that the injection clock recording the injection time should be synchronize
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
 \end{tabularx}
 
-\newpage
+%\newpage
 \subsection{Scanner Parameters (group: \inl{/scanner/})}
 
 \begin{multicols}{2}
@@ -210,9 +214,9 @@ In general each MPI dataset consists of the measurement data of $L$ frames. A fr
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numFrames} & \inltab{Int64} & 1 & 1 & no & Number of available frames, denoted by $L$ \\ \hline
-\inlvar{framePeriod} & \inltab{Float64} & 1 & ms & no & Complete time to acquire a full frame \\ \hline
+\inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Complete time to acquire a full frame \\ \hline
 \inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline 
-\inlvar{gradient} & \inltab{Float64} & 3 or $J \times 3$ & T/m & no & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
+\inlvar{gradient} & \inltab{Float64} & 3 or $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & no & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
 \end{tabularx}
 
@@ -233,14 +237,14 @@ Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fie
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numChannels} & \inltab{Int64} & 1 & 1 & no & Number of drive field channels, denoted by $D$ \\ \hline
-\inlvar{strength} & \inltab{Float64} & $D$ or $J \times D$ & mT & no & Applied drive field strength \\ \hline
+\inlvar{strength} & \inltab{Float64} & $D$ or $J \times D$ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D$ & 1 & no & Divider for drive fields frequencies (\inlvar{baseFrequency} / \inlvar{divider}) \\ \hline
-\inlvar{period} & \inltab{Float64} & 1 & ms & no & Drive field trajectory period \\ \hline
+\inlvar{period} & \inltab{Float64} & 1 & s & no & Drive field trajectory period \\ \hline
 \inlvar{averages} & \inltab{Int64} & 1 & & no & Number of internal averages (applied in hardware/software) \\ \hline
-\inlvar{repetitionTime} & \inltab{Float64} & 1 & ms & no & Time to complete averaged DF trajectory (averages * period)\\ \hline
-\inlvar{fieldOfView} & \inltab{Float64} & 3 or $J\times 3$ & mm & no & Approximate size of the area/volume captured by the trajectory \\ \hline
-\inlvar{fieldOfViewCenter} & \inltab{Float64} & 3 or $J \times 3$ & mm & no & Center of the drive field trajectory (relative to origin/center) \\ \hline
+\inlvar{repetitionTime} & \inltab{Float64} & 1 & s & no & Time to complete averaged DF trajectory (averages * period)\\ \hline
+\inlvar{fieldOfView} & \inltab{Float64} & 3 or $J\times 3$ & m & no & Approximate size of the area/volume captured by the trajectory \\ \hline
+\inlvar{fieldOfViewCenter} & \inltab{Float64} & 3 or $J \times 3$ & m & no & Center of the drive field trajectory (relative to origin/center) \\ \hline
 \end{tabularx}
 
 
@@ -296,11 +300,11 @@ If a regular grid is used for sampling, the fastest index is in $x$ direction, t
 \inlvar{dataFD} & \inltab{Any} & $C \times K \times N \times 2$ or \newline $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation. The last dimension is used for storing the complex data. \\ \hline
 \inlvar{snrFD} & \inltab{Float64} & $C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \inlvar{dataTD} & \inltab{Float64} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
-\inlvar{fieldOfView} & \inltab{Float64} & $3$ & mm & yes & Field of view of system matrix \\ \hline
-\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & mm & yes & Center of the system matrix (relative to origin/center) \\ \hline
+\inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
+\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
-\inlvar{positions} & \inltab{Float64} & $N \times 3$ & mm & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
-\inlvar{deltaSampleSize} & \inltab{Float64} & 3 & mm & yes & Size of delta Sample used for calibration scan \\ \hline
+\inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
+\inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta Sample used for calibration scan \\ \hline
 \inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
 \end{tabularx}
 
@@ -318,10 +322,10 @@ Usually the data is stored in a real data format but it is also possible to stor
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{data} & \inltab{Any} & $L\times N$ & & yes & Reconstructed data \\ \hline
-\inlvar{fieldOfView} & \inltab{Float64} & $3$ & mm & yes & Field of view of reconstructed data \\ \hline
-\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & mm & yes & Center of the reconstructed data (relative to origin/center) \\ \hline 
+\inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
+\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to origin/center) \\ \hline 
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
-\inlvar{positions} & \inltab{Float64} & $N \times 3$ & mm & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
+\inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \end{tabularx}
 
 %\bibliographystyle{unsrt}
