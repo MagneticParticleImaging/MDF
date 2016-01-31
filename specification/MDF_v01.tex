@@ -20,7 +20,7 @@
 \hypersetup
 {
     pdfauthor={Tobias Knopp, Martin Hofmann, Thilo Viereck},
-    pdfsubject={magneic particle imaging, data storage format},
+    pdfsubject={magnetic particle imaging, data storage format},
     pdftitle={MDF: Magnetic Particle Imaging Data Format},
     pdfkeywords={MPI, HDF5, MDF},
     pdfproducer={Institute for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf},
@@ -291,7 +291,7 @@ One measurement consists of the voltages recorded in all receive channels for al
 \paragraph{Remarks:}
 Calibration data is usually acquired by shifting a delta sample through the FOV of the scanner. The resulting system matrix can be stored in time or frequency domain. The number of spatial points is indicated by $N$. For practical reasons the system matrix is stored in a transposed way compared to the measurement data. Hence the index over the positions is the fastest while the index over all data points of a particular measurement is the slowest. Depending on the programming language used (column-major or row-major order) the system matrix may appear in a transposed representation when loaded into main memory.
 
-If a regular grid is used for sampling, the fastest index is in $x$ direction, the second fastest index is in $y$ direction, while the slowest index is in $z$ direction. For non-regular sampling points there is the possibility to explicitly store all positions. \newline
+If a regular grid is used for sampling, by default the fastest index is in $x$ direction, the second fastest index is in $y$ direction, while the slowest index is in $z$ direction. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all positions. \newline
 
 \end{multicols}
 
@@ -303,6 +303,7 @@ If a regular grid is used for sampling, the fastest index is in $x$ direction, t
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
+\inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta Sample used for calibration scan \\ \hline
 \inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
@@ -325,6 +326,7 @@ Usually the data is stored in a real data format but it is also possible to stor
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to origin/center) \\ \hline 
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
+\inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \end{tabularx}
 
