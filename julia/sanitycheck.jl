@@ -33,18 +33,18 @@ end
 
 function _hasAllDatasets(fid, version)
   result = true
-  version<"2.0" && (result = result & _hasAllDatasets1_0(fid))
+  nonoptionalgroups1_0 = Dict{ASCIIString, Vector{ASCIIString}}(
+    "/" => ["version", "uuid", "date"],
+    "/scanner/" => ["facility", "operator", "manufacturer", "model", "topology"],
+    "/acquisition/" => ["numFrames", "framePeriod", "numPatches", "gradient", "time"],
+    "/acquisition/drivefield/" => ["numChannels", "strength", "baseFrequency", "divider", "period", "averages", "repetitionTime", "fieldOfView", "fieldOfViewCenter"],
+    "/acquisition/receiver/" => ["numChannels", "bandwidth", "numSamplingPoints", "frequencies"])
+  version<"2.0" && (result = result & _hasAllDatasets(fid, nonoptionalgroups1_0))
   return result
 end
 
-function _hasAllDatasets1_0(fid)
+function _hasAllDatasets(fid, nonoptionalgroups::Dict)
   result = true
-  nonoptionalgroups = Dict{ASCIIString, Vector{ASCIIString}}(
-  "/" => ["version", "uuid", "date"],
-  "/scanner/" => ["facility", "operator", "manufacturer", "model", "topology"],
-  "/aquisition/" => ["numFrames", "framePeriod", "numPatches", "gradient", "time"],
-  "/aquisition/drivefield/" => ["numChannels", "strength", "baseFrequency", "divider", "period", "averages", "repetitionTime", "fieldOfView", "fieldOfViewCenter"],
-  "/aquisition/receiver/" => ["numChannels", "bandwidth", "numSamplingPoints", "frequencies"]) 
   for group in keys(nonoptionalgroups)
     hasgroup = exists(fid, group)
     result = result & hasgroup
@@ -64,35 +64,39 @@ end
   
 function _hasCorrectType(fid,version)
   result = true
-  version<"2.0" && (result = result & _hasCorrectType1_0(fid))
+  datasettypes1_0 = Dict{ASCIIString, Vector{Tuple{ASCIIString,Type,Vector{Int64}}}}(
+    "/" => [("version",Char,[0]), ("uuid",Char,[0]), ("date",Char,[0])],
+    "/study/" => [("name",Char,[0]), ("experiment",Char,[0]), ("description",Char,[0]), ("subject",Char,[0]), ("reference",Int64,[0]), ("simulation", Int64,[0])],
+    "/tracer/" => [("name",Char,[0]), ("batch",Char,[0]), ("vendor",Char,[0]), ("volume",Float64,[0]), ("concentration",Float64,[0]), ("time", Char,[0])],
+    "/scanner/" => [("facility",Char,[0]), ("operator",Char,[0]), ("manufacturer",Char,[0]), ("model",Char,[0]), ("topology",Char,[0])],
+    "/acquisition/" => [("numFrames",Int64,[0]), ("framePeriod",Float64,[0]), ("numPatches",Int64,[0]), ("gradient",Float64,[1,2]), ("time",Char,[0])],
+    "/acquisition/drivefield/" => [("numChannels",Int64,[0]), ("strength",Float64,[1,2]), ("baseFrequency",Float64,[0]), ("divider",Int64,[1]), ("period",Float64,[0]), ("averages",Int64,[0]), ("repetitionTime",Float64,[0]), ("fieldOfView",Float64,[1,2]), ("fieldOfViewCenter",Float64,[1,2])],
+     "/acquisition/receiver/" => [("numChannels",Int64,[0]), ("bandwidth",Float64,[0]), ("numSamplingPoints",Int64,[0]), ("frequencies",Float64,[1]), ("transferFunctions",Float64,[3])],
+    "/measurement/" => [("dataFD",Any,[4,5]), ("dataTD", Any,[3,4])],
+    "/calibration/" => [("dataFD",Any,[4,5]), ("snrFD",Float64,[2]), ("dataTD",Any,[3,4]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2]), ("deltaSampleSize",Float64,[1]), ("method",Char,[0])],
+    "/reconstruction/" => [("data",Any,[2]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2])])
+  version<"2.0" && (result = result & _hasCorrectType(fid, datasettypes1_0))
   return result
 end
 
-function _hasCorrectType1_0(fid)
+function _hasCorrectType(fid,datasettypes::Dict)
   result = true
-  groups = Dict{ASCIIString, Vector{Tuple{ASCIIString,Type}}}(
-  "/" => [("version",Char), ("uuid",Char), ("date",Char)],
-  "/study/" => [("name",Char), ("experiment",Char), ("description",Char), ("subject",Char), ("reference",Int64), ("simulation", Int64)],
-  "/tracer/" => [("name",Char), ("batch",Char), ("vendor",Char), ("volume",Float64), ("concentration",Float64), ("time", Char)],
-  "/scanner/" => [("facility",Char), ("operator",Char), ("manufacturer",Char), ("model",Char), ("topology",Char)],
-  "/aquisition/" => [("numFrames",Int64), ("framePeriod",Float64), ("numPatches",Int64), ("gradient",Float64), ("time",Char)],
-  "/aquisition/drivefield/" => [("numChannels",Int64), ("strength",Float64), ("baseFrequency",Float64), ("divider",Int64), ("period",Float64), ("averages",Int64), ("repetitionTime",Float64), ("fieldOfView",Float64), ("fieldOfViewCenter",Float64)],
-  "/aquisition/receiver/" => [("numChannels",Int64), ("bandwidth",Float64), ("numSamplingPoints",Int64), ("frequencies",Float64), ("transferFunctions",Float64)],
-  "/measurement/" => [("dataFD",Any), ("dataTD", Any)])
-
-  for group in keys(groups)
+  for group in keys(datasettypes)
     hasgroup = exists(fid, group)
     if hasgroup
       g = fid[group]
-      for (dataset,eldatatype) in groups[group]
+      for (dataset,eldatatype,datasetndims) in datasettypes[group]
         hasdataset = exists(g, dataset)
         if hasdataset
 	  dset = g[dataset]
-	  #println(dset, ndims(dset))
 	  dsettype = eltype(HDF5.hdf5_to_julia(dset))
 	  hascorrecttype = dsettype<:eldatatype
 	  result = result & hascorrecttype
 	  !hascorrecttype && warn("$dset has element type $dsettype but should have $eldatatype.")
+	  dsetndims = ndims(dset)
+	  hascorrectndims = dsetndims in datasetndims
+	  result = result & hascorrectndims
+	  !hascorrectndims && warn("$dset has dimension $dsetndims but should have dimensions in $datasetndims.")
 	end
       end
     end
