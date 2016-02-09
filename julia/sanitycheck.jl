@@ -1,11 +1,11 @@
 using HDF5
 
-export isSane
+export isvalid_mdf
 
-function isSane(filename::AbstractString; Debug=true)
+function isvalid_mdf(filename::AbstractString)
   # check if file is an HDF5 file
   !ishdf5(filename) && error("$filename is no valid HDF5 file.")
-  issane = ishdf5(filename)
+  ivalid = ishdf5(filename)
 
   # open HDF5 file
   fid = h5open(filename, "r")
@@ -14,7 +14,7 @@ function isSane(filename::AbstractString; Debug=true)
   rootgroup = fid["/"]
   # check if dataset version exists
   !exists(rootgroup, "version") && warn("Dataset version in $rootgroup is missing.")
-  issane = issane & exists(rootgroup, "version")
+  isvalid = isvalid & exists(rootgroup, "version")
   # read dataset version
   version = read(rootgroup,"version")
   # give a warning, if version is not at least 1.0
@@ -22,16 +22,16 @@ function isSane(filename::AbstractString; Debug=true)
   close(rootgroup)
 
   # ckeck if all non-optional datasets are provided
-  issane = issane & _hasAllDatasets(fid,version)
+  isvalid = isvalid & _hasAllNonOptDatasets(fid,version)
   # check if all datasets have the correct type
-  issane = issane & _hasCorrectType(fid,version)
+  isvalid = isvalid & _hasCorrectTypeAndDim(fid,version)
 
   # close HDF5 file
   close(fid)
-  return issane
+  return isvalid
 end
 
-function _hasAllDatasets(fid, version)
+function _hasAllNonOptDatasets(fid, version)
   result = true
   nonoptionalgroups1_0 = Dict{ASCIIString, Vector{ASCIIString}}(
     "/" => ["version", "uuid", "date"],
@@ -43,7 +43,7 @@ function _hasAllDatasets(fid, version)
   return result
 end
 
-function _hasAllDatasets(fid, nonoptionalgroups::Dict)
+function _hasAllNonOptDatasets(fid, nonoptionalgroups::Dict)
   result = true
   for group in keys(nonoptionalgroups)
     hasgroup = exists(fid, group)
@@ -62,7 +62,7 @@ function _hasAllDatasets(fid, nonoptionalgroups::Dict)
   return result
 end
   
-function _hasCorrectType(fid,version)
+function _hasCorrectTypeAndDim(fid,version)
   result = true
   datasettypes1_0 = Dict{ASCIIString, Vector{Tuple{ASCIIString,Type,Vector{Int64}}}}(
     "/" => [("version",Char,[0]), ("uuid",Char,[0]), ("date",Char,[0])],
@@ -79,7 +79,7 @@ function _hasCorrectType(fid,version)
   return result
 end
 
-function _hasCorrectType(fid,datasettypes::Dict)
+function _hasCorrectTypeAndDim(fid,datasettypes::Dict)
   result = true
   for group in keys(datasettypes)
     hasgroup = exists(fid, group)
