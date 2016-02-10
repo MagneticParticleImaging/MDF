@@ -7,18 +7,20 @@ In order to use this code one first has to download Julia and apply the packages
 
 ```julia
 Pkg.add("HDF5")
+Pkg.add("Requests")
 Pkg.add("PyPlot")
 ```
 
 The later requires a functional Python/Matplotlib installation such as the one provided by the Anaconda Python distribution.
-After installation of the package, the reconstruction can be started by executing
 
 ## Reconstruction Examples
-After the set up the reconstruction example script can be run from within Julia by
+After the set up the reconstruction example script can executed. To do so change into the MDF directory, run the Julia REPL and execute the reconstruction script
 
 ```julia
 include("reco.jl")
 ```
+
+Note that the measurement and system matrix MDF files will be automatically downloaded into your MDF directory.
 
 ## Sanity Check
 To help bring forward your own implementation of the Magnetic Particle Imaging Data Format a sanitycheck is provided wit the Julia code.

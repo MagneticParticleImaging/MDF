@@ -1,11 +1,16 @@
-using HDF5
-using PyPlot
+using HDF5, PyPlot, Requests
 
 include("kaczmarzReg.jl")
 include("pseudoinverse.jl")
 
-filenameSM = "../systemMatrix.h5"
-filenameMeas = "../measurement.h5"
+# Download measurement and systemMatrix from http://media.tuhh.de/ibi/mdf/
+filenameSM = "systemMatrix.h5"
+filenameMeas = "measurement.h5"
+
+streamSM = get("http://media.tuhh.de/ibi/mdf/systemMatrix.h5")
+save(streamSM, filenameSM)
+streamMeas = get("http://media.tuhh.de/ibi/mdf/measurement_5.h5")
+save(streamMeas, filenameMeas)
 
 # read the full system matrix
 S = h5read(filenameSM, "/calibration/dataFD")
