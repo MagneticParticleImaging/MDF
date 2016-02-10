@@ -1,6 +1,6 @@
 This folder contains exemplary Matlab codes for a simple MPI reconstruction.
 
-The data provided [here] (http://www.tuhh.de/ibi/research/mpi-data-format.html) have to be placed in the root folder, as shown in the picture below.
+The data provided [here] (http://www.tuhh.de/ibi/research/mpi-data-format.html) have to be placed in the root folder and the downloaded File `measurement_5.h5` has to be renamed to `measurement.h5`, as shown in the picture below.
 <img src="/matlab/results/files.jpg" height="200">
 
 The Matlab working directory should be
