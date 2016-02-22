@@ -5,6 +5,9 @@ This repository contains the specification of the Magnetic Particle Imaging Data
 
 In order to apply the example code, one has to download examplary MPI data from http://www.tuhh.de/ibi/research/mpi-data-format.html into the root directory of this repository.
 
+## arXiv
+As of version 1.0.1 the most recent release of these specifications can also be also found on the arXiv http://arxiv.org/abs/1602.06072. If you use MDF please cite us using the arXiv reference, which is also available for download as `MDF.bib`.
+
 ## Sanity Check
 As of version 1.0.1 a sanity check to test and debug MDF files is provided. It is written in the Julia programming language, which is availible on http://julialang.org/. For more details we refer to the REDME within the `julia` folder.
 
