@@ -9,7 +9,7 @@ def computeRowEnergy(A):
   M = A.shape[0]
   energy = np.zeros(M, dtype=np.double)
 
-  for m in xrange(M):
+  for m in range(M):
     energy[m] = np.linalg.norm(A[m,:])
   return energy
 
@@ -31,8 +31,8 @@ def kaczmarzReg(A, b, iterations=10, lambd=0, enforceReal=False, enforcePositive
 
   lambdIter = lambd
 
-  for l in xrange(iterations):
-    for m in xrange(M):
+  for l in range(iterations):
+    for m in range(M):
       k = rowIndexCycle[m]          
       if energy[k] > 0:
           

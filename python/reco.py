@@ -1,9 +1,16 @@
 from kaczmarzReg import *
 from pylab import *
 import h5py
+import urllib
 
-filenameSM = '../systemMatrix.h5'
-filenameMeas = '../measurement.h5'
+# Download measurement and systemMatrix from http://media.tuhh.de/ibi/mdf/
+filenameSM = "systemMatrix.h5"
+filenameMeas = "measurement.h5"
+
+fileSM = urllib.FancyURLopener()
+fileSM.retrieve('http://media.tuhh.de/ibi/mdf/systemMatrix.h5', filenameSM)
+fileMeas = urllib.FancyURLopener()
+fileMeas.retrieve('http://media.tuhh.de/ibi/mdf/measurement_5.h5', filenameMeas)
 
 fSM = h5py.File(filenameSM, 'r')
 fMeas = h5py.File(filenameMeas, 'r')
