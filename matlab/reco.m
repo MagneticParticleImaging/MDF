@@ -69,12 +69,12 @@ c_pseudoInverse = regularizedPseudoinverse(U,Sigma,V,u_mean_truncated,5*10^3,1,1
 number_Position = h5read(filenameSM, '/calibration/size');
 
 figure
-subplot(2,2,1)
+subplot(1,2,1)
 imagesc(real(reshape(c_normReguArt(:),number_Position(1),number_Position(2))));
 colormap(gray); axis square
 title({'Regularized and modified ART - 3 channels';'1 iterations / lambda = 10^{-6} / real part'})
 
-subplot(2,2,2)
+subplot(1,2,2)
 imagesc(real(reshape(c_pseudoInverse(:),number_Position(1),number_Position(2))));
 colormap(gray); axis square
 title({'Pseudoinverse - 3 channels';' lambda = 5*10^{3} / real part'})
