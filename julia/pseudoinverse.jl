@@ -10,7 +10,7 @@ argminₓ(‖Ax-b‖² + λ‖b‖²) using the singular value decomposition of 
 * `enforceReal::Bool`: Enable projection of solution on real plane during iteration
 * `enforcePositive::Bool`: Enable projection of solution onto positive halfplane during iteration
 """ ->
-function pseudoinverse{T}(U, Σ, V, b::Vector{T}, lambd, enforceReal, enforcePositive)
+function pseudoinverse{T}(U::Matrix, Σ::Vector, V::Matrix, b::Vector{T}, lambd, enforceReal, enforcePositive)
 	# perform regularization
 	D = zeros(Σ)
 	for i=1:length(Σ)
