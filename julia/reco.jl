@@ -40,8 +40,8 @@ u = vec(mean(u,2))
 c = kaczmarzReg(S,u,1,1e6,false,true,true)
 
 # reconstruct using signular value decomposition
-SSVD = SVD(svd(S.')...)
-csvd = pseudoinverse(SSVD, u, 5e3, true, true)
+U, Σ, V = svd(S.')
+csvd = pseudoinverse(U, Σ, V, u, 5e3, true, true)
 
 # reshape into an image
 N = h5read(filenameSM, "/calibration/size")
@@ -51,9 +51,9 @@ csvd = reshape(csvd,N[1],N[2])
 # plot kaczmarz reconstruction
 figure()
 gray()
-imshow(real(c))
+imshow(real(c), interpolation="None")
 
 # plot pseudoinverse reconstruction
 figure()
 gray()
-imshow(real(csvd))
+imshow(real(csvd), interpolation="None")
