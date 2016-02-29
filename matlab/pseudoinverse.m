@@ -1,4 +1,4 @@
-function [ c ] = regularizedPseudoinverse( U,Sigma,V,u,lambd,enforceReal,enforcePositive )
+function [ c ] = pseudoinverse( U,Sigma,V,u,lambd,enforceReal,enforcePositive )
 % This algorithm solves the Thikonov regularized least squares Problem 
 % argmin(?Ax-b?² + ??b?²) using the singular value decomposition of A.
 % Arguments
