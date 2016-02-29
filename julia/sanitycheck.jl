@@ -5,7 +5,7 @@ export isvalid_mdf
 function isvalid_mdf(filename::AbstractString)
   # check if file is an HDF5 file
   !ishdf5(filename) && error("$filename is no valid HDF5 file.")
-  ivalid = ishdf5(filename)
+  isvalid = ishdf5(filename)
 
   # open HDF5 file
   fid = h5open(filename, "r")
@@ -21,7 +21,7 @@ function isvalid_mdf(filename::AbstractString)
   !(version >= "1.0") && warn("The dataset version in $rootgroup indicates that you use a pre-release version of MDF5.")
   close(rootgroup)
 
-  # ckeck if all non-optional datasets are provided
+  # check if all non-optional datasets are provided
   isvalid = isvalid & _hasAllNonOptDatasets(fid,version)
   # check if all datasets have the correct type
   isvalid = isvalid & _hasCorrectTypeAndDim(fid,version)
@@ -43,7 +43,7 @@ function _hasAllNonOptDatasets(fid, version)
   return result
 end
 
-function _hasAllNonOptDatasets(fid, nonoptionalgroups::Dict)
+function _hasAllDatasets(fid, nonoptionalgroups::Dict)
   result = true
   for group in keys(nonoptionalgroups)
     hasgroup = exists(fid, group)
@@ -79,7 +79,7 @@ function _hasCorrectTypeAndDim(fid,version)
   return result
 end
 
-function _hasCorrectTypeAndDim(fid,datasettypes::Dict)
+function _hasCorrectType(fid,datasettypes::Dict)
   result = true
   for group in keys(datasettypes)
     hasgroup = exists(fid, group)
