@@ -1,4 +1,5 @@
 from kaczmarzReg import *
+from pseudoinverse import *
 from pylab import *
 import h5py
 import urllib
@@ -45,10 +46,24 @@ u = mean(u,axis=0)
 # reconstruct
 c = kaczmarzReg(S,u,1,1e6,False,True,True)
 
+
+# reconstruct using signular value decomposition
+U, Sigm, V = svd(S, full_matrices=False)
+csvd = pseudoinverse(U, Sigm, V, u, 5e3, True, True)
+
 # reshape into an image
 N = fSM['/calibration/size'][:]
 c = reshape(c,(N[0],N[1]))
+csvd = reshape(csvd,(N[0],N[1]))
 
+# plot kaczmarz reconstruction
+figure()
 gray()
-imshow(real(c))
+imshow(real(transpose(c)), interpolation="None")
+
+# plot pseudoinverse reconstruction
+figure()
+gray()
+imshow(real(transpose(csvd)), interpolation="None")
+
 show()
