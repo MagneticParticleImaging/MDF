@@ -24,7 +24,7 @@ function isvalid_mdf(filename::AbstractString)
   # ckeck if all non-optional datasets are provided
   isvalid = isvalid & _hasAllNonOptDatasets(fid,version)
   # check if all datasets have the correct type
-  isvalid = isvalid & _hasCorrectTypeAndDim(fid,version)
+  isvalid = isvalid & _hasCorrectTypeAndNdim(fid,version)
 
   # close HDF5 file
   close(fid)
@@ -62,7 +62,7 @@ function _hasAllNonOptDatasets(fid, nonoptionalgroups::Dict)
   return result
 end
   
-function _hasCorrectTypeAndDim(fid,version)
+function _hasCorrectTypeAndNdim(fid,version)
   result = true
   datasettypes1_0 = Dict{ASCIIString, Vector{Tuple{ASCIIString,Type,Vector{Int64}}}}(
     "/" => [("version",Char,[0]), ("uuid",Char,[0]), ("date",Char,[0])],
@@ -79,7 +79,7 @@ function _hasCorrectTypeAndDim(fid,version)
   return result
 end
 
-function _hasCorrectTypeAndDim(fid,datasettypes::Dict)
+function _hasCorrectTypeAndNdim(fid,datasettypes::Dict)
   result = true
   for group in keys(datasettypes)
     hasgroup = exists(fid, group)
@@ -102,4 +102,14 @@ function _hasCorrectTypeAndDim(fid,datasettypes::Dict)
     end
   end
   return result
+end
+
+function _hasCorrectTypeAndNdim(fid)
+  L = h5read(fid,"/acquisition/numFrames")
+  J = h5read(fid,"/acquisition/numPatches")
+  D = h5read(fid,"/acquisition/drivefield/numChannels")
+  strengthdim = size(fid["/acquisition/drivefield/strength"])
+  correctstregthdim = strengthdim == (D,) || strengthdim == (D,J)
+  !correctstregthdim && warn("")
+
 end
