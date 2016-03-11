@@ -64,7 +64,7 @@
 \begin{document}
 
 \title{MDF: Magnetic Particle Imaging Data Format}
-\newcommand{\version}{1.0.3}
+\newcommand{\version}{1.0.4}
 
 \author{
 T.~Knopp$^{1,2}$, T.~Viereck$^{3}$, G.~Bringout$^{4}$, M.~Ahlborg$^{5}$, J.~Rahmer$^6$, M.~Hofmann$^{1,2}$ \\ \\
@@ -96,6 +96,7 @@ The purpose of this document is to introduce a file format for exchanging Magnet
 
 In this initial version of the file format the focus is on sequence parameters, raw measurement data, calibration data, and reconstruction data. The format can store three different dataset types
 \begin{enumerate}
+\setlength{\itemsep}{0pt}
 \item Measurement data
 \item System calibration data
 \item Reconstruction data
@@ -105,6 +106,8 @@ It is possible to combine measurement data and reconstruction data into a single
 \subsection{Datatypes}
 
 For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inltab{Float64} values. In case of the measurement data and the calibration data the datatype is not restricted such that maximum flexibility is given. In case of no restriction we refer to the datatype as \inl{Any}.
+
+MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF.
 
 Since storing complex data in HDF5 is not standardized, we extend the dimensionality of an existing array and store the real and imaginary part in the last dimension with size 2 (index 0 = real part, index 1 = imaginary part). In this way the real and imaginary part of a complex datum is stored sequentially on disk. When loading the data it is possible to cast it to a complex array in most programming languages.
 
@@ -134,7 +137,7 @@ If you use MDF please cite us using the arXiv reference, which is also available
 
 \end{multicols}
 
-\newpage
+%\newpage
 
 \section{Data (group: \inl{/})}
  \setlength\extrarowheight{5pt}
@@ -216,7 +219,7 @@ Note that the injection clock recording the injection time should be synchronize
 \inlvar{topology} & \inltab{String} & 1 & & no & Scanner topology (e.g. FFP or FFL)\\ \hline 
 \end{tabularx}
 
-
+\newpage
 \subsection{Acquisition Parameters (group: \inl{/acquisition/})}
 
 \begin{multicols}{2}
@@ -300,6 +303,7 @@ One measurement consists of the voltages recorded in all receive channels for al
 \inlvar{dataTD} & \inltab{Any} & $L \times C \times Z$ or \newline $L \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
 \end{tabularx}
 
+\newpage
 \subsection{Calibration (group: \inl{/calibration/})}
 
 \begin{multicols}{2}
