@@ -6,4 +6,3 @@
  energy = sqrt(sum(abs(A.*A),1));		
  		
  end		
- -
