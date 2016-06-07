@@ -1,4 +1,4 @@
-function [ x ] = regularizedKaczmarz( A,b,iterations,lambd,shuff,enforceReal,enforcePositive )
+function [ x ] = kaczmarzReg( A,b,iterations,lambd,shuff,enforceReal,enforcePositive )
 % regularized Kaczmarz
 % As published here: http://iopscience.iop.org/article/10.1088/0031-9155/55/6/003/meta on page 1582.
 % Other references : Saunders M 1995: Solution of sparse rectangular

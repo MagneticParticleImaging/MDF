@@ -56,13 +56,13 @@ u_mean_truncated = mean(u_truncated,2);
 
 %% 7. Make two simple reconstructions
 % a normalized regularized kaczmarz approach
-c_normReguArt = regularizedKaczmarz(S_truncated(:,:),...
+c_normReguArt = kaczmarzReg(S_truncated(:,:),...
                         u_mean_truncated(:),...
                         1,1*10^-6,0,1,1);
 
 % and an regularized pseudoinverse approach
 [U,Sigma,V] = csvd(S_truncated(:,:).');
-c_pseudoInverse = regularizedPseudoinverse(U,Sigma,V,u_mean_truncated,5*10^3,1,1);
+c_pseudoInverse = pseudoinverse(U,Sigma,V,u_mean_truncated,5*10^3,1,1);
 
 %% 8. Display an image
 % read the original size of an image

@@ -5,7 +5,7 @@ export isvalid_mdf
 function isvalid_mdf(filename::AbstractString)
   # check if file is an HDF5 file
   !ishdf5(filename) && error("$filename is no valid HDF5 file.")
-  ivalid = ishdf5(filename)
+  isvalid = ishdf5(filename)
 
   # open HDF5 file
   fid = h5open(filename, "r")
@@ -21,7 +21,7 @@ function isvalid_mdf(filename::AbstractString)
   !(version >= "1.0") && warn("The dataset version in $rootgroup indicates that you use a pre-release version of MDF5.")
   close(rootgroup)
 
-  # ckeck if all non-optional datasets are provided
+  # check if all non-optional datasets are provided
   isvalid = isvalid & _hasAllNonOptDatasets(fid,version)
   # check if all datasets have the correct type
   isvalid = isvalid & _hasCorrectTypeAndNdim(fid,version)
@@ -43,7 +43,7 @@ function _hasAllNonOptDatasets(fid, version)
   return result
 end
 
-function _hasAllNonOptDatasets(fid, nonoptionalgroups::Dict)
+function _hasAllDatasets(fid, nonoptionalgroups::Dict)
   result = true
   for group in keys(nonoptionalgroups)
     hasgroup = exists(fid, group)
@@ -75,7 +75,7 @@ function _hasCorrectTypeAndNdim(fid,version)
     "/measurement/" => [("dataFD",Any,[4,5]), ("dataTD", Any,[3,4])],
     "/calibration/" => [("dataFD",Any,[4,5]), ("snrFD",Float64,[2]), ("dataTD",Any,[3,4]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2]), ("deltaSampleSize",Float64,[1]), ("method",Char,[0])],
     "/reconstruction/" => [("data",Any,[2]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2])])
-  version<"2.0" && (result = result & _hasCorrectType(fid, datasettypes1_0))
+  version<"2.0" && (result = result & _hasCorrectTypeAndNdim(fid, datasettypes1_0))
   return result
 end
 
