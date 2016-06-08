@@ -24,7 +24,7 @@ function isvalid_mdf(filename::AbstractString)
   # check if all non-optional datasets are provided
   isvalid = isvalid & _hasAllNonOptDatasets(fid,version)
   # check if all datasets have the correct type
-  isvalid = isvalid & _hasCorrectTypeAndNdim(fid,version)
+  isvalid = isvalid & _hasCorrectTypeAndNumDim(fid,version)
 
   # close HDF5 file
   close(fid)
@@ -33,13 +33,25 @@ end
 
 function _hasAllNonOptDatasets(fid, version)
   result = true
-  nonoptionalgroups1_0 = Dict{ASCIIString, Vector{ASCIIString}}(
+  nonoptionalgroups1_0_0 = Dict{ASCIIString, Vector{ASCIIString}}(
     "/" => ["version", "uuid", "date"],
     "/scanner/" => ["facility", "operator", "manufacturer", "model", "topology"],
     "/acquisition/" => ["numFrames", "framePeriod", "numPatches", "gradient", "time"],
     "/acquisition/drivefield/" => ["numChannels", "strength", "baseFrequency", "divider", "period", "averages", "repetitionTime", "fieldOfView", "fieldOfViewCenter"],
     "/acquisition/receiver/" => ["numChannels", "bandwidth", "numSamplingPoints", "frequencies"])
-  version<"2.0" && (result = result & _hasAllDatasets(fid, nonoptionalgroups1_0))
+  nonoptionalgroups1_0_5 = Dict{ASCIIString, Vector{ASCIIString}}(
+    "/" => ["version", "uuid", "date"],
+    "/scanner/" => ["facility", "operator", "manufacturer", "model", "topology"],
+    "/acquisition/" => ["numFrames", "framePeriod", "numPatches", "gradient", "time"],
+    "/acquisition/drivefield/" => ["numChannels", "strength", "baseFrequency", "divider", "period", "averages", "repetitionTime", "fieldOfView", "fieldOfViewCenter"],
+    "/acquisition/receiver/" => ["numChannels", "bandwidth", "numSamplingPoints", "frequencies"])
+  if "1.1.0">version=>"1.0.5" 
+	  result = result & _hasAllDatasets(fid, nonoptionalgroups1_0_5)
+  elseif "1.0.5">version=>"1.0.0"
+	  result = result & _hasAllDatasets(fid, nonoptionalgroups1_0_0)
+  else
+	  error("No sanity checks availible for MDF version $version.")
+  end
   return result
 end
 
@@ -62,7 +74,7 @@ function _hasAllDatasets(fid, nonoptionalgroups::Dict)
   return result
 end
   
-function _hasCorrectTypeAndNdim(fid,version)
+function _hasCorrectTypeAndNumDim(fid,version)
   result = true
   datasettypes1_0 = Dict{ASCIIString, Vector{Tuple{ASCIIString,Type,Vector{Int64}}}}(
     "/" => [("version",Char,[0]), ("uuid",Char,[0]), ("date",Char,[0])],
@@ -75,11 +87,11 @@ function _hasCorrectTypeAndNdim(fid,version)
     "/measurement/" => [("dataFD",Any,[4,5]), ("dataTD", Any,[3,4])],
     "/calibration/" => [("dataFD",Any,[4,5]), ("snrFD",Float64,[2]), ("dataTD",Any,[3,4]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2]), ("deltaSampleSize",Float64,[1]), ("method",Char,[0])],
     "/reconstruction/" => [("data",Any,[2]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2])])
-  version<"2.0" && (result = result & _hasCorrectTypeAndNdim(fid, datasettypes1_0))
+  version<"2.0" && (result = result & _hasCorrectTypeAndNumDim(fid, datasettypes1_0))
   return result
 end
 
-function _hasCorrectTypeAndNdim(fid,datasettypes::Dict)
+function _hasCorrectTypeAndNumDim(fid,datasettypes::Dict)
   result = true
   for group in keys(datasettypes)
     hasgroup = exists(fid, group)
@@ -102,14 +114,4 @@ function _hasCorrectTypeAndNdim(fid,datasettypes::Dict)
     end
   end
   return result
-end
-
-function _hasCorrectTypeAndNdim(fid)
-  L = h5read(fid,"/acquisition/numFrames")
-  J = h5read(fid,"/acquisition/numPatches")
-  D = h5read(fid,"/acquisition/drivefield/numChannels")
-  strengthdim = size(fid["/acquisition/drivefield/strength"])
-  correctstregthdim = strengthdim == (D,) || strengthdim == (D,J)
-  !correctstregthdim && warn("")
-
 end
