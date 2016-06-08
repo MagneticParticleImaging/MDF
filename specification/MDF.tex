@@ -271,7 +271,7 @@ Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fie
 
 \begin{multicols}{2}
 
-\paragraph{Remarks:} The receiver subgroup describes details on the MPI receiver. For a multi-patch sequence it is assumed, that signal acquisition only takes place during particle excitation. During each drive-field cycle, $C$ receive channels record the superposition of the change of the particle magnetization at $Z$ equidistant time points.
+\paragraph{Remarks:} The receiver subgroup describes details on the MPI receiver. For a multi-patch sequence it is assumed, that signal acquisition only takes place during particle excitation. During each drive-field cycle, $C$ receive channels record the superposition of the change of the particle magnetization at $Z$ equidistant time points. If the receive characteristics are the same for all receive channels then a single value is sufficient to describe all channels at once, else the $C$ channels can be characterized individually.
 
 \end{multicols}
 
@@ -279,9 +279,9 @@ Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fie
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
-\inlvar{bandwidth} & \inltab{Float64} & 1 & Hz & no & Bandwidth of the receiver unit \\ \hline
-\inlvar{numSamplingPoints} & \inltab{Int64} & 1 &  & no & Number of sampling point within one drive-field period denoted by $Z$ \\ \hline
-\inlvar{frequencies} & \inltab{Float64} & $K$ & Hz & no & Vector containing recorded frequencies \\ \hline
+\inlvar{bandwidth} & \inltab{Float64} & 1 or $C$ & Hz & no & Bandwidth of the receiver unit \\ \hline
+\inlvar{numSamplingPoints} & \inltab{Int64} & 1 or $C$ &  & no & Number of sampling point within one drive-field period denoted by $Z$ \\ \hline
+\inlvar{frequencies} & \inltab{Float64} & $K$ or $C\times K$ & Hz & no & Vector containing recorded frequencies \\ \hline
 \inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ &  & yes & Transfer function of the receive channel \\ \hline
 \end{tabularx}
 
