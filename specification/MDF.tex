@@ -281,7 +281,7 @@ Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fie
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & 1 or $C$ & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{numSamplingPoints} & \inltab{Int64} & 1 or $C$ &  & no & Number of sampling point within one drive-field period denoted by $Z$ \\ \hline
-\inlvar{frequencies} & \inltab{Float64} & $K$ or $C\times K$ & Hz & no & Vector containing recorded frequencies \\ \hline
+\inlvar{frequencies} & \inltab{Float64} & $K$ or $C\times K$ & Hz & yes & Vector containing recorded frequencies \\ \hline
 \inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ &  & yes & Transfer function of the receive channel \\ \hline
 \end{tabularx}
 
