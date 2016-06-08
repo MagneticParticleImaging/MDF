@@ -76,10 +76,6 @@ $^5$Institute of Medical Engineering, University of  Lübeck, Germany\\
 $^6$Philips GmbH Innovative Technologies, Research Laboratories, Röntgenstraße 24-26, 22315 Hamburg, Germany
 }
 
-%\address{
-%}
-%\ead{t.knopp@uke.de}
-
 \maketitle
 \begin{center}
 Version \textbf{\version}
@@ -92,7 +88,7 @@ Magnetic particle imaging (MPI) is a tomographic method to determine the spatial
 
 \begin{multicols}{2}[\section{Introduction} \label{Sec:Introduction}]
 
-The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5). HDF5 allows to store multiple datasets within a single file and is thus very flexible to use. To allow the exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available. For most programming languages bindings to this library exist. Matlab supports HDF5 by the functions \inl{h5read} and \inl{h5write}. For Python the \inl{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inl{HDF5} package. For languages based on the .NET framework the \inl{HDF5DotNet} library is available.
+	The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5) \cite{hdf5}. HDF5 allows to store multiple datasets within a single file and is thus very flexible to use. To allow the exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available. For most programming languages bindings to this library exist. Matlab supports HDF5 by the functions \inl{h5read} and \inl{h5write}. For Python the \inl{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inl{HDF5} package. For languages based on the .NET framework the \inl{HDF5DotNet} library is available.
 
 In this initial version of the file format the focus is on sequence parameters, raw measurement data, calibration data, and reconstruction data. The format can store three different dataset types
 \begin{enumerate}
@@ -105,7 +101,7 @@ It is possible to combine measurement data and reconstruction data into a single
 
 \subsection{Datatypes}
 
-For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inltab{Float64} values. In case of the measurement data and the calibration data the datatype is not restricted such that maximum flexibility is given. In case of no restriction we refer to the datatype as \inl{Any}.
+For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data is not restricted such that maximum flexibility is given. In case of no restrictions \inl{Any} HDF5 data type can be choosen.
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF.
 
@@ -120,7 +116,7 @@ Physical quantities are given in SI units with one exception. The field strength
 
 In order to check if a generated MDF file is valid, we provide a sanity check script that can be found in the gitub repository:\\
 \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\
-The code is written in the Julia programming language, which has to be downloaded from: \\
+The code is written in the Julia programming language \cite{Bezanson2012,Bezanson2014,Bezanson2014a}, which has to be downloaded from: \\
 \hspace*{1cm} \url{http://julialang.org}.\\
 More detailed instructions can be found in the \texttt{README} of the repository.
 
@@ -136,8 +132,6 @@ As of version 1.0.1 the most recent release of these specifications can also be 
 If you use MDF please cite us using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
 
 \end{multicols}
-
-%\newpage
 
 \section{Data (group: \inl{/})}
  \setlength\extrarowheight{5pt}
@@ -200,7 +194,6 @@ Note that the injection clock recording the injection time should be synchronize
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
 \end{tabularx}
 
-%\newpage
 \subsection{Scanner Parameters (group: \inl{/scanner/})}
 
 \begin{multicols}{2}
@@ -219,7 +212,6 @@ Note that the injection clock recording the injection time should be synchronize
 \inlvar{topology} & \inltab{String} & 1 & & no & Scanner topology (e.g. FFP or FFL)\\ \hline 
 \end{tabularx}
 
-\newpage
 \subsection{Acquisition Parameters (group: \inl{/acquisition/})}
 
 \begin{multicols}{2}
@@ -303,7 +295,6 @@ One measurement consists of the voltages recorded in all receive channels for al
 \inlvar{dataTD} & \inltab{Any} & $L \times C \times Z$ or \newline $L \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
 \end{tabularx}
 
-\newpage
 \subsection{Calibration (group: \inl{/calibration/})}
 
 \begin{multicols}{2}
@@ -350,8 +341,7 @@ Usually the data is stored in a real data format but it is also possible to stor
 \inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \end{tabularx}
 
-%\bibliographystyle{unsrt}
-
-%\bibliography{ref}
+\bibliographystyle{unsrt}
+\bibliography{MDF}
 
 \end{document}
