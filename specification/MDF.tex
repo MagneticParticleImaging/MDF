@@ -334,15 +334,17 @@ If a regular grid is used for sampling, by default the fastest index is in $x$ d
 
 \begin{multicols}{2}
 
-Reconstruction results are stored in the parameter \inl{data}. Since the grid of the reconstruction data can be different than the system matrix grid, the grid parameter are mirrored in the reconstruction parameter group. 
+	Reconstruction results are stored in the parameter \inl{data}. Dependent on the number of individual channels $S$ obtained by the reconstruction the results can be stored in a $L\times N$ array for $S=1$ or in a $L\times N \times S$ array for $S>1$. Since the grid of the reconstruction data can be different than the system matrix grid, the grid parameter are mirrored in the reconstruction parameter group. 
 
-Usually the data is stored in a real data format but it is also possible to store complex data if the reconstruction output is complex.\newline
+Usually the data is stored in a real data format but it is also possible to store complex data if the reconstruction output is complex.
+
+If the reconstructed data contains not one but $S$ individual channels \newline
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Any} & $L\times N$ & & yes & Reconstructed data \\ \hline
+\inlvar{data} & \inltab{Any} & $L\times N$ or $L\times N \times S$ & & yes & Reconstructed data \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to origin/center) \\ \hline 
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
