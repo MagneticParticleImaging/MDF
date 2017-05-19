@@ -1,4 +1,4 @@
-\documentclass[landscape]{article} %12pt
+\documentclass[landscape,a4paper]{article} %12pt
 \usepackage{multicol}
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -19,12 +19,12 @@
 
 \hypersetup
 {
-	pdfauthor={Tobias Knopp, Martin Hofmann and Thilo Viereck},
-    pdfsubject={magnetic particle imaging, data storage format},
+    pdfauthor={Tobias Knopp, Thilo Viereck, and Martin M\"oddel},
+    pdfsubject={Magnetic Particle Imaging Data Storage Format},
     pdftitle={MDF: Magnetic Particle Imaging Data Format},
-    pdfkeywords={MPI, HDF5, MDF},
-    pdfproducer={Institute for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf},
-    pdfcreator={Institute for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf}
+    pdfkeywords={MPI, MDF, HDF5},
+    pdfproducer={Section for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf},
+    pdfcreator={Section for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf}
 }
 
 \lstdefinelanguage{MDF}%
@@ -64,10 +64,10 @@
 \begin{document}
 
 \title{MDF: Magnetic Particle Imaging Data Format}
-\newcommand{\version}{1.0.5}
+\newcommand{\version}{2.0.0-pre}
 
 \author{
-T.~Knopp$^{1,2}$, T.~Viereck$^{3}$, G.~Bringout$^{4}$, M.~Ahlborg$^{5}$, J.~Rahmer$^6$, M.~Hofmann$^{1,2}$ \\ \\
+T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladi\ss$^5$, C.~Kaethner$^5$, J.~Rahmer$^6$, M.~M\"oddel$^{1,2}$ \\ \\
 $^1$Section for Biomedical Imaging, University Medical Center Hamburg-Eppendorf, Germany\\
 $^2$Institute for Biomedical Imaging, Hamburg University of Technology, Germany\\
 $^3$Institute of Electrical Measurement and Fundamental Electrical Engineering, TU Braunschweig, Germany\\
@@ -186,11 +186,12 @@ Note that the injection clock recording the injection time should be synchronize
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{name} & \inltab{String} & 1 &  & yes & Name of tracer used in experiment \\ \hline
+\inlvar{name} & \inltab{String} & 1 & & yes & Name of tracer used in experiment \\ \hline
 \inlvar{batch} & \inltab{String} & 1 & & yes & Batch of tracer \\ \hline
 \inlvar{vendor} & \inltab{String} & 1 & & yes & Name of tracer supplier \\ \hline
 \inlvar{volume} & \inltab{Float64} & 1 & L & yes & Total volume of applied tracer \\ \hline
-\inlvar{concentration} & \inltab{Float64} & 1 & mol(Fe)/L & yes & Concentration of tracer \\ \hline
+\inlvar{concentration} & \inltab{Float64} & 1 & mol(solute)/L & yes & Molar concentration of solute per litre \\ \hline
+\inlvar{solute} & \inltab{String} & 1 & & yes & Solute, e.g. Fe \\ \hline
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
 \end{tabularx}
 
@@ -252,7 +253,7 @@ Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fie
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D$ & 1 & no & Divider for drive fields frequencies (\inlvar{baseFrequency} / \inlvar{divider}) \\ \hline
 \inlvar{period} & \inltab{Float64} & 1 & s & no & Drive field trajectory period \\ \hline
-\inlvar{averages} & \inltab{Int64} & 1 & & no & Number of internal averages (applied in hardware/software) \\ \hline
+\inlvar{numAverages} & \inltab{Int64} & 1 & & no & Number of internal averages (applied in hardware/software) \\ \hline
 \inlvar{repetitionTime} & \inltab{Float64} & 1 & s & no & Time to complete averaged DF trajectory (averages * period)\\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & 3 or $J\times 3$ & m & no & Approximate size of the area/volume captured by the trajectory \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & 3 or $J \times 3$ & m & no & Center of the drive field trajectory (relative to origin/center) \\ \hline
@@ -285,7 +286,7 @@ Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fie
 \paragraph{Remarks:} 
 Measured data can be stored in Fourier domain (FD) representation as well as time domain (TD) representation. Usually only one of the representation is stored and one has to calculate the missing representation if it is needed but not available.
 
-One measurement consists of the voltages recorded in all receive channels for all patches. The number of measurements in time domain is thus given by $\widetilde{M} = J C Z$. In frequency domain one measurement has $M = K C Z$ data points. On disc the temporal/frequency index is the fastest, while the index over the patches is the slowest. If several measurements are acquired (indicated by \textit{numFrames}), the measurements are concatenated. The number of measurements is denoted by $L$. \newline
+One measurement consists of the voltages recorded in all receive channels for all patches. The number of measurements in time domain is thus given by $J C Z$. In frequency domain one measurement has $K C Z$ data points. On disc the temporal/frequency index is the fastest, while the index over the patches is the slowest. If several measurements are acquired (indicated by \textit{numFrames}), the measurements are concatenated. The number of measurements is denoted by $L$. \newline
 
 \end{multicols}
 
@@ -300,17 +301,23 @@ One measurement consists of the voltages recorded in all receive channels for al
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-Calibration data is usually acquired by shifting a delta sample through the FOV of the scanner. The resulting system matrix can be stored in time or frequency domain. The number of spatial points is indicated by $N$. For practical reasons the system matrix is stored in a transposed way compared to the measurement data. Hence the index over the positions is the fastest while the index over all data points of a particular measurement is the slowest. Depending on the programming language used (column-major or row-major order) the system matrix may appear in a transposed representation when loaded into main memory.
+Calibration data is usually acquired by a combination of $N$ calibration and $M$ background measurements. Each calibration measurement is taken with a a delta sample at a fixed position inside the FOV of the scanner. Each background measurement is taken with the delta sample outside of the FOV of the scanner. To accurately capture any possible drift in the background signal, background measurements are usually performed frequently throughout the whole calibration procedure. Each measurement of the complete procedure can be assigned an integer number $o = 1,2,\dots,N+M$ ordering the measurements with respect to the time points at which they were taken, with $1$ beeing assigned to the first measurement and $N+M$ beeing assigned to the last measurement.
 
-If a regular grid is used for sampling, by default the fastest index is in $x$ direction, the second fastest index is in $y$ direction, while the slowest index is in $z$ direction. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all positions. \newline
+The resulting $N$ calibration measurements can be stored in time or frequency domain. Often, the calibration measurements are reorded with respect to the corresponding spatial position of the delta sample. Hence, the time ordering numbers $o$ corresponding to each measurement are stored separately. For practical reasons the calibration data is stored such that the index over the positions is the fastest while the index over all data points of a particular measurement is the slowest. Depending on the programming language used (column-major or row-major order) the system matrix may appear in a transposed representation when loaded into main memory. The $M$ background measurements can also be stored in time or frequency domain. These measurements are stored without any changes to the storage order. Similar to the calibration measurements the time ordering number $o$ is stored for each background measurement. 
+
+If a regular grid is used for sampling, by default the fastest index is in $x$ direction, the second fastest index is in $y$ direction, while the slowest index is in $z$ direction. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store alli $N$ positions. \newline
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{dataFD} & \inltab{Any} & $C \times K \times N \times 2$ or \newline $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation. The last dimension is used for storing the complex data. \\ \hline
+\inlvar{dataTimeOrder} & \inltab{Int64} & $N$ & & yes & Time ordering number for calibration measurements in system matrix \\ \hline
+\inlvar{dataFD} & \inltab{Any} & $C \times K \times N \times 2$ or \newline $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation with the last dimension storing complex data \\ \hline
+\inlvar{dataTD} & \inltab{Any} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
+\inlvar{backgroundDataTimeOrder} & \inltab{Int64} & $M$ & & yes & Time ordering number for background measurements \\ \hline
+\inlvar{backgroundDataFD} & \inltab{Any} & $M \times J \times C \times K \times 2$ & & yes & $M$ background measurements stored in Fourier space representation with the last dimension storing complex data \\ \hline
+\inlvar{backgroundDataTD} & \inltab{Any} &  $M \times J \times C \times Z$ & & yes & background measurements stored in time domain representation \\ \hline 
 \inlvar{snrFD} & \inltab{Float64} & $C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
-\inlvar{dataTD} & \inltab{Float64} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
