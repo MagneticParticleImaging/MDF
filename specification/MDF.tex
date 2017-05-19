@@ -19,12 +19,12 @@
 
 \hypersetup
 {
-	pdfauthor={Tobias Knopp, Martin Hofmann and Thilo Viereck},
+    pdfauthor={Tobias Knopp, Martin Hofmann and Thilo Viereck},
     pdfsubject={magnetic particle imaging, data storage format},
     pdftitle={MDF: Magnetic Particle Imaging Data Format},
     pdfkeywords={MPI, HDF5, MDF},
-    pdfproducer={Institute for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf},
-    pdfcreator={Institute for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf}
+    pdfproducer={Section for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf},
+    pdfcreator={Section for Biomedical Imaging Hamburg University of Technology, Section for Biomedical Imaging University Medical Center Hamburg-Eppendorf}
 }
 
 \lstdefinelanguage{MDF}%
@@ -64,10 +64,10 @@
 \begin{document}
 
 \title{MDF: Magnetic Particle Imaging Data Format}
-\newcommand{\version}{1.0.5}
+\newcommand{\version}{2.0.0-pre}
 
 \author{
-T.~Knopp$^{1,2}$, T.~Viereck$^{3}$, G.~Bringout$^{4}$, M.~Ahlborg$^{5}$, J.~Rahmer$^6$, M.~Hofmann$^{1,2}$ \\ \\
+T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladi\ss$^5$, C.~Kaethner$^5$, J.~Rahmer$^6$, M.~Hofmann$^{1,2}$ \\ \\
 $^1$Section for Biomedical Imaging, University Medical Center Hamburg-Eppendorf, Germany\\
 $^2$Institute for Biomedical Imaging, Hamburg University of Technology, Germany\\
 $^3$Institute of Electrical Measurement and Fundamental Electrical Engineering, TU Braunschweig, Germany\\
@@ -186,11 +186,12 @@ Note that the injection clock recording the injection time should be synchronize
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{name} & \inltab{String} & 1 &  & yes & Name of tracer used in experiment \\ \hline
+\inlvar{name} & \inltab{String} & 1 & & yes & Name of tracer used in experiment \\ \hline
 \inlvar{batch} & \inltab{String} & 1 & & yes & Batch of tracer \\ \hline
 \inlvar{vendor} & \inltab{String} & 1 & & yes & Name of tracer supplier \\ \hline
 \inlvar{volume} & \inltab{Float64} & 1 & L & yes & Total volume of applied tracer \\ \hline
-\inlvar{concentration} & \inltab{Float64} & 1 & mol(Fe)/L & yes & Concentration of tracer \\ \hline
+\inlvar{concentration} & \inltab{Float64} & 1 & mol(solute)/L & yes & Molar concentration of solute per litre \\ \hline
+\inlvar{solute} & \inltab{String} & 1 & & yes & Solute, e.g. Fe \\ \hline
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
 \end{tabularx}
 
