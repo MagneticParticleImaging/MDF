@@ -29,7 +29,7 @@
 
 \lstdefinelanguage{MDF}%
   {morekeywords={%
-    Bool,Int64,Float64,Any,String%
+    Bool,Int64,Float64,Number,String%
       },%
    sensitive=true,%
 }[keywords,comments,strings]%
@@ -101,7 +101,7 @@ It is possible to combine measurement data and reconstruction data into a single
 
 \subsection{Datatypes}
 
-For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data is not restricted such that maximum flexibility is given. In case of no restrictions \inl{Any} HDF5 data type can be choosen.
+For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_LDOUBLE}, \inl{H5T_NATIVE_SHORT}, \inl{H5T_NATIVE_INT}, \inl{H5T_NATIVE_LONG}, \inl{H5T_NATIVE_LLONG}.
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF.
 
@@ -292,8 +292,8 @@ One measurement consists of the voltages recorded in all receive channels for al
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{dataFD} & \inltab{Any} & $L \times C \times K \times 2$  or $L \times J \times C \times K \times 2$  & & yes & Measurement data stored in Fourier domain representation. The last dimension is used for storing the complex data. \\  \hline
-\inlvar{dataTD} & \inltab{Any} & $L \times C \times Z$ or \newline $L \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
+\inlvar{dataFD} & \inltab{Number} & $L \times C \times K \times 2$  or $L \times J \times C \times K \times 2$  & & yes & Measurement data stored in Fourier domain representation. The last dimension is used for storing the complex data. \\  \hline
+\inlvar{dataTD} & \inltab{Number} & $L \times C \times Z$ or \newline $L \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
 \end{tabularx}
 
 \subsection{Calibration (group: \inl{/calibration/})}
@@ -312,11 +312,11 @@ If a regular grid is used for sampling, by default the fastest index is in $x$ d
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{dataTimeOrder} & \inltab{Int64} & $N$ & & yes & Time ordering number for calibration measurements in system matrix \\ \hline
-\inlvar{dataFD} & \inltab{Any} & $C \times K \times N \times 2$ or \newline $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation with the last dimension storing complex data \\ \hline
-\inlvar{dataTD} & \inltab{Any} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
+\inlvar{dataFD} & \inltab{Number} & $C \times K \times N \times 2$ or \newline $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation with the last dimension storing complex data \\ \hline
+\inlvar{dataTD} & \inltab{Number} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
 \inlvar{backgroundDataTimeOrder} & \inltab{Int64} & $M$ & & yes & Time ordering number for background measurements \\ \hline
-\inlvar{backgroundDataFD} & \inltab{Any} & $M \times J \times C \times K \times 2$ & & yes & $M$ background measurements stored in Fourier space representation with the last dimension storing complex data \\ \hline
-\inlvar{backgroundDataTD} & \inltab{Any} &  $M \times J \times C \times Z$ & & yes & background measurements stored in time domain representation \\ \hline 
+\inlvar{backgroundDataFD} & \inltab{Number} & $M \times J \times C \times K \times 2$ & & yes & $M$ background measurements stored in Fourier space representation with the last dimension storing complex data \\ \hline
+\inlvar{backgroundDataTD} & \inltab{Number} &  $M \times J \times C \times Z$ & & yes & background measurements stored in time domain representation \\ \hline 
 \inlvar{snrFD} & \inltab{Float64} & $C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
@@ -341,7 +341,7 @@ Usually the data is stored in a real data format but it is also possible to stor
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Any} & $L\times N$ or $L\times N \times S$ & & yes & Reconstructed data \\ \hline
+\inlvar{data} & \inltab{Number} & $L\times N$ or $L\times N \times S$ & & yes & Reconstructed data \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to origin/center) \\ \hline 
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
