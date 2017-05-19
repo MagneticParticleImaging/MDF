@@ -313,10 +313,10 @@ If a regular grid is used for sampling, by default the fastest index is in $x$ d
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{dataTimeOrder} & \inltab{Int64} & $N$ & & yes & Time ordering number for calibration measurements in system matrix \\ \hline
 \inlvar{dataFD} & \inltab{Any} & $C \times K \times N \times 2$ or \newline $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation with the last dimension storing complex data \\ \hline
-\inlvar{dataTD} & \inltab{Float64} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
+\inlvar{dataTD} & \inltab{Any} &  $C \times Z \times N$ or \newline $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
 \inlvar{backgroundDataTimeOrder} & \inltab{Int64} & $M$ & & yes & Time ordering number for background measurements \\ \hline
 \inlvar{backgroundDataFD} & \inltab{Any} & $M \times J \times C \times K \times 2$ & & yes & $M$ background measurements stored in Fourier space representation with the last dimension storing complex data \\ \hline
-\inlvar{backgroundDataTD} & \inltab{Float64} &  $M \times J \times C \times Z$ & & yes & background measurements stored in time domain representation \\ \hline 
+\inlvar{backgroundDataTD} & \inltab{Any} &  $M \times J \times C \times Z$ & & yes & background measurements stored in time domain representation \\ \hline 
 \inlvar{snrFD} & \inltab{Float64} & $C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
