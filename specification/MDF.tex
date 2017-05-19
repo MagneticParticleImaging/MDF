@@ -323,8 +323,9 @@ If a regular grid is used for sampling, by default the fastest index is in $x$ d
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
-\inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta Sample used for calibration scan \\ \hline
-\inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data, e.g. robot, hybrid, or simulation \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $N \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position, stored as ($x$, $y$, $z$) tripels \\ \hline
+\inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta sample used for calibration scan \\ \hline
+\inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
 \end{tabularx}
 
 
