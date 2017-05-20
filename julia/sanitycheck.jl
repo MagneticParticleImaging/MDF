@@ -83,7 +83,9 @@ function _hasAllDatasets(fid, nonoptionalgroups::Dict)
   end
   return result
 end
-  
+
+HDF5NUmber = Union{Float32, Float64, Int8, Int16, Int32, Int64}
+
 function _hasCorrectTypeAndNumDim(fid,version)
   result = true
   datasettypes1_0_0 = Dict{ASCIIString, Vector{Tuple{ASCIIString,Type,Vector{Int64}}}}(
@@ -109,8 +111,12 @@ function _hasCorrectTypeAndNumDim(fid,version)
   datasettypes2_0_0["/tracer/"] = [("name",Char,[0]), ("batch",Char,[0]), ("vendor",Char,[0]), ("volume",Float64,[0]), ("concentration",Float64,[0]), ("solute", Char,[0]), ("time", Char,[0])]
   # renamed averages numAverages
   datasettypes2_0_0["/acquisition/drivefield/"] = [("numChannels",Int64,[0]), ("strength",Float64,[1,2]), ("baseFrequency",Float64,[0]), ("divider",Int64,[1]), ("period",Float64,[0]), ("numAverages",Int64,[0]), ("repetitionTime",Float64,[0]), ("fieldOfView",Float64,[1,2]), ("fieldOfViewCenter",Float64,[1,2])]
-  # added fields dataTimeOrder, backgroundDataTimeOrder, backgroundDataFD, backgroundDataTD and changed type of dataTD to Any
-  datasettypes2_0_0["/calibration/" = [("dataTimeOrder",Int64,[1]), ("dataFD",Any,[4,5]), ("dataTD",Any,[3,4]), ("backgroundDataTimeOrder",Int64,[1]), ("backgroundDataFD",Any,[4,5]), ("backgroundDataTD",Any,[3,4]) ("snrFD",Float64,[2]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2]), ("deltaSampleSize",Float64,[1]), ("method",Char,[0])]
+  # Update type Any to HDF5Number
+  datasettypes2_0_0["/measurement/"] = [("dataFD",HDF5NUmber,[4,5]), ("dataTD", HDF5Number,[3,4])]
+  # added fields dataTimeOrder, backgroundDataTimeOrder, backgroundDataFD, backgroundDataTD and changed type of dataTD to Any, update type Any to HDF5Number
+  datasettypes2_0_0["/calibration/" = [("dataTimeOrder",Int64,[1]), ("dataFD",HDF5Number,[4,5]), ("dataTD",HDF5NumberAny,[3,4]), ("backgroundDataTimeOrder",Int64,[1]), ("backgroundDataFD",HDF5Number,[4,5]), ("backgroundDataTD",HDF5Number,[3,4]) ("snrFD",Float64,[2]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2]), ("deltaSampleSize",Float64,[1]), ("method",Char,[0])]
+  # Update type Any to HDF5Number
+  datasettypes2_0_0["/reconstruction/"] = [("data",HDF5Number,[2,3]), ("fieldOfView", Float64,[1]), ("fieldOfViewCenter",Float64,[1]), ("size",Int64,[1]), ("order",Char,[0]), ("positions",Float64,[2])]
   # TODO update for fixed dimension and different trajectories
 
   if "3.0.0">version=>"2.0.0" 

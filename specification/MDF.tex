@@ -101,7 +101,7 @@ It is possible to combine measurement data and reconstruction data into a single
 
 \subsection{Datatypes}
 
-For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_LDOUBLE}, \inl{H5T_NATIVE_SHORT}, \inl{H5T_NATIVE_INT}, \inl{H5T_NATIVE_LONG}, \inl{H5T_NATIVE_LLONG}.
+For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}.
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF.
 
