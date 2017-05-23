@@ -12,7 +12,6 @@
 \usepackage[usenames,dvipsnames]{xcolor}
 \usepackage{hyperref}
 
-% Hurenkinder und Schusterjungen verhindern
 \clubpenalty10000
 \widowpenalty10000
 \displaywidowpenalty=10000
@@ -29,7 +28,7 @@
 
 \lstdefinelanguage{MDF}%
   {morekeywords={%
-    Bool,Int64,Float64,Any,String%
+    Bool,Int64,Float64,Number,String%
       },%
    sensitive=true,%
 }[keywords,comments,strings]%
@@ -101,7 +100,7 @@ It is possible to combine measurement data and reconstruction data into a single
 
 \subsection{Datatypes}
 
-For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data is not restricted such that maximum flexibility is given. In case of no restrictions \inl{Any} HDF5 data type can be choosen.
+For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}.
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF.
 
@@ -130,16 +129,6 @@ As the file format is versionized it will be possible to extend it for future ne
 As of version 1.0.1 the most recent release of these specifications can also be also found on the arXiv:\\
 \hspace*{1cm}\url{http://arxiv.org/abs/1602.06072}\\
 If you use MDF please cite us using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
-
-\subsection{Changelog}
-
-\subsubsection{v2.0}
-
-\begin{itemize}
-\item Infrastructure for storing background data directly with MDF data has been added for both regular measurements and calibration measurements.
-\item In v1.x the MDF allowed certain fields to have varying dimensions depending on the context. This has been removed such that starting from v2.0 all dimensions have to be specified. This change makes implementations of the MDF less complex. 
-\item Support for multiple excitation frequencies on a drive-field channel has been added. Additionally we added support for fully arbitrary excitation waveforms.
-\end{itemize}
 
 \end{multicols}
 
@@ -229,17 +218,20 @@ Note that the injection clock recording the injection time should be synchronize
 
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information, a subgroup containing data on the particle excitation and a subgroup containing data on the receive channels.
 
-In general each MPI dataset consists of the measurement data of $L$ frames. A frame groups all data together that will be used to reconstruct an image/volume. On certain MPI scanners the drive-field field-of-view (FOV) can be shifted either by magnetic fields or by mechanical movement. Therefore, a frame may consist of $J$ sub-measurements. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
+In general each MPI dataset consists of the measurement data of $N$ frames. A frame groups all data together that will be used to reconstruct an image/volume. On certain MPI scanners the drive-field field-of-view (FOV) can be shifted either by magnetic fields or by mechanical movement. Therefore, a frame may consist of $J$ sub-measurements. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{numFrames} & \inltab{Int64} & 1 & 1 & no & Number of available frames, denoted by $L$ \\ \hline
-\inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Complete time to acquire a full frame \\ \hline
-\inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline 
-\inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & no & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
+\inlvar{numFrames} & \inltab{Int64} & 1 & 1 & no & Number of available measurement frames, denoted by $N$ \\ \hline
+\inlvar{numBackgroundFrames} & \inltab{Int64} & 1 & 1 & no & Number of available background measurement frames, denoted by $M$ \\ \hline
+\inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Complete time to acquire data of a full frame (product of drive field \inlvar{period}, \inlvar{numPatches}, and \inlvar{numAverages}) \\ \hline
+\inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline 
+\inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied for each patch in the measurement sequence \\ \hline
+\inlvar{fieldOfViewCenter} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
 \end{tabularx}
 
 
@@ -253,11 +245,7 @@ These excitation signals are usually sinusoidal and can be described by $D$ ampl
 $$
 H_d(t) = \sum_{l=1}^{F} A_l \Lambda_l (2\pi f_l t + \varphi_l)
 $$
-where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. If  \inl{waveform} is set to ``CUSTOM'', one can specify a custom waveform using the parameter \inl{customWaveform}.
-
-%Depending on the base frequency and the divider a periodic excitation signal is generated defining the sampling trajectory of the field-free point or field-free line. The trajectory may cover a 1D, 2D, or 3D area.
-
-%Certain parameters such as \inl{strength}, \inl{fieldOfViewCenter}, and \inl{fieldOfView} can either be defined globally for the entire multi-patch sequence or individually for each patch of the sequence.
+where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. If  \inl{waveform} is set to ``CUSTOM'', one can specify a custom waveform using the parameter \inl{customWaveform}. \textbf{TODO Tobi: define triangle}
 
 The center of the drive-field is specified in the parameter \inl{fieldOfViewCenter}. The shift of the FOV is induced by a certain offset field that can be reported in the parameter \inl{offsetField}
 
@@ -266,19 +254,15 @@ The center of the drive-field is specified in the parameter \inl{fieldOfViewCent
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
+\inlvar{fieldOfView} & \inltab{Float64} & $J\times 3$ & m & yes & Approximate size of the area/volume captured by the trajectory \\ \hline
 \inlvar{numChannels} & \inltab{Int64} & 1 & 1 & no & Number of drive field channels, denoted by $D$ \\ \hline
 \inlvar{strength} & \inltab{Float64} & $J \times D$ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
 \inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & T$\mu_0^{-1}$ & no & Applied drive field phase $\varphi$ in radians in the range $[-\pi,\pi)$ \\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
+\inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider for drive fields frequencies (\inlvar{baseFrequency} / \inlvar{divider}) \\ \hline
 \inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: ``SINE'', ``TRIANGLE'' or ``CUSTOM'' \\ \hline
-\inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
 \inlvar{period} & \inltab{Float64} & 1 & s & no & Drive field trajectory period \\ \hline
-\inlvar{numAverages} & \inltab{Int64} & 1 & & no & Number of internal averages (applied in hardware/software) \\ \hline
-\inlvar{repetitionTime} & \inltab{Float64} & 1 & s & no & Time to complete averaged DF trajectory (averages * period)\\ \hline
-\inlvar{fieldOfView} & \inltab{Float64} & $J\times 3$ & m & no & Approximate size of the area/volume captured by the trajectory \\ \hline
-\inlvar{fieldOfViewCenter} & \inltab{Float64} & $J \times 3$ & m & no & Center of the drive field trajectory (relative to origin/center) \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field that yielded the fieldOfViewCenter\\ \hline
 \end{tabularx}
 
 
@@ -294,6 +278,7 @@ The center of the drive-field is specified in the parameter \inl{fieldOfViewCent
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
+\inlvar{numAverages} & \inltab{Int64} & 1 & & no & Internal block averaging over a number of drive field cycles \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & $C$ & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{numSamplingPoints} & \inltab{Int64} & $C$ &  & no & Number of sampling point within one drive-field period denoted by $Z$ \\ \hline
 \inlvar{frequencies} & \inltab{Float64} & $C\times K$ & Hz & yes & Vector containing recorded frequencies \\ \hline
@@ -305,17 +290,37 @@ The center of the drive-field is specified in the parameter \inl{fieldOfViewCent
 
 \begin{multicols}{2}
 
-\paragraph{Remarks:} 
-Measured data can be stored in Fourier domain (FD) representation as well as time domain (TD) representation. Usually only one of the representation is stored and one has to calculate the missing representation if it is needed but not available.
-
-One measurement consists of the voltages recorded in all receive channels for all patches. The number of measurements in time domain is thus given by $J C Z$. In frequency domain one measurement has $K C Z$ data points. On disc the temporal/frequency index is the fastest, while the index over the patches is the slowest. If several measurements are acquired (indicated by \textit{numFrames}), the measurements are concatenated. The number of measurements is denoted by $L$. \newline
+\paragraph{Remarks:}
+TODO
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{dataFD} & \inltab{Any} & $L \times J \times C \times K \times 2$  & & yes & Measurement data stored in Fourier domain representation. The last dimension is used for storing the complex data. \\  \hline
-\inlvar{dataTD} & \inltab{Any} & $L \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
+\inlvar{isCalibration} & \inltab{Bool} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
+\end{tabularx}
+
+
+\subsection{Data (group: \inl{/data/})}
+\begin{multicols}{2}
+
+\paragraph{Remarks:}
+MPI data is usually acquired by a series of $N$ measurements and $M$ background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Both the $N$ measurements and the $M$ background measurements can be stored in an arbitrary order, e.g. with respect to the spatial position of a delta sample if the data corresponds to a calibration measurement. To be able to recover the time order in which the measurements were taken each of the $N+M$ data sets can be assigned an integer number $o = 1,2,\dots,N+M$ ordering the measurements and background measurements with respect to time. I.e. data set $o_1$ is acquired prior to data set $o_2$, if and only if $o_1 < o_2$.
+
+The resulting $N$ measurements and $M$ background measurements should be stored in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times Z$ data points per set with the temporal index being the fastest to access. If several measurements are acquired (indicated by \textit{numFrames}), the $N$ measurements and $M$ background measurements are concatenated along the slowest dimension respectively.
+
+During measurements the analog signal measured is usually converted into $(r_1,\dots,r_{JZ}) \in \mathbb Z^J \times \mathbb Z^Z$ integer values per channel $c \in C$ and frame using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding unit of measurement, i.e. usually voltages.
+
+\end{multicols}
+
+\noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
+\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
+\inlvar{unit} & \inltab{String} & $1$ & & yes & SI unit of the measured quantity, usually V \\ \hline 
+\inlvar{rawDataConversion} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
+\inlvar{dataTD} & \inltab{Number} & $N \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
+\inlvar{dataTimeOrder} & \inltab{Int64} & $N$ & & yes & Time ordering number for measurements \\ \hline
+\inlvar{backgroundDataTD} & \inltab{Number} &  $M \times J \times C \times Z$ & & yes & Background measurements stored in time domain representation \\ \hline 
+\inlvar{backgroundDataTimeOrder} & \inltab{Int64} & $M$ & & yes & Time ordering number for background measurements \\ \hline
 \end{tabularx}
 
 \subsection{Calibration (group: \inl{/calibration/})}
@@ -323,29 +328,30 @@ One measurement consists of the voltages recorded in all receive channels for al
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-Calibration data is usually acquired by a combination of $N$ calibration and $M$ background measurements. Each calibration measurement is taken with a a delta sample at a fixed position inside the FOV of the scanner. Each background measurement is taken with the delta sample outside of the FOV of the scanner. To accurately capture any possible drift in the background signal, background measurements are usually performed frequently throughout the whole calibration procedure. Each measurement of the complete procedure can be assigned an integer number $o = 1,2,\dots,N+M$ ordering the measurements with respect to the time points at which they were taken, with $1$ beeing assigned to the first measurement and $N+M$ beeing assigned to the last measurement.
+To handle system matrix data efficiently, Fourier transformation and extensive reordering of the raw time domain data is required. Therefore, a post processed and background corrected system matrix can be stored separately. 
 
-The resulting $N$ calibration measurements can be stored in time or frequency domain. Often, the calibration measurements are reorded with respect to the corresponding spatial position of the delta sample. Hence, the time ordering numbers $o$ corresponding to each measurement are stored separately. For practical reasons the calibration data is stored such that the index over the positions is the fastest while the index over all data points of a particular measurement is the slowest. Depending on the programming language used (column-major or row-major order) the system matrix may appear in a transposed representation when loaded into main memory. The $M$ background measurements can also be stored in time or frequency domain. These measurements are stored without any changes to the storage order. Similar to the calibration measurements the time ordering number $o$ is stored for each background measurement. 
+This post processing is done as follows:
+\begin{itemize}
+	\item First, the background corrected time domain data is Fourier transformed along the $Z$ dimension into a $N \times J \times C \times K$ complex valued dataset.
+	\item Second, this dataset is brought into a real valued representation of $N \times J \times C \times K \times 2$ real valued data points.
+	\item Third, the data is partially transposed into the form $J \times C \times K \times N \times 2$.
+\end{itemize}
+This representation grants a quick access to the frequency dimensions $J \times C \times K$ and therefore a fast frequency selection without having read the entire system matrix. For this selection often the signal to noise characteristics of the frequency components is used, which can be stored as well, without having to post process the raw measurement data repeatedly. 
 
-If a regular grid is used for sampling, by default the fastest index is in $x$ direction, the second fastest index is in $y$ direction, while the slowest index is in $z$ direction. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $N$ positions. \newline
+Each of the $N$ calibration measurements is taken with a a calibration sample (delta sample) at a fixed position inside the FOV of the scanner. Each background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored in the order in which they were taken, but with respect to the corresponding spatial position of the delta sample. If a regular grid of size $N_x \times N_y \times N_z$ is used for sampling, by default the $N_xN_YN_z = N$ measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $N$ positions.
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{dataTimeOrder} & \inltab{Int64} & $N$ & & yes & Time ordering number for calibration measurements in system matrix \\ \hline
-\inlvar{dataFD} & \inltab{Any} &  $J \times C \times K \times N \times 2$ & & yes & System matrix stored in its Fourier space representation with the last dimension storing complex data \\ \hline
-\inlvar{dataTD} & \inltab{Any} &  $J \times C \times Z \times N$ & & yes & System matrix stored in its time domain representation \\ \hline 
-\inlvar{backgroundDataTimeOrder} & \inltab{Int64} & $M$ & & yes & Time ordering number for background measurements \\ \hline
-\inlvar{backgroundDataFD} & \inltab{Any} & $M \times J \times C \times K \times 2$ & & yes & $M$ background measurements stored in Fourier space representation with the last dimension storing complex data \\ \hline
-\inlvar{backgroundDataTD} & \inltab{Any} &  $M \times J \times C \times Z$ & & yes & background measurements stored in time domain representation \\ \hline 
-\inlvar{snrFD} & \inltab{Float64} & $C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
+\inlvar{systemMatrixData} & \inltab{Number} & $J \times C \times K \times N \times 2$  & & yes & Stores the background corrected system matrix in Fourier representation with the last dimension storing the complex data. \\  \hline
+\inlvar{snrFD} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) triples \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $N \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position, stored as ($x$, $y$, $z$) triples \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $N \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position ($x$, $y$, $z$) \\ \hline
 \inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta sample used for calibration scan \\ \hline
 \inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
 \end{tabularx}
@@ -357,19 +363,95 @@ If a regular grid is used for sampling, by default the fastest index is in $x$ d
 
 	Reconstruction results are stored in the parameter \inl{data}. Dependent on the number of individual channels $S$ obtained by the reconstruction the results can be stored in a $L\times N$ array for $S=1$ or in a $L\times N \times S$ array for $S>1$. Since the grid of the reconstruction data can be different than the system matrix grid, the grid parameter are mirrored in the reconstruction parameter group. 
 
-Usually the data is stored in a real data format but it is also possible to store complex data if the reconstruction output is complex.\newline
+Usually the data is stored in a real data format but it is also possible to store complex data if the reconstruction output is complex.
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Any} & $L\times N \times S$ & & yes & Reconstructed data \\ \hline
+\inlvar{data} & \inltab{Number} & $L\times N \times S$ & & yes & Reconstructed data \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to origin/center) \\ \hline 
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \end{tabularx}
+
+
+\clearpage
+\subsection{Changelog}
+
+\begin{multicols}{2}
+
+\subsubsection{v2.0}
+
+\begin{itemize}
+	\item Updated Affiliations in the MDF specification.
+	\item Improved the description of various fields. 
+	\item Added definition for triangle function.
+	\item Infrastructure for storing background data directly with MDF data has been added for both regular measurements and calibration measurements.
+	\item In v1.x the MDF allowed certain fields to have varying dimensions depending on the context. This has been removed such that starting from v2.0 all dimensions have to be specified. This change  should make implementations handling MDF files less complex. 
+	\item Support for multiple excitation frequencies on a drive-field channel has been added. Additionally we added support for fully arbitrary excitation waveforms.
+	\item Added the possibility store the tracer concentration also for non iron based tracer materials by adding the \inlvar{solute} field to the \inlvar{tracer} group.
+	\item Specified supported data types for the storage of measurement data and reconstruction data.
+	\item Raw data is now always stored in time domain representation for both measurement data and background measurements.
+	\item Added possibility to store the transformation from raw data to a physical representation with units.
+	\item Signal to noise ratios can now be stored for each patch indivisually. To do so the dimension $J$ was added to this field.
+	\item Added \inlvar{data} subgroup to \inlvar{measurements} and restructured storage of raw measurement data.
+	\item Made fields \inlvar{gradient}, \inlvar{fieldOfView} and \inlvar{fieldOfViewCenter} optional.
+	\item Introduced the field \inlvar{dataTimeOrder} and \inlvar{backgroundDataTimeOrder} to store the order in which measurements and background measurements were taken.
+	\item Added field \inlvar{numBackgroundFrames} to \inlvar{aquisition} group.
+	\item Added field \inlvar{isCalibration} to \inlvar{measurement} group to indicate if data corresponds to a calibration measurement or not
+	\item Moved \inlvar{numAverages} field to \inlvar{receiver} subgroup, \inlvar{offsetfield} field to \inlvar{acquisition} group and \inlvar{fieldOfViewCenter} field to \inlvar{acquisition} group.
+\end{itemize}
+
+
+\subsubsection{v1.0.5}
+
+\begin{itemize}
+	\item Added the possibility to store different channels of reconstructed data.
+	\item Added support for receive channels with different characteristics (e.g. bandwidth).
+	\item Made dataset \inlvar{/acquisition/receiver/frequencies} optional.
+	\item Extended the description on the data types, which are used to store data.
+	\item Added references for Julia and HDF5 to the specifications.
+\end{itemize}
+
+
+\subsubsection{v1.0.4}
+
+\begin{itemize}
+	\item Clarify that HDF5 datasets are used to store MPI parameters.
+\end{itemize}
+
+
+\subsubsection{v1.0.3}
+
+\begin{itemize}
+	\item Updated Affiliations in the MDF specification.
+	\item Included data download into the Python and Matlab example code.
+	\item Changes in the Python and Matlab example code to be better comparable to the Julia example code.
+\end{itemize}
+
+
+\subsubsection{v1.0.2}
+
+\begin{itemize}
+	\item Added reference to arXiv paper and bibtex file for reference.
+\end{itemize}
+
+
+\subsubsection{v1.0.1}
+
+\begin{itemize}
+	\item A sanity check within the Julia code shipped alongside the specifications.
+	\item An update to the specification documenting the availability of a sanity check.
+	\item Updated MDF files on https://www.tuhh.de/ibi/research/mpi-data-format.html.
+	\item Updated documentation to the Julia, Matlab and Python reconstruction scripts.
+	\item Improved Julia reconstruction script, automatically downloading the required MDF files.
+\end{itemize}
+
+\end{multicols}
+
 
 \bibliographystyle{unsrt}
 \bibliography{MDF}
