@@ -220,6 +220,8 @@ Note that the injection clock recording the injection time should be synchronize
 
 In general each MPI dataset consists of the measurement data of $N$ frames. A frame groups all data together that will be used to reconstruct an image/volume. On certain MPI scanners the drive-field field-of-view (FOV) can be shifted either by magnetic fields or by mechanical movement. Therefore, a frame may consist of $J$ sub-measurements. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
 
+The center of the drive-field is specified in the parameter \inl{fieldOfViewCenter}. The shift of the FOV is induced by a certain offset field that can be reported in the parameter \inl{offsetField}
+
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -231,6 +233,7 @@ In general each MPI dataset consists of the measurement data of $N$ frames. A fr
 \inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline 
 \inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
 \inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied for each patch in the measurement sequence \\ \hline
+\inlvar{fieldOfView} & \inltab{Float64} & $J\times 3$ & m & yes & Approximate size of the area/volume captured by the trajectory \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
 \end{tabularx}
 
@@ -245,23 +248,26 @@ These excitation signals are usually sinusoidal and can be described by $D$ ampl
 $$
 H_d(t) = \sum_{l=1}^{F} A_l \Lambda_l (2\pi f_l t + \varphi_l)
 $$
-where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. If  \inl{waveform} is set to ``CUSTOM'', one can specify a custom waveform using the parameter \inl{customWaveform}. \textbf{TODO Tobi: define triangle}
+where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. If  \inl{waveform} is set to \textit{custom}, one can specify a custom waveform using the parameter \inl{customWaveform}. The triangle is defined to be a $2\pi$ periodization of the
+triangle function:
+$$
+ \Lambda_\text{tri}(t) = \left\vert t+\frac{\pi}{2}\right\vert - \frac{\pi}{2} \quad \text{for} \quad -\frac{3}{2}\pi\leq t \leq \frac{\pi}{2}
+$$
 
-The center of the drive-field is specified in the parameter \inl{fieldOfViewCenter}. The shift of the FOV is induced by a certain offset field that can be reported in the parameter \inl{offsetField}
+
 
 \end{multicols}
 
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{fieldOfView} & \inltab{Float64} & $J\times 3$ & m & yes & Approximate size of the area/volume captured by the trajectory \\ \hline
 \inlvar{numChannels} & \inltab{Int64} & 1 & 1 & no & Number of drive field channels, denoted by $D$ \\ \hline
 \inlvar{strength} & \inltab{Float64} & $J \times D$ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
 \inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & T$\mu_0^{-1}$ & no & Applied drive field phase $\varphi$ in radians in the range $[-\pi,\pi)$ \\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
 \inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider for drive fields frequencies (\inlvar{baseFrequency} / \inlvar{divider}) \\ \hline
-\inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: ``SINE'', ``TRIANGLE'' or ``CUSTOM'' \\ \hline
+\inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
 \inlvar{period} & \inltab{Float64} & 1 & s & no & Drive field trajectory period \\ \hline
 \end{tabularx}
 
@@ -285,23 +291,7 @@ The center of the drive-field is specified in the parameter \inl{fieldOfViewCent
 \inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ &  & yes & Transfer function of the receive channel \\ \hline
 \end{tabularx}
 
-
-\subsection{Measurements (group: \inl{/measurement/})}
-
-\begin{multicols}{2}
-
-\paragraph{Remarks:}
-TODO
-
-\end{multicols}
-
-\noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
-\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{isCalibration} & \inltab{Bool} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
-\end{tabularx}
-
-
-\subsection{Data (group: \inl{/data/})}
+\subsection{Measurement (group: \inl{/measurement/})}
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
@@ -315,11 +305,12 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
+\inlvar{isCalibration} & \inltab{Bool} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
 \inlvar{unit} & \inltab{String} & $1$ & & yes & SI unit of the measured quantity, usually V \\ \hline 
 \inlvar{rawDataConversion} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{dataTD} & \inltab{Number} & $N \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
 \inlvar{dataTimeOrder} & \inltab{Int64} & $N$ & & yes & Time ordering number for measurements \\ \hline
-\inlvar{backgroundDataTD} & \inltab{Number} &  $M \times J \times C \times Z$ & & yes & Background measurements stored in time domain representation \\ \hline 
+\inlvar{backgroundData} & \inltab{Number} &  $M \times J \times C \times Z$ & & yes & Background measurements stored in time domain representation \\ \hline 
 \inlvar{backgroundDataTimeOrder} & \inltab{Int64} & $M$ & & yes & Time ordering number for background measurements \\ \hline
 \end{tabularx}
 
@@ -345,7 +336,7 @@ Each of the $N$ calibration measurements is taken with a a calibration sample (d
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{systemMatrixData} & \inltab{Number} & $J \times C \times K \times N \times 2$  & & yes & Stores the background corrected system matrix in Fourier representation with the last dimension storing the complex data. \\  \hline
-\inlvar{snrFD} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
+\inlvar{snr} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
