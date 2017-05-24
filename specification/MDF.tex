@@ -167,8 +167,8 @@ The reference field may be used to indicate, if the background signal of the sca
 \inlvar{experiment} & \inltab{String} & 1 & & yes & Experiment number within study \\ \hline
 \inlvar{description} & \inltab{String} & 1 & & yes & Short description of the experiment \\ \hline
 \inlvar{subject} & \inltab{String} & 1 & & yes & Name of the subject that was imaged \\ \hline 
-\inlvar{reference} & \inltab{Int64} & 1 & & yes & Flag indicating if field of view was empty during the measurement \\ \hline
-\inlvar{simulation} & \inltab{Int64} & 1 & & yes & Flag indicating if the data in this file is simulated rather than measured \\ \hline
+\inlvar{isSimulation} & \inltab{Int64} & 1 & & yes & Flag indicating if the data in this file is simulated rather than measured \\ \hline
+\inlvar{isCalibration} & \inltab{Bool} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
 \end{tabularx}
 
 
@@ -305,7 +305,6 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{isCalibration} & \inltab{Bool} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
 \inlvar{unit} & \inltab{String} & $1$ & & yes & SI unit of the measured quantity, usually V \\ \hline 
 \inlvar{rawDataConversion} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
 \inlvar{data} & \inltab{Number} & $N \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
@@ -392,8 +391,10 @@ Usually the data is stored in a real data format but it is also possible to stor
 	\item Made fields \inlvar{gradient}, \inlvar{fieldOfView} and \inlvar{fieldOfViewCenter} optional.
 	\item Introduced the field \inlvar{dataTimeOrder} and \inlvar{backgroundDataTimeOrder} to store the order in which measurements and background measurements were taken.
 	\item Added field \inlvar{numBackgroundFrames} to \inlvar{aquisition} group.
-	\item Added field \inlvar{isCalibration} to \inlvar{measurement} group to indicate if data corresponds to a calibration measurement or not
+	\item Added field \inlvar{isCalibration} to \inlvar{study} group to indicate if data corresponds to a calibration measurement or not
 	\item Moved \inlvar{numAverages} field to \inlvar{receiver} subgroup, \inlvar{offsetfield} field to \inlvar{acquisition} group and \inlvar{fieldOfViewCenter} field to \inlvar{acquisition} group.
+	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements
+	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons
 \end{itemize}
 
 
