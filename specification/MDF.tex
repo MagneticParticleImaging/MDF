@@ -352,7 +352,7 @@ Each of the $N$ calibration measurements is taken with a a calibration sample (d
 
 \begin{multicols}{2}
 
-	Reconstruction results are stored in the parameter \inl{data}. Dependent on the number of individual channels $S$ obtained by the reconstruction the results can be stored in a $L\times N$ array for $S=1$ or in a $L\times N \times S$ array for $S>1$. Since the grid of the reconstruction data can be different than the system matrix grid, the grid parameter are mirrored in the reconstruction parameter group. 
+	Reconstruction results are stored in the parameter \inl{data}. Dependent on the number of individual channels $S$ obtained by the reconstruction the results can be stored in a $L\times P$ array for $S=1$ or in a $L\times P \times S$ array for $S>1$. Since the grid of the reconstruction data can be different than the system matrix grid, the grid parameter are mirrored in the reconstruction parameter group. 
 
 Usually the data is stored in a real data format but it is also possible to store complex data if the reconstruction output is complex.
 
@@ -360,12 +360,12 @@ Usually the data is stored in a real data format but it is also possible to stor
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $L\times N \times S$ & & yes & Reconstructed data \\ \hline
+\inlvar{data} & \inltab{Number} & $L\times P \times S$ & & yes & Reconstructed data \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to origin/center) \\ \hline 
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
-\inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
+\inlvar{positions} & \inltab{Float64} & $P \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \end{tabularx}
 
 
@@ -388,7 +388,7 @@ Usually the data is stored in a real data format but it is also possible to stor
 	\item Raw data is now always stored in time domain representation for both measurement data and background measurements.
 	\item Added possibility to store the transformation from raw data to a physical representation with units.
 	\item Signal to noise ratios can now be stored for each patch indivisually. To do so the dimension $J$ was added to this field.
-	\item Added \inlvar{data} subgroup to \inlvar{measurements} and restructured storage of raw measurement data.
+	\item Restructured storage of raw measurement data.
 	\item Made fields \inlvar{gradient}, \inlvar{fieldOfView} and \inlvar{fieldOfViewCenter} optional.
 	\item Introduced the field \inlvar{dataTimeOrder} and \inlvar{backgroundDataTimeOrder} to store the order in which measurements and background measurements were taken.
 	\item Added field \inlvar{numBackgroundFrames} to \inlvar{aquisition} group.
