@@ -66,13 +66,14 @@
 \newcommand{\version}{2.0.0-pre}
 
 \author{
-T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladi\ss$^5$, C.~Kaethner$^5$, J.~Rahmer$^6$, M.~M\"oddel$^{1,2}$ \\ \\
+T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladi\ss$^5$, C.~Kaethner$^5$, P.~Vogel$^6$, J.~Rahmer$^7$, M.~M\"oddel$^{1,2}$ \\ \\
 $^1$Section for Biomedical Imaging, University Medical Center Hamburg-Eppendorf, Germany\\
 $^2$Institute for Biomedical Imaging, Hamburg University of Technology, Germany\\
 $^3$Institute of Electrical Measurement and Fundamental Electrical Engineering, TU Braunschweig, Germany\\
 $^4$Physikalisch-Technische Bundesanstalt, Berlin, Germany\\
 $^5$Institute of Medical Engineering, University of  Lübeck, Germany\\
-$^6$Philips GmbH Innovative Technologies, Research Laboratories, Röntgenstraße 24-26, 22315 Hamburg, Germany
+$^6$Department of Experimental Physics 5 (Biophysics), University of Würzburg, Germany\\
+$^7$Philips GmbH Innovative Technologies, Research Laboratories, Hamburg, Germany
 }
 
 \maketitle
@@ -164,11 +165,11 @@ The reference field may be used to indicate, if the background signal of the sca
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{name} & \inltab{String} & 1 & & yes & Name of the study \\ \hline
-\inlvar{experiment} & \inltab{String} & 1 & & yes & Experiment number within study \\ \hline
+\inlvar{experiment} & \inltab{Int64} & 1 & & yes & Experiment number within study \\ \hline
 \inlvar{description} & \inltab{String} & 1 & & yes & Short description of the experiment \\ \hline
 \inlvar{subject} & \inltab{String} & 1 & & yes & Name of the subject that was imaged \\ \hline 
 \inlvar{isSimulation} & \inltab{Int64} & 1 & & yes & Flag indicating if the data in this file is simulated rather than measured \\ \hline
-\inlvar{isCalibration} & \inltab{Bool} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
+\inlvar{isCalibration} & \inltab{Int64} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
 \end{tabularx}
 
 
@@ -205,11 +206,12 @@ Note that the injection clock recording the injection time should be synchronize
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX}
 \noindent \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{facility} & \inltab{String} & 1 & & no & Facility where the MPI scanner is installed \\ \hline 
-\inlvar{operator} & \inltab{String} & 1 & & no & User who operates the MPI scanner \\ \hline 
-\inlvar{manufacturer} & \inltab{String} & 1 & & no & Scanner manufacturer \\ \hline 
-\inlvar{model} & \inltab{String} & 1 & & no & Scanner model \\ \hline 
-\inlvar{topology} & \inltab{String} & 1 & & no & Scanner topology (e.g. FFP or FFL)\\ \hline 
+\inlvar{facility} & \inltab{String} & 1 & & yes & Facility where the MPI scanner is installed \\ \hline 
+\inlvar{operator} & \inltab{String} & 1 & & yes & User who operates the MPI scanner \\ \hline 
+\inlvar{manufacturer} & \inltab{String} & 1 & & yes & Scanner manufacturer \\ \hline 
+\inlvar{model} & \inltab{String} & 1 & & yes & Scanner model \\ \hline 
+\inlvar{topology} & \inltab{String} & 1 & & no & Scanner topology (e.g. FFP, FFL, MPS)\\ \hline 
+\inlvar{boreSize} & \inltab{Float64} & 1 & & yes & Scanner model \\ \hline 
 \end{tabularx}
 
 \subsection{Acquisition Parameters (group: \inl{/acquisition/})}
@@ -248,7 +250,7 @@ These excitation signals are usually sinusoidal and can be described by $D$ ampl
 $$
 H_d(t) = \sum_{l=1}^{F} A_l \Lambda_l (2\pi f_l t + \varphi_l)
 $$
-where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. If  \inl{waveform} is set to \textit{custom}, one can specify a custom waveform using the parameter \inl{customWaveform}. The triangle is defined to be a $2\pi$ periodization of the
+where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. If  \inl{waveform} is set to \textit{custom}, one can specify a custom waveform using the parameter \inl{customWaveform}. The number of sampling points of the \inl{customWaveform} is denoted by $U$. The triangle is defined to be a $2\pi$ periodization of the
 triangle function:
 $$
  \Lambda_\text{tri}(t) = \left\vert t+\frac{\pi}{2}\right\vert - \frac{\pi}{2} \quad \text{for} \quad -\frac{3}{2}\pi\leq t \leq \frac{\pi}{2}
@@ -398,6 +400,7 @@ Usually the data is stored in a real data format but it is also possible to stor
 	\item Rename \inlvar{/date} to \inlvar{/time} for consistency reasons.
 	\item Rename \inlvar{/acquisition/time} to \inlvar{/acquisition/startTime}.
 	\item Rename \inlvar{/tracer/time} to \inlvar{/tracer/injectionTime}.
+	\item Changed \inlvar{/study/experiment} from \inlvar{String} to \inlvar{Int64}.
 \end{itemize}
 
 
