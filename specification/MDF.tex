@@ -120,6 +120,10 @@ The code is written in the Julia programming language \cite{Bezanson2012,Bezanso
 \hspace*{1cm} \url{http://julialang.org}.\\
 More detailed instructions can be found in the \texttt{README} of the repository.
 
+\subsection{Extension / Custom Parameters}
+
+TODO
+
 \subsection{Contact}
 
 If you find mistakes in this document or the specified file format or if you want to discuss extensions to this specification, please open an issue on GitHub:\\
@@ -150,14 +154,11 @@ If you use MDF please cite us using the arXiv reference, which is also available
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC creation time of MDF data set \\ \hline
 \end{tabularx}
 
-
 \subsection{Study Description (group: \inl{/study/})}
 
 \begin{multicols}{2}
 
-\paragraph{Remarks:} The study description group describes the experimental setting under which the MPI data was recorded. The study field may be used as a name tag for several experiments, which are related. The dataset at hand may then be described by a number and a short description. Additionally, the name of the imaged subject can be provided and the starting time of the MPI measurement can be provided.
-
-The reference field may be used to indicate, if the background signal of the scanner was recorded.
+\paragraph{Remarks:} TODO The study description group describes the experimental setting under which the MPI data was recorded. The study field may be used as a name tag for several experiments, which are related. 
 
 \end{multicols}
 
@@ -165,11 +166,28 @@ The reference field may be used to indicate, if the background signal of the sca
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{name} & \inltab{String} & 1 & & yes & Name of the study \\ \hline
-\inlvar{experiment} & \inltab{Int64} & 1 & & yes & Experiment number within study \\ \hline
+\inlvar{number} & \inltab{Int64} & 1 & & yes & Experiment number within study \\ \hline
+\inlvar{description} & \inltab{String} & 1 & & yes & Short description of the experiment \\ \hline
+\end{tabularx}
+
+
+
+\subsection{Experiment Description (group: \inl{/experiment/})}
+
+\begin{multicols}{2}
+
+\paragraph{Remarks:} The study description group describes the experimental setting under which the MPI data was recorded. The study field may be used as a name tag for several experiments, which are related. The dataset at hand may then be described by a number and a short description. Additionally, the name of the imaged subject can be provided and the starting time of the MPI measurement can be provided.
+
+\end{multicols}
+
+
+\noindent \begin{tabularx}{\columnwidth}{lllllX} 
+\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
+\inlvar{name} & \inltab{String} & 1 & & yes & Experiment name \\ \hline
+\inlvar{number} & \inltab{Int64} & 1 & & yes & Experiment number\\ \hline
 \inlvar{description} & \inltab{String} & 1 & & yes & Short description of the experiment \\ \hline
 \inlvar{subject} & \inltab{String} & 1 & & yes & Name of the subject that was imaged \\ \hline 
-\inlvar{isSimulation} & \inltab{Int64} & 1 & & yes & Flag indicating if the data in this file is simulated rather than measured \\ \hline
-\inlvar{isCalibration} & \inltab{Int64} & $1$ & & no & Flag indicating if data belongs to a system matrix calibration measurement\\ \hline
+\inlvar{isSimulation} & \inltab{Int8} & 1 & & yes & Flag indicating if the data in this file is simulated rather than measured \\ \hline
 \end{tabularx}
 
 
@@ -181,18 +199,20 @@ The reference field may be used to indicate, if the background signal of the sca
 
 Note that the injection clock recording the injection time should be synchronized with the clock, which provides the starting time of the measurement.
 
+TODO describe multi bolus.... $A$ is the number of used tracers/bolii
+
 \end{multicols}
 
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{name} & \inltab{String} & 1 & & yes & Name of tracer used in experiment \\ \hline
-\inlvar{batch} & \inltab{String} & 1 & & yes & Batch of tracer \\ \hline
-\inlvar{vendor} & \inltab{String} & 1 & & yes & Name of tracer supplier \\ \hline
-\inlvar{volume} & \inltab{Float64} & 1 & L & yes & Total volume of applied tracer \\ \hline
-\inlvar{concentration} & \inltab{Float64} & 1 & mol(solute)/L & yes & Molar concentration of solute per litre \\ \hline
-\inlvar{solute} & \inltab{String} & 1 & & yes & Solute, e.g. Fe \\ \hline
-\inlvar{injectionTime} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
+\inlvar{name} & \inltab{String} & $A$ & & yes & Name of tracer used in experiment \\ \hline
+\inlvar{batch} & \inltab{String} & $A$ & & yes & Batch of tracer \\ \hline
+\inlvar{vendor} & \inltab{String} & $A$ & & yes & Name of tracer supplier \\ \hline
+\inlvar{volume} & \inltab{Float64} & $A$ & L & yes & Total volume of applied tracer \\ \hline
+\inlvar{concentration} & \inltab{Float64} & $A$ & mol(solute)/L & yes & Molar concentration of solute per litre \\ \hline
+\inlvar{solute} & \inltab{String} & $A$ & & yes & Solute, e.g. Fe \\ \hline
+\inlvar{injectionTime} & \inltab{String} & $A$ & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
 \end{tabularx}
 
 \subsection{Scanner Parameters (group: \inl{/scanner/})}
@@ -235,8 +255,7 @@ The center of the drive-field is specified in the parameter \inl{fieldOfViewCent
 \inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline 
 \inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
 \inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied for each patch in the measurement sequence \\ \hline
-\inlvar{fieldOfView} & \inltab{Float64} & $J\times 3$ & m & yes & Approximate size of the area/volume captured by the trajectory \\ \hline
-\inlvar{fieldOfViewCenter} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
+\inlvar{offsetFieldShift} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
 \end{tabularx}
 
 
@@ -265,7 +284,7 @@ $$
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numChannels} & \inltab{Int64} & 1 & 1 & no & Number of drive field channels, denoted by $D$ \\ \hline
 \inlvar{strength} & \inltab{Float64} & $J \times D \times F $ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
-\inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & T$\mu_0^{-1}$ & no & Applied drive field phase $\varphi$ in radians in the range $[-\pi,\pi)$ \\ \hline
+\inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad & no & Applied drive field phase $\varphi$ in radians in the range $[-\pi,\pi)$ \\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
 \inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider for drive fields frequencies (\inlvar{baseFrequency} / \inlvar{divider}) \\ \hline
@@ -307,11 +326,9 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{unit} & \inltab{String} & $1$ & & yes & SI unit of the measured quantity, usually V \\ \hline 
-\inlvar{rawDataConversion} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
-\inlvar{dataTimeOrder} & \inltab{Int64} & $N$ & & yes & Time ordering number for measurements \\ \hline
-\inlvar{backgroundData} & \inltab{Number} &  $M \times J \times C \times Z$ & & yes & Background measurements stored in time domain representation \\ \hline 
-\inlvar{backgroundDataTimeOrder} & \inltab{Int64} & $M$ & & yes & Time ordering number for background measurements \\ \hline
+\inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
+\inlvar{data} & \inltab{Number} & $N+M \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
+\inlvar{isBackgroundData} & \inltab{Int8} & $N+M$ & & yes & TODO \\ \hline 
 \end{tabularx}
 
 \subsection{Calibration (group: \inl{/calibration/})}
@@ -335,13 +352,14 @@ Each of the $N$ calibration measurements is taken with a a calibration sample (d
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{systemMatrixData} & \inltab{Number} & $J \times C \times K \times N \times 2$  & & yes & Stores the background corrected system matrix in Fourier representation with the last dimension storing the complex data. \\  \hline
+\inlvar{systemMatrixData} & \inltab{Number} & $J \times C \times K \times Q \times 2$  & & yes & Stores the background corrected system matrix in Fourier representation with the last dimension storing the complex data. \\  \hline
 \inlvar{snr} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
-\inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
-\inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) triples \\ \hline
+\inlvar{orderDimensions} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
+\inlvar{positions} & \inltab{Float64} & $Q \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) triples \\ \hline
+\inlvar{dataPositionIndex} & \inltab{Int64} & $N$ & m & yes & Order in which the positions have been acquired \\ \hline
 \inlvar{offsetField} & \inltab{Float64} & $N \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position ($x$, $y$, $z$) \\ \hline
 \inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta sample used for calibration scan \\ \hline
 \inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
@@ -366,6 +384,7 @@ Usually the data is stored in a real data format but it is also possible to stor
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $P \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
+\inlvar{overscanMask TODO martin :-)} & \inltab{Float64} & $P \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \end{tabularx}
 
 
@@ -392,10 +411,9 @@ Usually the data is stored in a real data format but it is also possible to stor
 	\item Made fields \inlvar{gradient}, \inlvar{fieldOfView} and \inlvar{fieldOfViewCenter} optional.
 	\item Introduced the field \inlvar{dataTimeOrder} and \inlvar{backgroundDataTimeOrder} to store the order in which measurements and background measurements were taken.
 	\item Added field \inlvar{numBackgroundFrames} to \inlvar{aquisition} group.
-	\item Added field \inlvar{isCalibration} to \inlvar{study} group to indicate if data corresponds to a calibration measurement or not
 	\item Moved \inlvar{numAverages} field to \inlvar{receiver} subgroup, \inlvar{offsetfield} field to \inlvar{acquisition} group and \inlvar{fieldOfViewCenter} field to \inlvar{acquisition} group.
 	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements.
-	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons.
+	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons. Furthermore, the type has changed to \inlvar{Int8}.
 	\item Remove \inlvar{/acquisition/receiver/frequencies} since it can be directly derived from \inlvar{/acquisition/receiver/bandwidth} and \inlvar{/acquisition/receiver/numSamplingPoints}.
 	\item Rename \inlvar{/date} to \inlvar{/time} for consistency reasons.
 	\item Rename \inlvar{/acquisition/time} to \inlvar{/acquisition/startTime}.
