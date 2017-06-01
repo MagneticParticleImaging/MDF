@@ -311,8 +311,8 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{processedData} & \inltab{Number} & $Q \times J \times C \times K\times 2$ & & yes & Processed data stored in frequency domain representation \\ \hline 
-\inlvar{processedDataTransposed} & \inltab{Number} & $ J \times C \times K\times Q \times 2$ & & yes & As processed data but transposed \\ \hline
+\inlvar{data} & \inltab{Number} & $Q \times J \times C \times K\times 2$ & & yes & Processed data stored in frequency domain representation \\ \hline 
+\inlvar{dataTransposed} & \inltab{Number} & $ J \times C \times K\times Q \times 2$ & & yes & As processed data but transposed \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if spectral leakage correction has been applied \\ \hline
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if the transfer function has been corrected \\ \hline 
 \inlvar{isAveraged} & \inltab{Int8} & 1 & & yes & flag indicating if the raw data has been averaged in a processing step \\ \hline 
