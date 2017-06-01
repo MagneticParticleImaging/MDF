@@ -82,26 +82,25 @@ Version \textbf{\version}
 \end{center}
 
 \begin{abstract}
-Magnetic particle imaging (MPI) is a tomographic method to determine the spatial distribution of magnetic nanoparticles. In this document a file format for the standardized storage of MPI data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI data acquired with different MPI scanners worldwide. The focus of the file format is on sequence parameters, raw measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format (HDF) in version 5 (HDF5).
+Magnetic particle imaging (MPI) is a tomographic method to determine the spatial distribution of magnetic nanoparticles. In this document a file format for the standardized storage of MPI and MPS data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different scanners worldwide. The focus of the file format is on sequence parameters, raw measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format (HDF) in version 5 (HDF5).
 \end{abstract}
 
 
 \begin{multicols}{2}[\section{Introduction} \label{Sec:Introduction}]
 
-	The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5) \cite{hdf5}. HDF5 allows to store multiple datasets within a single file and is thus very flexible to use. To allow the exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available. For most programming languages bindings to this library exist. Matlab supports HDF5 by the functions \inl{h5read} and \inl{h5write}. For Python the \inl{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inl{HDF5} package. For languages based on the .NET framework the \inl{HDF5DotNet} library is available.
+The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) and Magnetic Particle Spectroscopy (MPS) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5) \cite{hdf5}. HDF5 allows to store multiple datasets within a single file and is thus very flexible to use. To allow the exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available. For most programming languages bindings to this library exist. Matlab supports HDF5 by the functions \inl{h5read} and \inl{h5write}. For Python the \inl{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inl{HDF5} package. For languages based on the .NET framework the \inl{HDF5DotNet} library is available.
 
-In this initial version of the file format the focus is on sequence parameters, raw measurement data, calibration data, and reconstruction data. The format can store three different dataset types
+The current version is mainly focused on storing raw measurement data, system matrices, or reconstruction data together with corresponding sequence parameters and meta data. Though it is possible to combine measurement data and reconstruction data into a single file it is recommended to use a single file for each of the following dataset types:
 \begin{enumerate}
 \setlength{\itemsep}{0pt}
 \item Measurement data
 \item System calibration data
 \item Reconstruction data
 \end{enumerate}
-It is possible to combine measurement data and reconstruction data into a single file. However, calibration data has to be stored in an independent HDF5 file.
 
 \subsection{Datatypes}
 
-For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}.
+For most parameters a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. Whenever Boolean data has to be stored we use \inl{H5T_NATIVE_INT8} for storage.
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF.
 
@@ -120,9 +119,9 @@ The code is written in the Julia programming language \cite{Bezanson2012,Bezanso
 \hspace*{1cm} \url{http://julialang.org}.\\
 More detailed instructions can be found in the \texttt{README} of the repository.
 
-\subsection{Extension / Custom Parameters}
+\subsection{Parameter Extension}
 
-TODO
+Often you will find that you want to store parameters or meta data which are specific to your side. For example the temperature of the room in which your MPI device is operated. In this case you are free to add a new parameters to any of the existing groups. Moreover if necessary you are also free to introduce new groups. To be able to distinguish these datasets and groups from the specified ones we recommend to use the prefix \inlvar{E} for all parameters and groups. In our example I could add a new group \inlvar{Eroom} and within the dataset \inl{Etemperature}.
 
 \subsection{Contact}
 
@@ -141,11 +140,8 @@ If you use MDF please cite us using the arXiv reference, which is also available
  \setlength\extrarowheight{5pt}
 
 \begin{multicols}{2}
-
-\paragraph{Remarks:} Within the root group metadata about the file itself is stored. Within several subgroups, metadata about the experimental setting, the MPI tracer, and the MPI scanner are stored. The actual data is stored in dedicated groups on measurement data, calibration data, and/or reconstruction data.
-
+\paragraph{Remarks:} Within the root group metadata about the file itself is stored. Within several subgroups, metadata about the experimental setting, the MPI tracer, and the MPI scanner can be provided. The actual data is stored in dedicated groups on measurement data, calibration data, and/or reconstruction data.
 \end{multicols}
-
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
@@ -154,14 +150,12 @@ If you use MDF please cite us using the arXiv reference, which is also available
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC creation time of MDF data set \\ \hline
 \end{tabularx}
 
+
 \subsection{Study Description (group: \inl{/study/})}
 
 \begin{multicols}{2}
-
-\paragraph{Remarks:} TODO The study description group describes the experimental setting under which the MPI data was recorded. The study field may be used as a name tag for several experiments, which are related. 
-
+	\paragraph{Remarks:} A study is supposed to group a series of experiments to support, refute, or validate a hypothesis. The study group may contain \inlvar{name}, \inlvar{number}, and \inlvar{description} of the study.
 \end{multicols}
-
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
@@ -171,15 +165,11 @@ If you use MDF please cite us using the arXiv reference, which is also available
 \end{tabularx}
 
 
-
 \subsection{Experiment Description (group: \inl{/experiment/})}
 
 \begin{multicols}{2}
-
-\paragraph{Remarks:} The study description group describes the experimental setting under which the MPI data was recorded. The study field may be used as a name tag for several experiments, which are related. The dataset at hand may then be described by a number and a short description. Additionally, the name of the imaged subject can be provided and the starting time of the MPI measurement can be provided.
-
+\paragraph{Remarks:} For each experiment within a study \inlvar{name}, \inlvar{number}, and \inlvar{description} may be provided. Additionally, the name of the imaged subject and a flag indicating if data has been obtained via simulations can be stored.
 \end{multicols}
-
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
@@ -194,15 +184,10 @@ If you use MDF please cite us using the arXiv reference, which is also available
 \subsection{Tracer Parameters (group: \inl{/tracer/})}
 
 \begin{multicols}{2}
+\paragraph{Remarks:} The tracer parameter group contains information about the MPI tracers used during the experiment. For each tracer its \inlvar{name}, \inlvar{batch}, \inlvar{vendor}, its \inlvar{volume}, its molar \inlvar{concentration} of \inlvar{solute} per litre and the time point of injection can be provided.
 
-\paragraph{Remarks:} The tracer parameter group contains information about the MPI tracer used during the experiment such as the tracer name, its vendor, the tracer concentration, and the total volume applied.
-
-Note that the injection clock recording the injection time should be synchronized with the clock, which provides the starting time of the measurement.
-
-TODO describe multi bolus.... $A$ is the number of used tracers/bolii
-
+This version of the MDF can handle two basic scenarios. In the first one static tracer phantoms are used. In this case the phantom contains $A$ distinct tracers. These might be particles of different core sizes, mobile or immobilized particles for example. In this case \inlvar{injectionTime} is not used. In the second case $A$ boli (e.g. pulsed boli) are administrated during the measurement, in which case the approximate administration volume, tracer type and time point of injection can be provided. Note that the injection clock recording the injection time should be synchronized with the clock, which provides the starting time of the measurement.
 \end{multicols}
-
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
@@ -215,14 +200,12 @@ TODO describe multi bolus.... $A$ is the number of used tracers/bolii
 \inlvar{injectionTime} & \inltab{String} & $A$ & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
 \end{tabularx}
 
+
 \subsection{Scanner Parameters (group: \inl{/scanner/})}
 
 \begin{multicols}{2}
-
-\paragraph{Remarks:} The scanner parameter group contains information about the MPI scanner used such as the manufacturer, the model, and the facility where the scanner is installed.
-
+\paragraph{Remarks:} The scanner parameter group contains information about the MPI scanner used such as the manufacturer, the model, bore size, the field topology, and the facility where the scanner is installed.
 \end{multicols}
-
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX}
 \noindent \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
@@ -234,16 +217,13 @@ TODO describe multi bolus.... $A$ is the number of used tracers/bolii
 \inlvar{boreSize} & \inltab{Float64} & 1 & & yes & Scanner model \\ \hline 
 \end{tabularx}
 
+
 \subsection{Acquisition Parameters (group: \inl{/acquisition/})}
 
 \begin{multicols}{2}
+\paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information within this group, a subgroup containing information on the $D$ excitation channels and a subgroup containing information on the $C$ receive channels.
 
-\paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information, a subgroup containing data on the particle excitation and a subgroup containing data on the receive channels.
-
-In general each MPI dataset consists of the measurement data of $N$ frames. A frame groups all data together that will be used to reconstruct an image/volume. On certain MPI scanners the drive-field field-of-view (FOV) can be shifted either by magnetic fields or by mechanical movement. Therefore, a frame may consist of $J$ sub-measurements. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
-
-The center of the drive-field is specified in the parameter \inl{fieldOfViewCenter}. The shift of the FOV is induced by a certain offset field that can be reported in the parameter \inl{offsetField}
-
+In general each MPI dataset consists of measurement data of $N+M$ frames, where $N$ is the number of subject measurements and $M$ is the number of background measurements. A frame groups together all data that will can used to reconstruct a single MPI image/tomogram. In the simplest scenario a frame consist of the data acquired during a single drive field cycle. If averaging is applied at the receiver the time it takes to capture a single frame increases by \inlvar{receiver/numAverages}, but the amount of data captured remains the same. In a multi patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift} to different spatial positions. Here $J$ is the number patches of a multi patch measurement. In such a scenario a frame may consist of $J$ sub-measurements, each of which is acquired and averaged over \inlvar{receiver/numAverages} drive field cycles. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -262,23 +242,18 @@ The center of the drive-field is specified in the parameter \inl{fieldOfViewCent
 \subsubsection{Drive Field (group: \inl{/acquisition/drivefield/})}
 
 \begin{multicols}{2}
+\paragraph{Remarks:} The drive field subgroup describes the excitation details of the imaging protocol. On the lowest level each MPI scanner contains $D$ channels for particle excitation. Since most drive-field parameters may change from patch to patch they have a leading dimension $J$.
 
-\paragraph{Remarks:} The drive field subgroup describes the details on the imaging protocol and trajectory settings. On the lowest level each MPI scanner contains $D$ channels for particle excitation. Since most drive-field parameters may change from patch to patch they have a leading $J$ dimension.
-
-These excitation signals are usually sinusoidal and can be described by $D$ amplitudes (drive field strengths), $D$ phases, a base frequency, and $D$ dividers. In a more general setting the drive-field in channel $d$ is described by
+These excitation signals are usually sinusoidal and can be described by $D$ amplitudes (drive field strengths), $D$ phases, a base frequency, and $D$ dividers. In a more general setting generated drive-fields of channel $d$ can be described by
 $$
 H_d(t) = \sum_{l=1}^{F} A_l \Lambda_l (2\pi f_l t + \varphi_l)
 $$
-where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. If  \inl{waveform} is set to \textit{custom}, one can specify a custom waveform using the parameter \inl{customWaveform}. The number of sampling points of the \inl{customWaveform} is denoted by $U$. The triangle is defined to be a $2\pi$ periodization of the
+where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. it can be set to \textit{sine}, \textit{triangle} or \textit{custom}. If set to \textit{custom}, one can specify a custom waveform using the parameter \inl{customWaveform}. The number of sampling points of the \inl{customWaveform} is denoted by $U$. The triangle is defined to be a $2\pi$ periodization of the
 triangle function:
 $$
  \Lambda_\text{tri}(t) = \left\vert t+\frac{\pi}{2}\right\vert - \frac{\pi}{2} \quad \text{for} \quad -\frac{3}{2}\pi\leq t \leq \frac{\pi}{2}
 $$
-
-
-
 \end{multicols}
-
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
@@ -296,11 +271,10 @@ $$
 \subsubsection{Receiver (group: \inl{/acquisition/receiver/})}
 
 \begin{multicols}{2}
+\paragraph{Remarks:} The receiver subgroup describes details on the MPI receiver. For a multi-patch sequence it is assumed, that signal acquisition only takes place during particle excitation. During each drive-field cycle, $C$ receive channels record some quantity related to the magnetization dynamic. In most cases these will be a voltage signals induced into the $C$ receive coils, which are proportional to the change of the particle magnetization. 
 
-\paragraph{Remarks:} The receiver subgroup describes details on the MPI receiver. For a multi-patch sequence it is assumed, that signal acquisition only takes place during particle excitation. During each drive-field cycle, $C$ receive channels record the superposition of the change of the particle magnetization at $Z$ equidistant time points. The transfer function can optionally be stored in the parameter \inlvar{transferFunction}. It is stored in frequency space representation where $K=\frac{Z}{2}+1$ is the number of discrete frequency components. 
-
+The MPI signal is obtained at $Z$ equidistant time points. Note that in most cases the voltages are not measured directly at the receive coils but amplified and filtered first. To be able to compensate these changes the transfer function can optionally be stored in the parameter \inlvar{transferFunction}. It is stored in frequency space representation where $K=\frac{Z}{2}+1$ is the number of discrete frequency components.
 \end{multicols}
-
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
@@ -311,16 +285,17 @@ $$
 \inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ &  & yes & Transfer function of the receive channel \\ \hline
 \end{tabularx}
 
+
 \subsection{Measurement (group: \inl{/measurement/})}
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
+\textbf{TODO Tobi: Update group with the changes from latest discussion.}
 MPI data is usually acquired by a series of $N$ measurements and $M$ background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Both the $N$ measurements and the $M$ background measurements can be stored in an arbitrary order, e.g. with respect to the spatial position of a delta sample if the data corresponds to a calibration measurement. To be able to recover the time order in which the measurements were taken each of the $N+M$ data sets can be assigned an integer number $o = 1,2,\dots,N+M$ ordering the measurements and background measurements with respect to time. I.e. data set $o_1$ is acquired prior to data set $o_2$, if and only if $o_1 < o_2$.
 
 The resulting $N$ measurements and $M$ background measurements should be stored in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times Z$ data points per set with the temporal index being the fastest to access. If several measurements are acquired (indicated by \textit{numFrames}), the $N$ measurements and $M$ background measurements are concatenated along the slowest dimension respectively.
 
 During measurements the analog signal measured is usually converted into $(r_1,\dots,r_{JZ}) \in \mathbb Z^J \times \mathbb Z^Z$ integer values per channel $c \in C$ and frame using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding unit of measurement, i.e. usually voltages.
-
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
@@ -331,11 +306,12 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \inlvar{isBackgroundData} & \inltab{Int8} & $N+M$ & & yes & TODO \\ \hline 
 \end{tabularx}
 
+
 \subsection{Calibration (group: \inl{/calibration/})}
 
 \begin{multicols}{2}
-
 \paragraph{Remarks:}
+\textbf{TODO Tobi: Update group with the changes from latest discussion.}
 To handle system matrix data efficiently, Fourier transformation and extensive reordering of the raw time domain data is required. Therefore, a post processed and background corrected system matrix can be stored separately. 
 
 This post processing is done as follows:
@@ -347,7 +323,6 @@ This post processing is done as follows:
 This representation grants a quick access to the frequency dimensions $J \times C \times K$ and therefore a fast frequency selection without having read the entire system matrix. For this selection often the signal to noise characteristics of the frequency components is used, which can be stored as well, without having to post process the raw measurement data repeatedly. 
 
 Each of the $N$ calibration measurements is taken with a a calibration sample (delta sample) at a fixed position inside the FOV of the scanner. Each background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored in the order in which they were taken, but with respect to the corresponding spatial position of the delta sample. If a regular grid of size $N_x \times N_y \times N_z$ is used for sampling, by default the $N_xN_YN_z = N$ measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $N$ positions.
-
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
@@ -369,11 +344,9 @@ Each of the $N$ calibration measurements is taken with a a calibration sample (d
 \subsection{Reconstruction Results (group: \inl{/reconstruction/})}
 
 \begin{multicols}{2}
-
-	Reconstruction results are stored in the parameter \inl{data}. Dependent on the number of individual channels $S$ obtained by the reconstruction the results can be stored in a $L\times P$ array for $S=1$ or in a $L\times P \times S$ array for $S>1$. Since the grid of the reconstruction data can be different than the system matrix grid, the grid parameter are mirrored in the reconstruction parameter group. 
+Reconstruction results are stored in the parameter \inl{data}. Dependent on the number of individual channels $S$ obtained by the reconstruction the results can be stored in a $L\times P$ array for $S=1$ or in a $L\times P \times S$ array for $S>1$. Since the grid of the reconstruction data can be different than the system matrix grid, the grid parameter are mirrored in the reconstruction parameter group. 
 
 Usually the data is stored in a real data format but it is also possible to store complex data if the reconstruction output is complex.
-
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -389,40 +362,43 @@ Usually the data is stored in a real data format but it is also possible to stor
 
 
 \clearpage
-\subsection{Changelog}
+\section{Changelog}
 
 \begin{multicols}{2}
-
-\subsubsection{v2.0}
+\subsection{v2.0.0}
 
 \begin{itemize}
 	\item Updated Affiliations in the MDF specification.
-	\item Improved the description of various fields. 
-	\item Added definition for triangle function.
-	\item Infrastructure for storing background data directly with MDF data has been added for both regular measurements and calibration measurements.
+	\item Made extensive improvements to the descriptions of fields and groups.
 	\item In v1.x the MDF allowed certain fields to have varying dimensions depending on the context. This has been removed such that starting from v2.0 all dimensions have to be specified. This change  should make implementations handling MDF files less complex. 
-	\item Support for multiple excitation frequencies on a drive-field channel has been added. Additionally we added support for fully arbitrary excitation waveforms.
-	\item Added the possibility store the tracer concentration also for non iron based tracer materials by adding the \inlvar{solute} field to the \inlvar{tracer} group.
 	\item Specified supported data types for the storage of measurement data and reconstruction data.
-	\item Raw data is now always stored in time domain representation for both measurement data and background measurements.
-	\item Added possibility to store the transformation from raw data to a physical representation with units.
-	\item Signal to noise ratios can now be stored for each patch indivisually. To do so the dimension $J$ was added to this field.
-	\item Restructured storage of raw measurement data.
-	\item Made fields \inlvar{gradient}, \inlvar{fieldOfView} and \inlvar{fieldOfViewCenter} optional.
-	\item Introduced the field \inlvar{dataTimeOrder} and \inlvar{backgroundDataTimeOrder} to store the order in which measurements and background measurements were taken.
-	\item Added field \inlvar{numBackgroundFrames} to \inlvar{aquisition} group.
-	\item Moved \inlvar{numAverages} field to \inlvar{receiver} subgroup, \inlvar{offsetfield} field to \inlvar{acquisition} group and \inlvar{fieldOfViewCenter} field to \inlvar{acquisition} group.
-	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements.
-	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons. Furthermore, the type has changed to \inlvar{Int8}.
-	\item Remove \inlvar{/acquisition/receiver/frequencies} since it can be directly derived from \inlvar{/acquisition/receiver/bandwidth} and \inlvar{/acquisition/receiver/numSamplingPoints}.
 	\item Rename \inlvar{/date} to \inlvar{/time} for consistency reasons.
+	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements.
+	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons and changed type to \inlvar{Int8}.
+	\item Created new group \inlvar{/experiment} with fields \inlvar{/experiment/name}, \inlvar{/experiment/number} and \inlvar{/experiment/description} to be able to provide more fine grained information on study and experiment.
+	\item Moved \inlvar{/study/subject} and \inlvar{/study/isSimulation} to \inlvar{/experiment/subject} and \inlvar{/experiment/isSimulation}.
+	\item Renamed \inlvar{/tracer/time} to \inlvar{/tracer/injectionTime}.
+	\item Added the possibility store the tracer concentration also for non iron based tracer materials by adding the \inlvar{/tracer/solute} field and redefining the field \inlvar{tracer/concentration}.
+	\item Renamed field \inlvar{/tracer/time} to \inlvar{/tracer/injectionTime} to be more specific.
+	\item Added the dimension $A$ to all fields of the \inlvar{tracer} group to be able to describe settings where multiple tracers are used or tracers are administered multiple times.
+	\item Added field \inlvar{/scanner/boreSize} to describe the scanner.
+	\item Set all fields but \inlvar{topology} in the \inlvar{/scanner} group to be optional.
 	\item Rename \inlvar{/acquisition/time} to \inlvar{/acquisition/startTime}.
-	\item Rename \inlvar{/tracer/time} to \inlvar{/tracer/injectionTime}.
-	\item Changed \inlvar{/study/experiment} from \inlvar{String} to \inlvar{Int64}.
+	\item \inlvar{/acquisition/gradient} is now optional since it is now mandatory for MPS measurements.
+	\item Added field \inlvar{/acquisition/numBackgroungFrames} as counter for the number of measurements used for background subtraction.
+	\item Added \inlvar{/acquisition/offsetField} and \inlvar{/acquisition/offsetFieldShift} to describe homogeneous offset fields.
+	\item Support for triangle wave forms and fully arbitrary excitation waveforms has been added by adding the fields \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}.
+	\item Support for multiple excitation frequencies on a drive-field channel has been added by intoducing a new dimension $F$ to the fields \inlvar{/drivefield/strength}, \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}, and \inlvar{/drivefield/divider}.
+	\item Removed \inlvar{fieldOfView} and \inlvar{fieldOfViewCenter} from \inlvar{/drivefield} group. \inlvar{/acquisition/offsetField} and \inlvar{/acquisition/offsetFieldShift} replace \inlvar{fieldOfViewCenter}. The \inlvar{fieldOfView} can be derived from the gradient strength and drive field strength.
+	\item Moved \inlvar{/drivefield/averages} to \inlvar{/receiver/numAverages}
+	\item Remove \inlvar{/acquisition/receiver/frequencies} since it can be directly derived from \inlvar{/acquisition/receiver/bandwidth} and \inlvar{/acquisition/receiver/numSamplingPoints}.
+	\item \textbf{TODO Tobi: record changes to \inlvar{/measurement} group here.} Added possibility to store the transformation from raw data to a physical representation with units. Signal to noise ratios can now be stored for each patch indivisually. To do so the dimension $J$ was added to this field.
+	\item \textbf{TODO Tobi: record changes to \inlvar{/calibration} group here.} 
+	\item Added new section changelog to the MDF documentation to record the development of the MDF.
 \end{itemize}
 
 
-\subsubsection{v1.0.5}
+\subsection{v1.0.5}
 
 \begin{itemize}
 	\item Added the possibility to store different channels of reconstructed data.
@@ -433,14 +409,14 @@ Usually the data is stored in a real data format but it is also possible to stor
 \end{itemize}
 
 
-\subsubsection{v1.0.4}
+\subsection{v1.0.4}
 
 \begin{itemize}
 	\item Clarify that HDF5 datasets are used to store MPI parameters.
 \end{itemize}
 
 
-\subsubsection{v1.0.3}
+\subsection{v1.0.3}
 
 \begin{itemize}
 	\item Updated Affiliations in the MDF specification.
@@ -449,14 +425,14 @@ Usually the data is stored in a real data format but it is also possible to stor
 \end{itemize}
 
 
-\subsubsection{v1.0.2}
+\subsection{v1.0.2}
 
 \begin{itemize}
 	\item Added reference to arXiv paper and bibtex file for reference.
 \end{itemize}
 
 
-\subsubsection{v1.0.1}
+\subsection{v1.0.1}
 
 \begin{itemize}
 	\item A sanity check within the Julia code shipped alongside the specifications.
@@ -465,7 +441,6 @@ Usually the data is stored in a real data format but it is also possible to stor
 	\item Updated documentation to the Julia, Matlab and Python reconstruction scripts.
 	\item Improved Julia reconstruction script, automatically downloading the required MDF files.
 \end{itemize}
-
 \end{multicols}
 
 
