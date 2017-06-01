@@ -307,6 +307,17 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \end{tabularx}
 
 
+\subsection{Processing (group: \inl{/processing/})}
+
+
+\noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
+\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
+\inlvar{processedData} & \inltab{Number} & $N \times J \times C \times K\times 2$ & & yes & Processed data stored in frequency domain representation \\ \hline 
+\inlvar{backgroundCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if a background has been corrected \\ \hline  
+\inlvar{spectralLeakageCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if spectral leakage correction has been applied \\ \hline
+\inlvar{transferFunctionCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if the transfer function has been corrected \\ \hline 
+\end{tabularx} 
+
 \subsection{Calibration (group: \inl{/calibration/})}
 
 \begin{multicols}{2}
