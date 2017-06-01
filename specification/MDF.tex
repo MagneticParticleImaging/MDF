@@ -311,14 +311,16 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $Q \times J \times C \times K\times 2$ & & yes & Processed data stored in frequency domain representation \\ \hline 
-\inlvar{dataTransposed} & \inltab{Number} & $ J \times C \times K\times Q \times 2$ & & yes & As processed data but transposed \\ \hline
+\inlvar{data} & \inltab{Number} & $Q \times J \times C \times K\times 2$ or $ J \times C \times K\times Q \times 2$ or $Q \times J \times C \times \tilde{Z}$ or $ J \times C \times \tilde{Z} \times Q$ & & yes & Processed data \\ \hline 
+\inlvar{isFourierTransformed} & \inltab{Int8} & 1 & & yes & flag indicating if the data is stored in frequency space \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if spectral leakage correction has been applied \\ \hline
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if the transfer function has been corrected \\ \hline 
 \inlvar{isAveraged} & \inltab{Int8} & 1 & & yes & flag indicating if the raw data has been averaged in a processing step \\ \hline 
 \inlvar{isFramesSelected} & \inltab{Int8} & 1 & & yes & flag indicating if the processed data contains only a selection of the raw data \\ \hline
-\inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if a background has been corrected \\ \hline   
-\inlvar{permutation} & \inltab{Int64} & $Q$ & & yes & Index vector indicating a permutation of the $Q$ frames\\ \hline 
+\inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if a background has been corrected \\ \hline
+\inlvar{isTransposed} & \inltab{Int8} & 1 & & yes & flag indicating of the Dimension $Q$ has been moved to ...\\ \hline 
+\inlvar{framePermutation} & \inltab{Int64} & $Q$ & & yes & Index vector indicating a permutation of the $Q$ frames\\ \hline 
+
 \end{tabularx} 
 
 \subsection{Calibration (group: \inl{/calibration/})}
