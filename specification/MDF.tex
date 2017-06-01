@@ -303,19 +303,22 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \inlvar{unit} & \inltab{String} & $1$ & & yes & SI unit of the measured quantity, usually V \\ \hline 
 \inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
 \inlvar{data} & \inltab{Number} & $N+M \times J \times C \times Z$ & & yes & Measurement data stored in time domain representation \\ \hline 
-\inlvar{isBackgroundData} & \inltab{Int8} & $N+M$ & & yes & TODO \\ \hline 
+\inlvar{isBackgroundData} & \inltab{Int8} & $N+M$ & & yes & Boolean mask indicating for each frame if it contains background data or not. \\ \hline 
 \end{tabularx}
 
 
 \subsection{Processing (group: \inl{/processing/})}
 
-
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{processedData} & \inltab{Number} & $N \times J \times C \times K\times 2$ & & yes & Processed data stored in frequency domain representation \\ \hline 
-\inlvar{backgroundCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if a background has been corrected \\ \hline  
-\inlvar{spectralLeakageCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if spectral leakage correction has been applied \\ \hline
-\inlvar{transferFunctionCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if the transfer function has been corrected \\ \hline 
+\inlvar{processedData} & \inltab{Number} & $Q \times J \times C \times K\times 2$ & & yes & Processed data stored in frequency domain representation \\ \hline 
+\inlvar{processedDataTransposed} & \inltab{Number} & $ J \times C \times K\times Q \times 2$ & & yes & As processed data but transposed \\ \hline
+\inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if spectral leakage correction has been applied \\ \hline
+\inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if the transfer function has been corrected \\ \hline 
+\inlvar{isAveraged} & \inltab{Int8} & 1 & & yes & flag indicating if the raw data has been averaged in a processing step \\ \hline 
+\inlvar{isFramesSelected} & \inltab{Int8} & 1 & & yes & flag indicating if the processed data contains only a selection of the raw data \\ \hline
+\inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & & yes & flag indicating if a background has been corrected \\ \hline   
+\inlvar{permutation} & \inltab{Int64} & $Q$ & & yes & Index vector indicating a permutation of the $Q$ frames\\ \hline 
 \end{tabularx} 
 
 \subsection{Calibration (group: \inl{/calibration/})}
@@ -323,30 +326,29 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \begin{multicols}{2}
 \paragraph{Remarks:}
 \textbf{TODO Tobi: Update group with the changes from latest discussion.}
-To handle system matrix data efficiently, Fourier transformation and extensive reordering of the raw time domain data is required. Therefore, a post processed and background corrected system matrix can be stored separately. 
 
-This post processing is done as follows:
-\begin{itemize}
-	\item First, the background corrected time domain data is Fourier transformed along the $Z$ dimension into a $N \times J \times C \times K$ complex valued dataset.
-	\item Second, this dataset is brought into a real valued representation of $N \times J \times C \times K \times 2$ real valued data points.
-	\item Third, the data is partially transposed into the form $J \times C \times K \times N \times 2$.
-\end{itemize}
-This representation grants a quick access to the frequency dimensions $J \times C \times K$ and therefore a fast frequency selection without having read the entire system matrix. For this selection often the signal to noise characteristics of the frequency components is used, which can be stored as well, without having to post process the raw measurement data repeatedly. 
-
-Each of the $N$ calibration measurements is taken with a a calibration sample (delta sample) at a fixed position inside the FOV of the scanner. Each background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored in the order in which they were taken, but with respect to the corresponding spatial position of the delta sample. If a regular grid of size $N_x \times N_y \times N_z$ is used for sampling, by default the $N_xN_YN_z = N$ measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $N$ positions.
+%To handle system matrix data efficiently, Fourier transformation and extensive reordering of the raw time domain data is required. Therefore, a post processed and background corrected system matrix can be stored separately. 
+%
+%This post processing is done as follows:
+%\begin{itemize}
+%	\item First, the background corrected time domain data is Fourier transformed along the $Z$ dimension into a $N \times J \times C \times K$ complex valued dataset.
+%	\item Second, this dataset is brought into a real valued representation of $N \times J \times C \times K \times 2$ real valued data points.
+%	\item Third, the data is partially transposed into the form $J \times C \times K \times N \times 2$.
+%\end{itemize}
+%This representation grants a quick access to the frequency dimensions $J \times C \times K$ and therefore a fast frequency selection without having read the entire system matrix. For this selection often the signal to noise characteristics of the frequency components is used, which can be stored as well, without having to post process the raw measurement data repeatedly. 
+%
+%Each of the $N$ calibration measurements is taken with a a calibration sample (delta sample) at a fixed position inside the FOV of the scanner. Each background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored in the order in which they were taken, but with respect to the corresponding spatial position of the delta sample. If a regular grid of size $N_x \times N_y \times N_z$ is used for sampling, by default the $N_xN_YN_z = N$ measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $N$ positions.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{systemMatrixData} & \inltab{Number} & $J \times C \times K \times Q \times 2$  & & yes & Stores the background corrected system matrix in Fourier representation with the last dimension storing the complex data. \\  \hline
 \inlvar{snr} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{orderDimensions} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $Q \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) triples \\ \hline
-\inlvar{dataPositionIndex} & \inltab{Int64} & $N$ & m & yes & Order in which the positions have been acquired \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $N \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position ($x$, $y$, $z$) \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $Q \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position ($x$, $y$, $z$) \\ \hline
 \inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta sample used for calibration scan \\ \hline
 \inlvar{method} & \inltab{String} & 1 & & yes & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
 \end{tabularx}
