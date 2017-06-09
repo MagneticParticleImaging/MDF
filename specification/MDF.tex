@@ -105,11 +105,9 @@ Version \version of the MDF is mainly focused on storing raw measurement data, p
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most data sets a fixed datatype is used, i.e. the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convinience we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE} and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}.
 
-The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. The same holds true for the \inl{Integer} data type, which can be any of: \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
+The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \inl{H5T_NATIVE_DOUBLE}, \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. The same holds true for the \inltab{Integer} data type, which can be any of: \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
 
 For later identification of a data set we store three UUIDs (RFC 4122) \cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inl{8-4-4-4-12} as for example \inl{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs we recomend to use version 4.
-
-MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF.
 
 Since storing complex data in HDF5 is not standardized, we extend the dimensionality of an existing array and store the real and imaginary part in the last dimension with size 2 (index 0 = real part, index 1 = imaginary part). In this way the real and imaginary part of a complex datum is stored sequentially on disk.
 
@@ -359,7 +357,7 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \paragraph{Remarks:}
 The \inl{/measurement/} group contains the raw MPI data as digitized by the receiver. In order to perform a reconstruction it is necessary to perform a certain set of data processing operations. The processing group is designed to store a certain processing state. Note that the processing group is optional and usually one will only store either \inl{/measurement/} or \inl{/processing/} to keep the file size at bay.
 
-The processings may be applied in different order although a canonical order is described next. First, an optional spectral leakage correction may be applied to ensure that each frame is periodic. Then it is possible to perform a frame selection. After that one may average the data e.g. using block averaging or sliding window averaging. The number of frames after frame selection and averaging is reduced from $N$ to $O$. Next, a background correction can be performed. Following this step, the time data can be transformed into the Fourier domain using a fast Fourier transformation. Once the data is given in Fourier representation a frequency selection can be performed. Finally, the transfer function of the receive channel can be corrected to obtain the voltage as it is measured directly at the receive coil.
+The processings may be applied in different order although a canonical order is described next. First, an optional spectral leakage correction may be applied to ensure that each frame is periodic. Then it is possible to perform a frame selection. After that one may average the data e.g. using block averaging or sliding window averaging. The number of frames after frame selection and averaging is reduced from $N$ to $O$. Next, a background correction can be performed. Following this step, the time data can be transformed into the Fourier domain using a fast Fourier transformation. Once the data is given in Fourier representation a frequency selection can be performed. Fourier transformation of the raw data yields the frequency components indexed by $\left\{ 1,2,\dots L \right\}$ of which a subset of cardinality $K$ can be selected and stored. The selected indeces can be stored in \inlvar{frequencySelection}. Finally, the transfer function of the receive channel can be corrected to obtain the voltage as it is measured directly at the receive coil.
 
 If the measurements are part of a calibration scan it is possible to perform two additional operations. First, the data may be reordered, since the robot might be moved along a meandering trajectory. Then, it is also quite common to perform a partial transposition of the data. I.e. transposition of the dimensions $O\times J\times C$ and $K$ neglecting the helper dimension for complex numbers.
 \end{multicols}
@@ -374,7 +372,7 @@ If the measurements are part of a calibration scan it is possible to perform two
 \inlvar{isFramesSelected} & \inltab{Int8} & 1 & & no & flag indicating if the processed data contains only a selection of the raw data \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & & no & flag indicating if a background has been corrected \\ \hline
 \inlvar{isPartialTransposed} & \inltab{Int8} & 1 & & no & flag indicating of the Dimension $O$ has been moved to ...\\ \hline
-\inlvar{frequencySelection} & \inltab{Integer} & K & & yes & Selected frequencies \\ \hline
+\inlvar{frequencySelection} & \inltab{Integer} & K & & yes & Indeces of selected frequency components \\ \hline
 \inlvar{framePermutation} & \inltab{Integer} & $O$ & & yes & Index vector indicating a permutation of the $O$ frames\\ \hline 
 
 \end{tabularx} 
@@ -383,12 +381,12 @@ If the measurements are part of a calibration scan it is possible to perform two
 
 \begin{multicols}{2}
 \paragraph{Remarks:}
-\textbf{TK: Ich bin hier relativ unsicher, was optional und was nicht. Bei nicht-kartesischen SF wird ganz viel plötzlich optional}
+\textbf{TK: Ich bin hier relativ unsicher, was optional und was nicht. Bei nicht-kartesischen SF wird ganz viel plötzlich optional. MM: Das gleiche Dilemma gibt es auch bei der nächsten Gruppe. Ich denke grade mit den Rekonstruierten daten benötigen wir noch mehr Erfahrung um da ne Gute Entscheidung treffen zu können.}
 
 
-The calibration group describes a calibration experiment.
+The calibration group describes a calibration experiment. Each of the $N$ raw measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner and each of the raw background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and Transposition of the data has been performed yielding $O$ processed calibration frames. Which steps have been performed can be documented in the \inl{/processing/} group.
 
-Each of the $O$ calibration measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner. Each calibration measurement may consist of several raw data frames being averaged. Each background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored in the order in which they were taken, but with respect to the corresponding spatial position of the delta sample. If a regular grid of size $N_x \times N_y \times N_z$ is used for sampling, by default the $N_xN_YN_z = N$ measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions.
+If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
@@ -435,7 +433,10 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 	\item Updated Affiliations in the MDF specification.
 	\item Made extensive improvements to the descriptions of fields and groups.
 	\item In v1.x the MDF allowed certain fields to have varying dimensions depending on the context. This has been removed such that starting from v2.0 all dimensions have to be specified. This change  should make implementations handling MDF files less complex. 
-	\item Specified supported data types for the storage of measurement data and reconstruction data.
+	\item Specified supported data types.
+	\item Added table of all parameters in the MDF.
+	\item Added section describing the possibility to add custom fields to MDF files.
+	\item Added description for optional and non optional groups and conditional optional and non-optional data sets.
 	\item Rename \inlvar{/date} to \inlvar{/time} for consistency reasons.
 	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements.
 	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons and changed type to \inlvar{Int8}.
@@ -457,7 +458,8 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 	\item Moved \inlvar{/drivefield/averages} to \inlvar{/receiver/numAverages}
 	\item Remove \inlvar{/acquisition/receiver/frequencies} since it can be directly derived from \inlvar{/acquisition/receiver/bandwidth} and \inlvar{/acquisition/receiver/numSamplingPoints}.
 	\item \textbf{TODO Tobi: record changes to \inlvar{/measurement} group here.} Added possibility to store the transformation from raw data to a physical representation with units. Signal to noise ratios can now be stored for each patch indivisually. To do so the dimension $P$ was added to this field.
-	\item \textbf{TODO Tobi: record changes to \inlvar{/calibration} group here.} 
+	\item \textbf{TODO Tobi: record changes to \inlvar{/calibration} group here.}
+	\item Added possibility to mark the overscan region.
 	\item Added new section changelog to the MDF documentation to record the development of the MDF.
 \end{itemize}
 
