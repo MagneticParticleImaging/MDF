@@ -142,8 +142,8 @@ $U$ &  Number of sampling points describing a custom drive-field waveform\\ \hli
 $J$ &  Number of focus-field patches\\ \hline
 $V$ &  Number of of points sampled at receiver during one drive-field period\\ \hline
 $L$ &  Number of frequencies describing the transfer function (usually $L=\frac{V}{2}+1$)\\ \hline
-$K$ &  Number of frequencies desscribing processed data (usually $K=L$ if no bandwidth reduction has been done)\\ \hline
-$W$ &  Number of sampling points for processed data (usually $W=V$ except when a bandwidth reduction has been done)\\ \hline
+$K$ &  Number of frequencies describing processed data (usually $K=L$ if no frequency selection has been done)\\ \hline
+$W$ &  Number of sampling points used to store processed data (usually $W=V$ except when a bandwidth reduction has been done)\\ \hline
 $O$ &  Number of processed data frames (usually $O=N$ except when averaging and/or frame selection has been performed)\\ \hline
 $P$ &  Number of voxels in the reconstructed MPI data set\\ \hline
 $Q$ &  Number of frames in the reconstructed MPI data set\\ \hline
@@ -333,9 +333,23 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-MPI data is usually acquired by a series of $N$ measurements and $M$ optional background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Both the $N$ measurements and the $M$ background measurements can be stored in an arbitrary order, e.g. with respect to the spatial position of a delta sample if the data corresponds to a calibration measurement. To be able to recover the time order in which the measurements were taken each of the $N+M$ data sets can be assigned an integer number $o = 1,2,\dots,N+M$ ordering the measurements and background measurements with respect to time. I.e. data set $o_1$ is acquired prior to data set $o_2$, if and only if $o_1 < o_2$.
+MPI data is usually acquired by a series of $N$ measurements and $M$ optional background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \textit{numFrames}), the frame dimension is the slowest to access. Along this dimension the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation each frame would be stored by $J \times C\times L \times 2$ data points with the last dimension accounting for the complex data and $L=\frac V 2 +1$.
 
-The resulting $N$ measurements and $M$ background measurements are stored in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access. If several measurements are acquired (indicated by \textit{numFrames}), the $N$ measurements and $M$ background measurements are concatenated along the slowest dimension respectively.
+Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of frames from $N+M$ to $O$, to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components from $L$ to $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
+\begin{enumerate}
+	\item spectral leakage correction which may be applied to ensure that each individual frame is periodic.
+	\item frame selection to remove non relevant frames from the data set.
+	\item averaging of the raw data, which effectively reduces the number of frames.
+	\item background correction, where the background signal in subtracted.
+	\item Fourier transformation bringing the data from time into the Fourier representation.
+	\item transfer function correction to obtain the voltage as it is measured directly at the receive coil.
+	\item frequency selection to reduce the number of frequency components, e.g. bandwidth reduction or selection of high signal frequency components.
+	\item frame permutation to reorder the frames within the data set.
+	\item data transposition which is usually applied to Fourier transformed data exchanges the storing order of the data for fast access to the frames.
+\end{enumerate}
+For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
+
+During processing one might want to keep track which of the final $O$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{backgroundFrame} can be used. Similar for frequency selection one can keep track of the $K$ frequency components selected by storing the selected subset of the raw $\left\{ 1,2,\dots L \right\}$ frequency components acquired during measurements in \inlvar{frequencySelection}. If the $O$ frames are reordered \inlvar{framePermutation} can be used to store the underlying permutation by storing the second line of Cauchy's two-line notation. 
 
 During measurements the analog signal measured is usually converted into $(r_1,\dots,r_{JV}) \in \mathbb Z^J \times \mathbb Z^V$ integer values per channel $c \in C$ and frame using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding unit of measurement, i.e. usually voltages. Note that these factors are also used to map (unsigned) integers to a floating point range.
 \end{multicols}
@@ -343,37 +357,20 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually V \\ \hline 
-\inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & & no & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times V$ & & no & Measurement data stored in time domain representation \\ \hline 
-\inlvar{dataTimeOrder} & \inltab{Integer} & $N$ & & yes & Time ordering number for measurements \\ \hline	
-\inlvar{backgroundData} & \inltab{Number} &  $M \times J \times C \times V$ & & yes & Background measurements stored in time domain representation \\ \hline
- \inlvar{backgroundDataTimeOrder} & \inltab{Integer} & $M$ & & yes & Time ordering number for background measurements \\ \hline
- \end{tabularx}
-
-\subsection{Processing (group: \inl{/processing/}, optional)}
-
-\begin{multicols}{2}
-
-\paragraph{Remarks:}
-The \inl{/measurement/} group contains the raw MPI data as digitized by the receiver. In order to perform a reconstruction it is necessary to perform a certain set of data processing operations. The processing group is designed to store a certain processing state. Note that the processing group is optional and usually one will only store either \inl{/measurement/} or \inl{/processing/} to keep the file size at bay.
-
-The processings may be applied in different order although a canonical order is described next. First, an optional spectral leakage correction may be applied to ensure that each frame is periodic. Then it is possible to perform a frame selection. After that one may average the data e.g. using block averaging or sliding window averaging. The number of frames after frame selection and averaging is reduced from $N$ to $O$. Next, a background correction can be performed. Following this step, the time data can be transformed into the Fourier domain using a fast Fourier transformation. Once the data is given in Fourier representation a frequency selection can be performed. Fourier transformation of the raw data yields the frequency components indexed by $\left\{ 1,2,\dots L \right\}$ of which a subset of cardinality $K$ can be selected and stored. The selected indeces can be stored in \inlvar{frequencySelection}. Finally, the transfer function of the receive channel can be corrected to obtain the voltage as it is measured directly at the receive coil.
-
-If the measurements are part of a calibration scan it is possible to perform two additional operations. First, the data may be reordered, since the robot might be moved along a meandering trajectory. Then, it is also quite common to perform a partial transposition of the data. I.e. transposition of the dimensions $O\times J\times C$ and $K$ neglecting the helper dimension for complex numbers.
-\end{multicols}
-
-\noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
-\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $O \times J \times C \times K\times 2$ or $ J \times C \times K\times O \times 2$ or $O \times J \times C \times W$ or $ J \times C \times W \times O$ & & yes & Processed data \\ \hline 
-\inlvar{isFourierTransformed} & \inltab{Int8} & 1 & & no & flag indicating if the data is stored in frequency space \\ \hline
+\inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
+\inlvar{data} & \inltab{Number} & $O \times J \times C \times K\times 2$ or $ J \times C \times K\times O \times 2$ or $O \times J \times C \times W$ or $ J \times C \times W \times O$ & & no & Processed data \\ \hline 
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & & no & flag indicating if spectral leakage correction has been applied \\ \hline
-\inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & & no & flag indicating if the transfer function has been corrected \\ \hline 
+\inlvar{isFrameSelection} & \inltab{Int8} & 1 & & no & flag indicating if the processed data contains only a selection of the raw data \\ \hline
 \inlvar{isAveraged} & \inltab{Int8} & 1 & & no & flag indicating if the raw data has been averaged in a processing step \\ \hline 
-\inlvar{isFramesSelected} & \inltab{Int8} & 1 & & no & flag indicating if the processed data contains only a selection of the raw data \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & & no & flag indicating if a background has been corrected \\ \hline
+\inlvar{isFourierTransformed} & \inltab{Int8} & 1 & & no & flag indicating if the data is stored in frequency space \\ \hline
+\inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & & no & flag indicating if the transfer function has been corrected \\ \hline 
+\inlvar{isFrequencySelected} & \inltab{Int8} & 1 & & no & flag indicating if frequencies have been selected \\ \hline 
+\inlvar{isFramePermution} & \inltab{Int8} & 1 & & no & flag indicating if the order of frames have been changes \\ \hline 
 \inlvar{isPartialTransposed} & \inltab{Int8} & 1 & & no & flag indicating of the Dimension $O$ has been moved to ...\\ \hline
 \inlvar{frequencySelection} & \inltab{Integer} & K & & yes & Indeces of selected frequency components \\ \hline
-\inlvar{framePermutation} & \inltab{Integer} & $O$ & & yes & Index vector indicating a permutation of the $O$ frames\\ \hline 
+\inlvar{backgroundFrame} & \inltab{Int8} & $O$ & & yes & Mask indicating for each of the $O$ frames if it is a background measurement (true) or not \\ \hline
+\inlvar{framePermutation} & \inltab{Integer} & $O$ & & yes & Index vector indicating a permutation of the $O$ frames \\ \hline
 
 \end{tabularx} 
 
