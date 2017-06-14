@@ -272,8 +272,6 @@ In general each MPI dataset consists of measurement data of $N+M$ frames, where 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{startTime} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
-\inlvar{numFrames} & \inltab{Int64} & 1 & 1 & no & Number of available measurement frames, denoted by $N$ \\ \hline
-\inlvar{numBackgroundFrames} & \inltab{Int64} & 1 & 1 & no & Number of available background measurement frames, denoted by $M$ \\ \hline
 \inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Complete time to acquire data of a full frame (product of drive field \inlvar{period}, \inlvar{numPatches}, and \inlvar{numAverages}) \\ \hline
 \inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline 
 \inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
@@ -355,22 +353,23 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
-\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
+\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{U/F} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually V \\ \hline 
 \inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{data} & \inltab{Number} & $O \times J \times C \times K\times 2$ or $ J \times C \times K\times O \times 2$ or $O \times J \times C \times W$ or $ J \times C \times W \times O$ & & no & Processed data \\ \hline 
+\inlvar{data} & \inltab{Number} & $O \times J \times C \times K\times 2$ or $ J \times C \times K\times O \times 2$ or $O \times J \times C \times W$ or $ J \times C \times W \times O$ & & no & Processed data \\ \hline
+\inlvar{numFrames} & \inltab{Integer} & 1 &  & no & Number of available measurement frames, denoted by $O$ \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & & no & flag indicating if spectral leakage correction has been applied \\ \hline
 \inlvar{isFrameSelection} & \inltab{Int8} & 1 & & no & flag indicating if the processed data contains only a selection of the raw data \\ \hline
-\inlvar{isAveraged} & \inltab{Int8} & 1 & & no & flag indicating if the raw data has been averaged in a processing step \\ \hline 
+\inlvar{isAveraged} & \inltab{Int8} & 1 & & no & flag indicating if the raw data has been averaged in a processing step \\ \hline  
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & & no & flag indicating if a background has been corrected \\ \hline
 \inlvar{isFourierTransformed} & \inltab{Int8} & 1 & & no & flag indicating if the data is stored in frequency space \\ \hline
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & & no & flag indicating if the transfer function has been corrected \\ \hline 
-\inlvar{isFrequencySelected} & \inltab{Int8} & 1 & & no & flag indicating if frequencies have been selected \\ \hline 
+\inlvar{isFrequencySelection} & \inltab{Int8} & 1 & & no & flag indicating if frequencies have been selected \\ \hline 
 \inlvar{isFramePermution} & \inltab{Int8} & 1 & & no & flag indicating if the order of frames have been changes \\ \hline 
-\inlvar{isPartialTransposed} & \inltab{Int8} & 1 & & no & flag indicating of the Dimension $O$ has been moved to ...\\ \hline
-\inlvar{frequencySelection} & \inltab{Integer} & K & & yes & Indeces of selected frequency components \\ \hline
-\inlvar{backgroundFrame} & \inltab{Int8} & $O$ & & yes & Mask indicating for each of the $O$ frames if it is a background measurement (true) or not \\ \hline
-\inlvar{framePermutation} & \inltab{Integer} & $O$ & & yes & Index vector indicating a permutation of the $O$ frames \\ \hline
+\inlvar{isTransposed} & \inltab{Int8} & 1 & & no & flag indicating of the Dimension $O$ has been moved to ...\\ \hline
+\inlvar{frequencySelection} & \inltab{Integer} & K & & yes & Indices of selected frequency components \\ \hline
+\inlvar{isBackgroundFrame} & \inltab{Int8} & $O$ & & yes & Mask indicating for each of the $O$ frames if it is a background measurement (true) or not \\ \hline
+\inlvar{numAverages} & \inltab{Integer} & $O$ & & yes & Number of raw data frames contained in each data frame \\ \hline
 
 \end{tabularx} 
 
@@ -378,9 +377,6 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 
 \begin{multicols}{2}
 \paragraph{Remarks:}
-\textbf{TK: Ich bin hier relativ unsicher, was optional und was nicht. Bei nicht-kartesischen SF wird ganz viel plötzlich optional. MM: Das gleiche Dilemma gibt es auch bei der nächsten Gruppe. Ich denke grade mit den Rekonstruierten daten benötigen wir noch mehr Erfahrung um da ne Gute Entscheidung treffen zu können.}
-
-
 The calibration group describes a calibration experiment. Each of the $N$ raw measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner and each of the raw background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and Transposition of the data has been performed yielding $O$ processed calibration frames. Which steps have been performed can be documented in the \inl{/processing/} group.
 
 If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions.
