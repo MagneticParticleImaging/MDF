@@ -117,7 +117,9 @@ Physical quantities are given in SI units with one exception. The field strength
 
 \subsection{Optional Parameters}
 
-The MDF has 9 main groups in the root directory. We distinguish between optional and non-optional groups and optional and non-optional parameters. Any optional parameter can be omitted, whereas any non-optional parameter in a non-optional group is mandatory. If a group its self is optional its non-optional parameters are only required if the optional group is used. The groups \inlvar{/}, \inlvar{/study}, \inlvar{/experiment}, \inlvar{/tracer}, \inlvar{/scanner}, \inlvar{/acquisition} contain mostly metadata and are mandatory. The groups \inlvar{/measurement}, \inlvar{/processing}, \inlvar{/calibration}, and \inlvar{/reconstruction} are all optional. In case of calibration measurements, the \inlvar{/calibration} group is mandatory. \inlvar{/measurement} and \inlvar{/processing} are both optional but MPI measurement data will contain one of both groups. Reconstruction data is stored in \inlvar{/reconstruction}. One should not store regular measurements, calibration data, and reconstruction results in a single MDF. Instead, individual files should be used.
+The MDF has 9 main groups in the root directory. We distinguish between optional and non-optional groups and optional, non-optional, and conditional parameters. Any optional parameter can be omitted, whereas any non-optional parameter in a non-optional group is mandatory. Conditional parameters are linked to Boolean parameters and have to be provided if that parameter is true and can be omitted if that parameter is false. If a parameter is optional, non-optional, or conditional is indicated by yes, no, or the corresponding Boolean parameter respectively.
+
+If a group is optional all of its parameters may be omitted if this group is not used. The groups \inlvar{/}, \inlvar{/study}, \inlvar{/experiment}, \inlvar{/tracer}, \inlvar{/scanner}, \inlvar{/acquisition} contain mostly metadata and are mandatory. The groups \inlvar{/measurement}, \inlvar{/processing}, \inlvar{/calibration}, and \inlvar{/reconstruction} are all optional. In case of calibration measurements, the \inlvar{/calibration} group is mandatory. \inlvar{/measurement} and \inlvar{/processing} are both optional but MPI measurement data will contain one of both groups. Reconstruction data is stored in \inlvar{/reconstruction}. One should not store regular measurements, calibration data, and reconstruction results in a single MDF. Instead, individual files should be used.
 
 \subsection{Parameter Extension}
 
@@ -167,6 +169,8 @@ As of version 1.0.1 the most recent release of these specifications can also be 
 If you use MDF please cite us using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
 
 \subsection{Sanity Check}
+
+TODO: move sanity check to \inl{MPIFile.jl}
 
 In order to check if a generated MDF file is valid, we provide a sanity check script that can be found in the gitub repository:\\
 \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\
@@ -266,7 +270,7 @@ This version of the MDF can handle two basic scenarios. In the first one static 
 \begin{multicols}{2}
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information within this group, a subgroup containing information on the $D$ excitation channels and a subgroup containing information on the $C$ receive channels.
 
-In general each MPI dataset consists of measurement data of $N+M$ frames, where $N$ is the number of subject measurements and $M$ is the number of background measurements. A frame groups together all data used to reconstruct a single MPI image/tomogram. In the simplest scenario a frame consist of the data acquired during a single drive field cycle. If averaging is applied at the receiver the time it takes to capture a single frame increases by \inlvar{receiver/numAverages}, but the amount of data captured remains the same. In a multi patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift} to different spatial positions. Here $J$ is the number of patches of a multi patch measurement. In such a scenario a frame may consist of $J$ sub-measurements, each of which is acquired and averaged over \inlvar{receiver/numAverages} drive field cycles. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
+In MPI a frame groups together all data used to reconstruct a single MPI image/tomogram. In the simplest scenario this data is aquired during one drive field period. If averaging is applied this time increases by \inlvar{receiver/numAverages}. In a multi patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift} to different spatial positions, were $J$ is the number of patches of a multi patch measurement. At each positions at least one full drive field cycle is used to aquire measurement data. As such a frame may consist of $J$ sub-measurements, each of which is acquired and averaged over \inlvar{receiver/numAverages} drive field cycles. For instance a Cartesian 2D trajectory with 100 lines would be realized by setting \inl{numPatches} $ = 100$.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -331,9 +335,9 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-MPI data is usually acquired by a series of $N$ measurements and $M$ optional background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \textit{numFrames}), the frame dimension is the slowest to access. Along this dimension the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation each frame would be stored by $J \times C\times L \times 2$ data points with the last dimension accounting for the complex data and $L=\frac V 2 +1$.
+MPI data is usually acquired by a series of measurements and optional background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \textit{numFrames}), the frame dimension is the slowest to access. Along this dimension the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation each frame would be stored by $J \times C\times K \times 2$ data points with the last dimension accounting for the complex data and $K = \frac V 2 +1$.
 
-Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of frames from $N+M$ to $O$, to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components from $L$ to $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
+Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of frames to $O$, to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components from $L$ to $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
 	\item spectral leakage correction which may be applied to ensure that each individual frame is periodic.
 	\item frame selection to remove non relevant frames from the data set.
@@ -347,39 +351,39 @@ Often it is not convenient to store the raw data but to perform certain processi
 \end{enumerate}
 For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
 
-During processing one might want to keep track which of the final $O$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{backgroundFrame} can be used. Similar for frequency selection one can keep track of the $K$ frequency components selected by storing the selected subset of the raw $\left\{ 1,2,\dots L \right\}$ frequency components acquired during measurements in \inlvar{frequencySelection}. If the $O$ frames are reordered \inlvar{framePermutation} can be used to store the underlying permutation by storing the second line of Cauchy's two-line notation. 
+During processing one might want to keep track which of the final $O$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} can be used. If \inlvar{isBackgroundFrame} is not provided it is assumed that no background measurements are present. If averaging has been performed \inlvar{numAverages} stores for each $1\le o \le O$ the number of raw measurements averaged into frame $o$. Similar \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of aquired frequency components $\left\{ 1,2,\dots L \right\}$ if a frequency selection has been performed. Frame permutation if performed can be described by a permutaion, i.e. a bijective mapping $\sigma : \left\{ 1,2,\dots,O \right\} \rightarrow \left\{ 1,2,\dots,O \right\}$ of the set of frame indices to itself. If such a permutation is performed $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(O)$ in \inlvar{framePermutation}.
 
 During measurements the analog signal measured is usually converted into $(r_1,\dots,r_{JV}) \in \mathbb Z^J \times \mathbb Z^V$ integer values per channel $c \in C$ and frame using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding unit of measurement, i.e. usually voltages. Note that these factors are also used to map (unsigned) integers to a floating point range.
 \end{multicols}
 
-\noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
-\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{U/F} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually V \\ \hline 
-\inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{data} & \inltab{Number} & $O \times J \times C \times K\times 2$ or $ J \times C \times K\times O \times 2$ or $O \times J \times C \times W$ or $ J \times C \times W \times O$ & & no & Processed data \\ \hline
-\inlvar{numFrames} & \inltab{Integer} & 1 &  & no & Number of available measurement frames, denoted by $O$ \\ \hline
-\inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & & no & flag indicating if spectral leakage correction has been applied \\ \hline
-\inlvar{isFrameSelection} & \inltab{Int8} & 1 & & no & flag indicating if the processed data contains only a selection of the raw data \\ \hline
-\inlvar{isAveraged} & \inltab{Int8} & 1 & & no & flag indicating if the raw data has been averaged in a processing step \\ \hline  
-\inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & & no & flag indicating if a background has been corrected \\ \hline
-\inlvar{isFourierTransformed} & \inltab{Int8} & 1 & & no & flag indicating if the data is stored in frequency space \\ \hline
-\inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & & no & flag indicating if the transfer function has been corrected \\ \hline 
-\inlvar{isFrequencySelection} & \inltab{Int8} & 1 & & no & flag indicating if frequencies have been selected \\ \hline 
-\inlvar{isFramePermution} & \inltab{Int8} & 1 & & no & flag indicating if the order of frames have been changes \\ \hline 
-\inlvar{isTransposed} & \inltab{Int8} & 1 & & no & flag indicating of the Dimension $O$ has been moved to ...\\ \hline
-\inlvar{frequencySelection} & \inltab{Integer} & K & & yes & Indices of selected frequency components \\ \hline
-\inlvar{isBackgroundFrame} & \inltab{Int8} & $O$ & & yes & Mask indicating for each of the $O$ frames if it is a background measurement (true) or not \\ \hline
-\inlvar{numAverages} & \inltab{Integer} & $O$ & & yes & Number of raw data frames contained in each data frame \\ \hline
-
+\noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
+\textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
+\inlvar{unit} & \inltab{String} & $1$ & no & SI unit of the measured quantity, usually V \\ \hline 
+\inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
+\inlvar{data} & \inltab{Number} & $O \times J \times C \times K\times 2$ or $ J \times C \times K\times O \times 2$ or $O \times J \times C \times W$ or $ J \times C \times W \times O$ & no & Processed data \\ \hline
+\inlvar{numFrames} & \inltab{Integer} & 1 & no & Number of available measurement frames $O$ \\ \hline
+\inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
+\inlvar{isFrameSelection} & \inltab{Int8} & 1 & no & Flag, if frames have been selected \\ \hline
+\inlvar{isAveraged} & \inltab{Int8} & 1 & no & Flag, if averaging has been performed \\ \hline  
+\inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if a background has been corrected \\ \hline
+\inlvar{isFourierTransformed} & \inltab{Int8} & 1 & no & Flag, if the data is stored in frequency space \\ \hline
+\inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the transfer function has been corrected \\ \hline 
+\inlvar{isFrequencySelection} & \inltab{Int8} & 1 & no & Flag, if frequencies have been selected \\ \hline 
+\inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames have been changes \\ \hline 
+\inlvar{isTransposed} & \inltab{Int8} & 1 & no & Flag, if Dimension $O$ has been moved \\ \hline
+\inlvar{isBackgroundFrame} & \inltab{Int8} & $O$ & yes & Mask indicating for each of the $O$ frames if it is a background measurement (true) or not \\ \hline
+\inlvar{frequencySelection} & \inltab{Integer} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
+\inlvar{numAverages} & \inltab{Integer} & $O$ & \inlvar{isAveraged} & Number of raw data frames averaged for each data frame \\ \hline
+\inlvar{framePermutation} & \inltab{Integer} & $O$ & \inlvar{isFramePermutation} & Permutation performed \\ \hline
 \end{tabularx} 
 
 \subsection{Calibration (group: \inl{/calibration/}, optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:}
-The calibration group describes a calibration experiment. Each of the $N$ raw measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner and each of the raw background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and Transposition of the data has been performed yielding $O$ processed calibration frames. Which steps have been performed can be documented in the \inl{/processing/} group.
+The calibration group describes a calibration experiment. Each of the raw measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner and each of the raw background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and Transposition of the data has been performed yielding $O$ processed calibration frames. Which steps have been performed can be documented in the \inl{/processing/} group.
 
-If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. If a different ordering is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions.
+If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. Background measurements are collected at at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
