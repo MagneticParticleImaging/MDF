@@ -88,8 +88,17 @@ Version \textbf{\version}
 Magnetic particle imaging (MPI) is a tomographic method to determine the spatial distribution of magnetic nanoparticles. In this document a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different scanners world wide. The focus of the file format is on sequence parameters, raw measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format (HDF) in version 5 (HDF5).
 \end{abstract}
 
+\begin{multicols}{2}[\section{Prior to release: ToDo}]
+\begin{itemize}
+	\item Update arXiv version and the correspoonding entry in \inl{MDF.bib}
+	\item Move sanitycheck to \inl{MPIFile.jl}
+	\item mention MPIFile.jl written in the Julia programming language \cite{Bezanson2012,Bezanson2014,Bezanson2014a}
+	\item Update Examples
+	\item Update Changelog
+\end{itemize}
 
-\begin{multicols}{2}[\section{Introduction} \label{Sec:Introduction}]
+
+\section{Introduction} \label{Sec:Introduction}
 
 The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) and Magnetic Particle Spectroscopy (MPS) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5) \cite{hdf5}. HDF5 is able to store multiple datasets within a single file providing a powerful and flexible data container. To allow an easy exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available providing dynamic access from most programming languages. Matlab supports HDF5 by the functions \inl{h5read} and \inl{h5write}. For Python the \inl{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inl{HDF5} package. For languages based on the .NET framework the \inl{HDF5DotNet} library is available.
 
@@ -135,8 +144,6 @@ Several parameters within an MDF are linked in the dimensionality. We use short 
 \noindent \begin{longtable}{p{0.12\columnwidth}p{0.8\columnwidth}} 
 \textbf{Variable} & \textbf{Meaning}  \\ \hline
 $A$ &  Number of tracer materials/injections \\ \hline
-$N$ &  Number of acquired frames \\ \hline
-$M$ &  Number of acquired background frames \\ \hline
 $C$ &  Number of receive channels \\ \hline
 $D$ &  Number of drive-field channels \\ \hline
 $F$ &  Number of frequencies describing the drive-field waveform \\ \hline
@@ -146,7 +153,7 @@ $V$ &  Number of of points sampled at receiver during one drive-field period\\ \
 $L$ &  Number of frequencies describing the transfer function (usually $L=\frac{V}{2}+1$)\\ \hline
 $K$ &  Number of frequencies describing processed data (usually $K=L$ if no frequency selection has been done)\\ \hline
 $W$ &  Number of sampling points used to store processed data (usually $W=V$ except when a bandwidth reduction has been done)\\ \hline
-$O$ &  Number of processed data frames (usually $O=N$ except when averaging and/or frame selection has been performed)\\ \hline
+$N$ &  Number of data frames \\ \hline
 $P$ &  Number of voxels in the reconstructed MPI data set\\ \hline
 $Q$ &  Number of frames in the reconstructed MPI data set\\ \hline
 $S$ &  Number of channels in the reconstructed MPI data set\\ \hline
@@ -168,15 +175,11 @@ As of version 1.0.1 the most recent release of these specifications can also be 
 \hspace*{1cm}\url{http://arxiv.org/abs/1602.06072}\\
 If you use MDF please cite us using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
 
-\subsection{Sanity Check}
+\subsection{Code examples}
 
-TODO: move sanity check to \inl{MPIFile.jl}
-
-In order to check if a generated MDF file is valid, we provide a sanity check script that can be found in the gitub repository:\\
+If you want to get a basic impression of how to handle MDF files you can visit the gitub repository of the MDF project:\\
 \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\
-The code is written in the Julia programming language \cite{Bezanson2012,Bezanson2014,Bezanson2014a}, which has to be downloaded from: \\
-\hspace*{1cm} \url{http://julialang.org}.\\
-More detailed instructions can be found in the \texttt{README} of the repository.
+There you will find the directory example, which contains a code example written in Julia, Matlab and Python. More details can be found in the \texttt{README} of the repository.
 
 \end{multicols}
 
@@ -337,7 +340,7 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \paragraph{Remarks:}
 MPI data is usually acquired by a series of measurements and optional background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \textit{numFrames}), the frame dimension is the slowest to access. Along this dimension the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation each frame would be stored by $J \times C\times K \times 2$ data points with the last dimension accounting for the complex data and $K = \frac V 2 +1$.
 
-Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of frames to $O$, to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components from $L$ to $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
+Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of frames to $N$, to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components from $L$ to $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
 	\item spectral leakage correction which may be applied to ensure that each individual frame is periodic.
 	\item frame selection to remove non relevant frames from the data set.
@@ -351,7 +354,7 @@ Often it is not convenient to store the raw data but to perform certain processi
 \end{enumerate}
 For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
 
-During processing one might want to keep track which of the final $O$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} can be used. If \inlvar{isBackgroundFrame} is not provided it is assumed that no background measurements are present. If averaging has been performed \inlvar{numAverages} stores for each $1\le o \le O$ the number of raw measurements averaged into frame $o$. Similar \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of aquired frequency components $\left\{ 1,2,\dots L \right\}$ if a frequency selection has been performed. Frame permutation if performed can be described by a permutaion, i.e. a bijective mapping $\sigma : \left\{ 1,2,\dots,O \right\} \rightarrow \left\{ 1,2,\dots,O \right\}$ of the set of frame indices to itself. If such a permutation is performed $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(O)$ in \inlvar{framePermutation}.
+During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} can be used. If \inlvar{isBackgroundFrame} is not provided it is assumed that no background measurements are present. If averaging has been performed \inlvar{numAverages} stores for each $1\le o \le N$ the number of raw measurements averaged into frame $o$. Similar \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of aquired frequency components $\left\{ 1,2,\dots L \right\}$ if a frequency selection has been performed. Frame permutation if performed can be described by a permutaion, i.e. a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
 
 During measurements the analog signal measured is usually converted into $(r_1,\dots,r_{JV}) \in \mathbb Z^J \times \mathbb Z^V$ integer values per channel $c \in C$ and frame using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding unit of measurement, i.e. usually voltages. Note that these factors are also used to map (unsigned) integers to a floating point range.
 \end{multicols}
@@ -360,8 +363,8 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{unit} & \inltab{String} & $1$ & no & SI unit of the measured quantity, usually V \\ \hline 
 \inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{data} & \inltab{Number} & $O \times J \times C \times K\times 2$ or $ J \times C \times K\times O \times 2$ or $O \times J \times C \times W$ or $ J \times C \times W \times O$ & no & Processed data \\ \hline
-\inlvar{numFrames} & \inltab{Integer} & 1 & no & Number of available measurement frames $O$ \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K\times 2$ or $ J \times C \times K\times N \times 2$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Processed data \\ \hline
+\inlvar{numFrames} & \inltab{Integer} & 1 & no & Number of available measurement frames $N$ \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
 \inlvar{isFrameSelection} & \inltab{Int8} & 1 & no & Flag, if frames have been selected \\ \hline
 \inlvar{isAveraged} & \inltab{Int8} & 1 & no & Flag, if averaging has been performed \\ \hline  
@@ -370,20 +373,20 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the transfer function has been corrected \\ \hline 
 \inlvar{isFrequencySelection} & \inltab{Int8} & 1 & no & Flag, if frequencies have been selected \\ \hline 
 \inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames have been changes \\ \hline 
-\inlvar{isTransposed} & \inltab{Int8} & 1 & no & Flag, if Dimension $O$ has been moved \\ \hline
-\inlvar{isBackgroundFrame} & \inltab{Int8} & $O$ & yes & Mask indicating for each of the $O$ frames if it is a background measurement (true) or not \\ \hline
+\inlvar{isTransposed} & \inltab{Int8} & 1 & no & Flag, if Dimension $N$ has been moved \\ \hline
+\inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & yes & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
 \inlvar{frequencySelection} & \inltab{Integer} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
-\inlvar{numAverages} & \inltab{Integer} & $O$ & \inlvar{isAveraged} & Number of raw data frames averaged for each data frame \\ \hline
-\inlvar{framePermutation} & \inltab{Integer} & $O$ & \inlvar{isFramePermutation} & Permutation performed \\ \hline
+\inlvar{numAverages} & \inltab{Integer} & $N$ & \inlvar{isAveraged} & Number of raw data frames averaged for each data frame \\ \hline
+\inlvar{framePermutation} & \inltab{Integer} & $N$ & \inlvar{isFramePermutation} & Permutation performed \\ \hline
 \end{tabularx} 
 
 \subsection{Calibration (group: \inl{/calibration/}, optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:}
-The calibration group describes a calibration experiment. Each of the raw measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner and each of the raw background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and Transposition of the data has been performed yielding $O$ processed calibration frames. Which steps have been performed can be documented in the \inl{/processing/} group.
+The calibration group describes a calibration experiment. Each of the raw measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner and each of the raw background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and Transposition of the data has been performed yielding $N$ processed calibration frames. Which steps have been performed can be documented in the \inl{/processing/} group.
 
-If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. Background measurements are collected at at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions.
+If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. Background measurements are collected at at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $N$ positions.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
@@ -393,8 +396,8 @@ If the measurements were taken on a regular grid of size $N_x \times N_y \times 
 \inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
 \inlvar{size} & \inltab{Integer} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
-\inlvar{positions} & \inltab{Float64} & $O \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) triples \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $O \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position ($x$, $y$, $z$) \\ \hline
+\inlvar{positions} & \inltab{Float64} & $N \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) triples \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $N \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position ($x$, $y$, $z$) \\ \hline
 \inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta sample used for calibration scan \\ \hline
 \inlvar{method} & \inltab{String} & 1 & & no & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
 \end{tabularx}
@@ -429,11 +432,13 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 \begin{itemize}
 	\item Updated Affiliations in the MDF specification.
 	\item Made extensive improvements to the descriptions of fields and groups.
-	\item In v1.x the MDF allowed certain fields to have varying dimensions depending on the context. This has been removed such that starting from v2.0 all dimensions have to be specified. This change  should make implementations handling MDF files less complex. 
+	\item In v1.x the MDF allowed many fields to have varying dimensions depending on the context. As of version 2.0.0 only one field offers this freedom. This change should make implementations handling MDF files less complex. 
 	\item Specified supported data types.
 	\item Added table of all parameters in the MDF.
 	\item Added section describing the possibility to add custom fields to MDF files.
-	\item Added description for optional and non optional groups and conditional optional and non-optional data sets.
+	\item Added description for optional and non optional groups and conditional, optional and non-optional data sets.
+	\item Added short section on the code examples on the github repository.
+	\item Removed section on sanity check along side with sanity check.
 	\item Rename \inlvar{/date} to \inlvar{/time} for consistency reasons.
 	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements.
 	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons and changed type to \inlvar{Int8}.
@@ -447,7 +452,7 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 	\item Set all fields but \inlvar{topology} in the \inlvar{/scanner} group to be optional.
 	\item Rename \inlvar{/acquisition/time} to \inlvar{/acquisition/startTime}.
 	\item \inlvar{/acquisition/gradient} is now optional since it is now mandatory for MPS measurements.
-	\item Added field \inlvar{/acquisition/numBackgroungFrames} as counter for the number of measurements used for background subtraction.
+	\item Removed field \inlvar{/acquisition/numFrames} since this number is irrelevant in most cases
 	\item Added \inlvar{/acquisition/offsetField} and \inlvar{/acquisition/offsetFieldShift} to describe homogeneous offset fields.
 	\item Support for triangle wave forms and fully arbitrary excitation waveforms has been added by adding the fields \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}.
 	\item Support for multiple excitation frequencies on a drive-field channel has been added by intoducing a new dimension $F$ to the fields \inlvar{/drivefield/strength}, \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}, and \inlvar{/drivefield/divider}.
@@ -458,6 +463,7 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 	\item \textbf{TODO Tobi: record changes to \inlvar{/calibration} group here.}
 	\item Added possibility to mark the overscan region.
 	\item Added new section changelog to the MDF documentation to record the development of the MDF.
+	\item Updated \inl{README.md} on the github repository.
 \end{itemize}
 
 
