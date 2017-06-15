@@ -193,7 +193,7 @@ There you will find the directory example, which contains a code example written
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{version} & \inltab{String} & 1 & 0.1 & no & Version of the file format \\ \hline
+\inlvar{version} & \inltab{String} & 1 & 2.0.0 & no & Version of the file format \\ \hline
 \inlvar{uuid} & \inltab{String} & 1 & 3170fdf8-f8e1-4cbf-ac73-41520b41f6ee & no & Universally Unique Identifier (RFC 4122) of MDF file \\ \hline 
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC creation time of MDF data set \\ \hline
 \end{tabularx}
@@ -279,8 +279,8 @@ In MPI a frame groups together all data used to reconstruct a single MPI image/t
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{startTime} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
+\inlvar{numPatches} & \inltab{Int64} & 1 & & no & Number of patches within a frame denoted by $J$ \\ \hline 
 \inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Complete time to acquire data of a full frame (product of drive field \inlvar{period}, \inlvar{numPatches}, and \inlvar{numAverages}) \\ \hline
-\inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline 
 \inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
 \inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied for each patch in the measurement sequence \\ \hline
 \inlvar{offsetFieldShift} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
@@ -305,13 +305,13 @@ $$
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{numChannels} & \inltab{Int64} & 1 & 1 & no & Number of drive field channels, denoted by $D$ \\ \hline
+\inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of drive field channels, denoted by $D$ \\ \hline
 \inlvar{strength} & \inltab{Float64} & $J \times D \times F $ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
 \inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad & no & Applied drive field phase $\varphi$ in radians in the range $[-\pi,\pi)$ \\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
-\inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
-\inlvar{divider} & \inltab{Integer} & $D \times F$ & 1 & no & Divider for drive fields frequencies (\inlvar{baseFrequency} / \inlvar{divider}) \\ \hline
-\inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
+\inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & & yes & Custom waveform table \\ \hline
+\inlvar{divider} & \inltab{Integer} & $D \times F$ & & no & Divider for drive fields frequencies (\inlvar{baseFrequency} / \inlvar{divider}) \\ \hline
+\inlvar{waveform} & \inltab{String} & $D \times F$ & & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
 \inlvar{period} & \inltab{Float64} & 1 & s & no & Drive field trajectory period \\ \hline
 \end{tabularx}
 
