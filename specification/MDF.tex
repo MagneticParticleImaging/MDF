@@ -131,28 +131,32 @@ Several parameters within an MDF are linked in the dimensionality. We use short 
 
 
 \setbox\ltmcbox\vbox{
-\makeatletter\col@number\@ne
-\noindent \begin{longtable}{p{0.12\columnwidth}p{0.8\columnwidth}} 
-\textbf{Variable} & \textbf{Meaning}  \\ \hline
-$A$ &  Number of tracer materials/injections \\ \hline
-$N$ &  Number of acquired frames \\ \hline
-$O$ &  Number of acquired frames without background frames\\ \hline
-$C$ &  Number of receive channels \\ \hline
-$D$ &  Number of drive-field channels \\ \hline
-$F$ &  Number of frequencies describing the drive-field waveform \\ \hline
-$U$ &  Number of sampling points describing a custom drive-field waveform\\ \hline
-$J$ &  Number of focus-field patches\\ \hline
-$V$ &  Number of of points sampled at receiver during one drive-field period\\ \hline
-$L$ &  Number of frequencies describing the transfer function (usually $L=\frac{V}{2}+1$)\\ \hline
-$K$ &  Number of frequencies describing processed data (usually $K=L$ if no frequency selection has been done)\\ \hline
-$W$ &  Number of sampling points used to store processed data (usually $W=V$ except when a bandwidth reduction has been done)\\ \hline
-$P$ &  Number of voxels in the reconstructed MPI data set\\ \hline
-$Q$ &  Number of frames in the reconstructed MPI data set\\ \hline
-$S$ &  Number of channels in the reconstructed MPI data set\\ \hline
-\end{longtable}
-\unskip
-\unpenalty
-\unpenalty}
+	\makeatletter\col@number\@ne
+	\noindent \begin{longtable}{p{0.12\columnwidth}p{0.8\columnwidth}} 
+		\textbf{Variable} & \textbf{Meaning: Number of...}  \\ \hline
+		$A$ &  tracer materials/injections for multi-color MPI \\ \hline
+		& \\
+		$N$ &  acquired frames \\ \hline
+		$O$ &  acquired frames w/o background frames\\ \hline
+		$J$ &  focus-field patches\\ \hline
+		&\\
+		$C$ &  receive channels \\ \hline
+		$D$ &  drive-field channels \\ \hline
+		$F$ &  frequencies describing the drive-field waveform \\ \hline
+		$U$ &  sampling points describing a custom drive-field waveform\\ \hline
+		&\\
+		$V$ &  points sampled at receiver during one patch (product of drive field \inlvar{period}, \inlvar{numPeriods}, \inlvar{numAverages})\\ \hline
+		$W$ &  sampling points used to store processed data (usually $W=V$ if no frequency selection has been done)\\ \hline
+		$K$ &  frequencies describing processed data (usually $K=\frac{V}{2}+1$ if no frequency selection has been done)\\ \hline
+		$L$ &  frequencies describing the transfer function (usually $L=K$)\\ \hline
+		&\\
+		$P$ &  voxels in the reconstructed MPI data set\\ \hline
+		$Q$ &  frames in the reconstructed MPI data set\\ \hline
+		$S$ &  channels in the reconstructed MPI data set\\ \hline
+	\end{longtable}
+	\unskip
+	\unpenalty
+	\unpenalty}
 
 \unvbox\ltmcbox
 
@@ -328,8 +332,9 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
-\inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points within a cycle over all \inlvar{numPeriods} drive-field periods denoted by $V$ \\ \hline
-\inlvar{transferFunction} & \inltab{Float64} & $C \times L \times 2$ &  & yes & Transfer function of the receive channel \\ \hline
+\inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one patch, denoted by $V$ \\ \hline
+\inlvar{transferFunction} & \inltab{Float64} & $C \times L \times 2$ & %A$^{-1}$ m$^{-2}$ 
+& yes & Transfer function of the receive channels in Fourier Domain \\ \hline
 \end{tabularx}
 
 
