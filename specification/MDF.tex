@@ -333,8 +333,8 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one patch, denoted by $V$ \\ \hline
-\inlvar{transferFunction} & \inltab{Float64} & $C \times L \times 2$ & %A$^{-1}$ m$^{-2}$ 
-& yes & Transfer function of the receive channels in Fourier Domain \\ \hline
+\inlvar{transferFunction} & \inltab{Float64} & $C \times L \times 2$ & \inlvar{unit} A$^{-1}$m$^{-2}$ 
+& yes & Transfer function of the receive channels in Fourier Domain. \inlvar{unit} is the field from the \inlvar{measurement} group \\ \hline
 \end{tabularx}
 
 
