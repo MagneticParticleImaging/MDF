@@ -88,8 +88,17 @@ Version \textbf{\version}
 Magnetic particle imaging (MPI) is a tomographic method to determine the spatial distribution of magnetic nanoparticles. In this document a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different scanners world wide. The focus of the file format is on sequence parameters, raw measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format (HDF) in version 5 (HDF5). This document discusses version 2 of the MDF, which is not backward compatible with version 1.
 \end{abstract}
 
+\begin{multicols}{2}[\section{Prior to release: ToDo}]		
+ \begin{itemize}		
+ 	\item Update arXiv version and the correspoonding entry in \inl{MDF.bib}		
+ 	\item Move sanitycheck to \inl{MPIFile.jl}		
+ 	\item mention MPIFile.jl written in the Julia programming language \cite{Bezanson2012,Bezanson2014,Bezanson2014a}		
+ 	\item Update Examples		
+ 	\item Update Changelog		
+ \end{itemize}		
 
-\begin{multicols}{2}[\section{Introduction} \label{Sec:Introduction}]
+
+\section{Introduction} \label{Sec:Introduction}
 
 The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) and Magnetic Particle Spectroscopy (MPS) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5) \cite{hdf5}. HDF5 is able to store multiple datasets within a single file providing a powerful and flexible data container. To allow an easy exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available providing dynamic access from most programming languages. Matlab supports HDF5 by the functions \inl{h5read} and \inl{h5write}. For Python the \inl{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inl{HDF5} package. For languages based on the .NET framework the \inl{HDF5DotNet} library is available.
 
@@ -171,16 +180,13 @@ As of version 1.0.1 the most recent release of these specifications can also be 
 \hspace*{1cm}\url{http://arxiv.org/abs/1602.06072}\\
 If you use MDF please cite us using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
 
-\subsection{Sanity Check}
 
-TODO: move sanity check to \inl{MPIFile.jl}
-
-In order to check if a generated MDF file is valid, we provide a sanity check script that can be found in the gitub repository:\\
-\hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\
-The code is written in the Julia programming language \cite{Bezanson2012,Bezanson2014,Bezanson2014a}, which has to be downloaded from: \\
-\hspace*{1cm} \url{http://julialang.org}.\\
-More detailed instructions can be found in the \texttt{README} of the repository.
-
+\subsection{Code examples}		 
+  		  
+If you want to get a basic impression of how to handle MDF files you can visit the gitub repository of the MDF project:\\		
+  \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\	
+There you will find the directory example, which contains a code example written in Julia, Matlab and Python. More details can be found in the \texttt{README} of the repository.
+ 
 \end{multicols}
 
 
@@ -193,7 +199,7 @@ More detailed instructions can be found in the \texttt{README} of the repository
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{version} & \inltab{String} & 1 & 0.1 & no & Version of the file format \\ \hline
+\inlvar{version} & \inltab{String} & 1 & 2.0.0 & no & Version of the file format \\ \hline
 \inlvar{uuid} & \inltab{String} & 1 & 3170fdf8-f8e1-4cbf-ac73-41520b41f6ee & no & Universally Unique Identifier (RFC 4122) of MDF file \\ \hline 
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC creation time of MDF data set \\ \hline
 \end{tabularx}
@@ -430,11 +436,13 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 \begin{itemize}
 	\item Updated Affiliations in the MDF specification.
 	\item Made extensive improvements to the descriptions of fields and groups.
-	\item In v1.x the MDF allowed certain fields to have varying dimensions depending on the context. This has been removed such that starting from v2.0 all dimensions have to be specified. This change  should make implementations handling MDF files less complex. 
+	\item  In v1.x the MDF allowed many fields to have varying dimensions depending on the context. As of version 2.0.0 only one field offers this freedom. This change should make implementations handling MDF files less complex.
 	\item Specified supported data types.
 	\item Added table of all parameters in the MDF.
 	\item Added section describing the possibility to add custom fields to MDF files.
-	\item Added description for optional and non optional groups and conditional optional and non-optional data sets.
+	\item Added description for optional and non optional groups and conditional, optional, and non-optional data sets.
+    \item Added short section on the code examples on the Github repository.		
+ 	\item Removed section on sanity check along side with sanity check.
 	\item Rename \inlvar{/date} to \inlvar{/time} for consistency reasons.
 	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements.
 	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons and changed type to \inlvar{Int8}.
@@ -448,7 +456,6 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 	\item Set all fields but \inlvar{topology} in the \inlvar{/scanner} group to be optional.
 	\item Rename \inlvar{/acquisition/time} to \inlvar{/acquisition/startTime}.
 	\item \inlvar{/acquisition/gradient} is now optional since it is now mandatory for MPS measurements.
-	\item Added field \inlvar{/acquisition/numBackgroungFrames} as counter for the number of measurements used for background subtraction.
 	\item Added \inlvar{/acquisition/offsetField} and \inlvar{/acquisition/offsetFieldShift} to describe homogeneous offset fields.
 	\item Support for triangle wave forms and fully arbitrary excitation waveforms has been added by adding the fields \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}.
 	\item Support for multiple excitation frequencies on a drive-field channel has been added by intoducing a new dimension $F$ to the fields \inlvar{/drivefield/strength}, \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}, and \inlvar{/drivefield/divider}.
@@ -459,6 +466,7 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 	\item \textbf{TODO Tobi: record changes to \inlvar{/calibration} group here.}
 	\item Added possibility to mark the overscan region.
 	\item Added new section changelog to the MDF documentation to record the development of the MDF.
+	\item Updated \inl{README.md} on the github repository.
 \end{itemize}
 
 
