@@ -90,8 +90,8 @@ Magnetic particle imaging (MPI) is a tomographic method to determine the spatial
 
 \begin{multicols}{2}[\section{Prior to release: ToDo}]		
  \begin{itemize}		
- 	\item Update arXiv version and the correspoonding entry in \inl{MDF.bib}		
- 	\item Move sanitycheck to \inl{MPIFile.jl}		
+ 	\item Update arXiv version and the correspoonding entry in \inlvar{MDF.bib}		
+ 	\item Move sanitycheck to \inlvar{MPIFile.jl}		
  	\item mention MPIFile.jl written in the Julia programming language \cite{Bezanson2012,Bezanson2014,Bezanson2014a}		
  	\item Update Examples		
  	\item Update Changelog		
@@ -100,7 +100,7 @@ Magnetic particle imaging (MPI) is a tomographic method to determine the spatial
 
 \section{Introduction} \label{Sec:Introduction}
 
-The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) and Magnetic Particle Spectroscopy (MPS) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5) \cite{hdf5}. HDF5 is able to store multiple datasets within a single file providing a powerful and flexible data container. To allow an easy exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available providing dynamic access from most programming languages. Matlab supports HDF5 by the functions \inl{h5read} and \inl{h5write}. For Python the \inl{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inl{HDF5} package. For languages based on the .NET framework the \inl{HDF5DotNet} library is available.
+The purpose of this document is to introduce a file format for exchanging Magnetic Particle Imaging (MPI) and Magnetic Particle Spectroscopy (MPS) data. The Magnetic Particle Imaging Data Format (MDF) is based on the hierarchical document format (HDF) in version 5 (HDF5) \cite{hdf5}. HDF5 is able to store multiple datasets within a single file providing a powerful and flexible data container. To allow an easy exchange of MPI data, one has to specify a naming scheme within HDF5 files which is the purpose of this document. In order to create and access HDF5 data, an Open Source C library is available providing dynamic access from most programming languages. Matlab supports HDF5 by the functions \inlvar{h5read} and \inlvar{h5write}. For Python the \inlvar{h5py} package exists. The Julia programming language provides access to HDF5 files via the \inlvar{HDF5} package. For languages based on the .NET framework the \inlvar{HDF5DotNet} library is available.
 
 The MDF is mainly focused on storing measurement data, system matrices, or reconstruction data together with corresponding sequence parameters and metadata. Though it is possible to combine measurement data and reconstruction data into a single file it is recommended to use a single file for each of the following dataset types:
 \begin{enumerate}
@@ -116,7 +116,7 @@ MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attrib
 
 The datatype of the measurement data and the calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. The same holds true for the \inltab{Integer} data type, which can be any of: \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
 
-For later identification of a data set we store three UUIDs (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inl{8-4-4-4-12} as for example \inl{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs we recomend to use version 4.
+For later identification of a data set we store three UUIDs (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs we recomend to use version 4.
 
 Since storing complex data in HDF5 is not standardized, we extend the dimensionality of an existing array and store the real and imaginary part in the last dimension with size 2 (index 0 = real part, index 1 = imaginary part). In this way the real and imaginary part of a complex datum is stored sequentially on disk.
 
@@ -155,11 +155,11 @@ Several parameters within an MDF are linked in the dimensionality. We use short 
 		$U$ &  sampling points describing a custom drive-field waveform\\ \hline
 		&\\
 		$V$ &  points sampled at receiver during one patch (product of drive field \inlvar{period}, \inlvar{numPeriods}, \inlvar{numAverages})\\ \hline
-		$W$ &  sampling points used to store processed data (usually $W=V$ if no frequency selection has been done)\\ \hline
-		$K$ &  frequencies describing processed data (usually $K=\frac{V}{2}+1$ if no frequency selection has been done)\\ \hline
+		$W$ &  sampling points containing processed data (\mbox{$W=V$} if no frequency selection or bandwidth reduction has been done)\\ \hline
+		$K$ &  frequencies describing processed data ($K=V/2+1$ if no frequency selection or bandwidth reduction has been done)\\ \hline
 		&\\
-		$P$ &  voxels in the reconstructed MPI data set\\ \hline
 		$Q$ &  frames in the reconstructed MPI data set\\ \hline
+		$P$ &  voxels in the reconstructed MPI data set\\ \hline
 		$S$ &  channels in the reconstructed MPI data set\\ \hline
 	\end{longtable}
 	\unskip
@@ -189,7 +189,7 @@ There you will find the directory example, which contains a code example written
 \end{multicols}
 
 
-\section{Data (group: \inl{/})}
+\section{Data (group: \inlvar{/})}
  \setlength\extrarowheight{5pt}
 
 \begin{multicols}{2}
@@ -204,7 +204,7 @@ There you will find the directory example, which contains a code example written
 \end{tabularx}
 
 
-\subsection{Study Description (group: \inl{/study/}, non-optional)}
+\subsection{Study Description (group: \inlvar{/study/}, non-optional)}
 
 \begin{multicols}{2}
 	\paragraph{Remarks:} A study is supposed to group a series of experiments to support, refute, or validate a hypothesis. The study group has to contain \inlvar{name}, \inlvar{number}, \inlvar{uuid}, and \inlvar{description} of the study.
@@ -219,7 +219,7 @@ There you will find the directory example, which contains a code example written
 \end{tabularx}
 
 
-\subsection{Experiment Description (group: \inl{/experiment/}, non-optional)}
+\subsection{Experiment Description (group: \inlvar{/experiment/}, non-optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:} For each experiment within a study \inlvar{name}, \inlvar{number}, \inlvar{uuid}, and \inlvar{description} have to be provided. Additionally, the name of the imaged \inlvar{subject} and a flag indicating if data has been obtained via simulations \inlvar{isSimulation} has to be stored.
@@ -236,7 +236,7 @@ There you will find the directory example, which contains a code example written
 \end{tabularx}
 
 
-\subsection{Tracer Parameters (group: \inl{/tracer/}, optional)}
+\subsection{Tracer Parameters (group: \inlvar{/tracer/}, optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:} The tracer parameter group contains information about the MPI tracers used during the experiment. For each tracer its \inlvar{name}, \inlvar{batch}, \inlvar{vendor}, \inlvar{volume},  and molar \inlvar{concentration} of \inlvar{solute} per liter must be provided. Additionally, the time point of injection can be noted.
@@ -258,7 +258,7 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \end{tabularx}
 
 
-\subsection{Scanner Parameters (group: \inl{/scanner/}, non-optional)}
+\subsection{Scanner Parameters (group: \inlvar{/scanner/}, non-optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:} The scanner parameter group contains information about the MPI scanner used, such as the \inlvar{name}, the \inlvar{manufacturer}, the \inlvar{boreSize}, the field \inlvar{topology}, the \inlvar{facility} where the scanner is installed and the \inlvar{operator}.
@@ -275,12 +275,12 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \end{tabularx}
 
 
-\subsection{Acquisition Parameters (group: \inl{/acquisition/}, non-optional)}
+\subsection{Acquisition Parameters (group: \inlvar{/acquisition/}, non-optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information within this group, a subgroup containing information on the $D$ excitation channels and a subgroup containing information on the $C$ receive channels.
 
-In MPI a frame groups together all data used to reconstruct a single MPI image/tomogram. In the simplest scenario this data is acquired during one \inlvar{/drivefield/period}. One may acquire as well several periods denoted by \inlvar{numPeriods}. If averaging is applied the acquisition time increases by \inlvar{numAverages}. In a multi-patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift} to different spatial positions, were $J$ is the number of patches \inlvar{numPatches} of a multi-patch measurement. At each positions at least one full drive field cycle is used to acquire measurement data. Such a frame may consist of $J$ sub-measurements, each of which is acquired and averaged over \inlvar{numPeriods} and \inlvar{numAverages} drive field cycles. For instance a Cartesian 2D trajectory with 100 lines could be realized by setting \mbox{\inl{numPatches} $ = 100$}.
+In MPI a frame groups together all data used to reconstruct a single MPI image/tomogram. In the simplest scenario this data is acquired during one \inlvar{/drivefield/period}. One may acquire as well several periods denoted by \inlvar{numPeriods}. If averaging is applied the acquisition time increases by \inlvar{numAverages}. In a multi-patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift} to different spatial positions, were $J$ is the number of patches \inlvar{numPatches} of a multi-patch measurement. At each positions at least one full drive field cycle is used to acquire measurement data. Such a frame may consist of $J$ sub-measurements, each of which is acquired and averaged over \inlvar{numPeriods} and \inlvar{numAverages} drive field cycles. For instance a Cartesian 2D trajectory with 100 lines could be realized by setting \mbox{\inlvar{numPatches} $ = 100$}.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX}
@@ -296,7 +296,7 @@ In MPI a frame groups together all data used to reconstruct a single MPI image/t
 \inlvar{offsetFieldShift} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
 \end{tabularx}
 
-\subsubsection{Drive Field (group: \inl{/acquisition/drivefield/}, non-optional)}
+\subsubsection{Drive Field (group: \inlvar{/acquisition/drivefield/}, non-optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:} The drive field subgroup describes the excitation details of the imaging protocol. On the lowest level each MPI scanner contains $D$ channels for excitation. Since most drive-field parameters may change from patch to patch they have a leading dimension $J$.
@@ -305,7 +305,7 @@ These excitation signals are usually sinusoidal and can be described by $D$ ampl
 $$
 H_d(t) = \sum_{l=1}^{F} A_l \Lambda_l (2\pi f_l t + \varphi_l)
 $$
-where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (described by the base frequency and the divider), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inl{waveform}. it can be set to \textit{sine}, \textit{triangle} or \textit{custom}. If set to \textit{custom}, one can specify a custom waveform using the parameter \inl{customWaveform}. The number of sampling points of the \inl{customWaveform} is denoted by $U$. The triangle is defined to be a $2\pi$ periodization of the
+where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (\inlvar{baseFrequency}/\inlvar{divider}$_l$), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inlvar{waveform}. it can be set to \textit{sine}, \textit{triangle} or \textit{custom}. If set to \textit{custom}, one can specify a custom waveform using the parameter \inlvar{customWaveform}. The number of sampling points of the \inlvar{customWaveform} is denoted by $U$. The triangle is defined to be a $2\pi$ periodization of the
 triangle function:
 $$
  \Lambda_\text{tri}(t) = \left\vert t+\frac{\pi}{2}\right\vert - \frac{\pi}{2} \quad \text{for} \quad -\frac{3}{2}\pi\leq t \leq \frac{\pi}{2}
@@ -316,7 +316,7 @@ $$
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numChannels} & \inltab{Int64} & 1 & 1 & no & Number of drive field channels, denoted by $D$ \\ \hline
 \inlvar{strength} & \inltab{Float64} & $J \times D \times F $ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
-\inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad & no & Applied drive field phase $\varphi$ in radians in the range $[-\pi,\pi)$ \\ \hline
+\inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad, $[-\pi,\pi)$ & no & Applied drive field phase $\varphi$\\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
 \inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
 \inlvar{divider} & \inltab{Integer} & $D \times F$ & 1 & no & Divider of the \inlvar{baseFrequency} to determine the drive field frequencies \\ \hline
@@ -325,12 +325,12 @@ $$
 \end{tabularx}
 
 
-\subsubsection{Receiver (group: \inl{/acquisition/receiver/}, non-optional)}
+\subsubsection{Receiver (group: \inlvar{/acquisition/receiver/}, non-optional)}
 
 \begin{multicols}{2}
-\paragraph{Remarks:} The receiver subgroup describes details on the MPI receiver. For a multi-patch sequence it is assumed, that signal acquisition only takes place during particle excitation. During each drive-field cycle, $C$ receive channels record some quantity related to the magnetization dynamic. In most cases these will be a voltage signals induced into the $C$ receive coils, which are proportional to the change of the particle magnetization. 
+\paragraph{Remarks:} The receiver subgroup describes details on the MPI receiver. For a multi-patch sequence it is assumed, that signal acquisition only takes place during particle excitation. During each drive-field cycle, $C$ receive channels record some quantity related to the magnetization dynamic. In most cases these will be voltage signals induced into the $C$ receive coils, which are proportional to the change of the particle magnetization. The actual unit is denoted in \inlvar{/measurement/unit}.
 
-The MPI signal is acquired at $V$ equidistant time points. Note that in most cases the voltages are not measured directly at the receive coils but amplified and filtered first. To be able to compensate these changes the transfer function can optionally be stored in the parameter \inlvar{transferFunction}. It is stored in frequency space representation where $K$ is the number of discrete frequency components.
+The MPI signal is acquired at $V$ equidistant time points. Note that in most cases the signal is not measured directly at the receive coils but amplified and filtered first which may damp and distort the signal. A transfer function can optionally be stored in the parameter \inlvar{transferFunction} which allows to calculate the magnetic moment out of the measured quantity. It is stored in frequency space representation where $K$ is the number of discrete frequency components.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -339,31 +339,32 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one patch, denoted by $V$ \\ \hline
 \inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ & \inlvar{unit} A$^{-1}$m$^{-2}$ 
-& yes & Transfer function of the receive channels in Fourier Domain. \inlvar{unit} is the field from the \inlvar{measurement} group \\ \hline
+& yes & Transfer function of the receive channels in Fourier Domain. \inlvar{unit} is the field from the \inlvar{/measurement} group \\ \hline
 \end{tabularx}
 
 
-\subsection{Measurement (group: \inl{/measurement/}, optional)}
+\subsection{Measurement (group: \inlvar{/measurement/}, optional)}
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-MPI data is usually acquired by a series of measurements and optional background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \textit{numFrames}), the frame dimension is the slowest to access. Along this dimension the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation each frame would be stored by $J \times C\times K \times 2$ data points with the last dimension accounting for the complex data and $K = \frac V 2 +1$.
+MPI data is usually acquired by a series of measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation each frame would be stored by $J \times C\times K \times 2$ data points with the last dimension accounting for the complex data and $K = V/2 +1$.
 
-Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
+During a measurement, the analog signal is usually converted into $(r_1,\dots,r_{JV}) \in \mathbb Z^J \times \mathbb Z^V$ integer values for each channel $c\in C$ using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding \inlvar{unit}, i.e. usually Volt. Note that these factors are also used to map (unsigned) integers to a floating point range.
+
+Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ or a corresponding reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
 	\item spectral leakage correction which may be applied to ensure that each individual frame is periodic.
 	\item background correction, where the background signal in subtracted.
-	\item Fourier transformation bringing the data from time into the Fourier representation.
-	\item transfer function correction to obtain the voltage as it is measured directly at the receive coil.
+	\item Fourier transformation bringing the data from time into the Fourier representation an storing them in Fourier representation.
+	\item transfer function correction to obtain the magnetic moment that has been measured.
 	\item frequency selection to reduce the number of frequency components, e.g. bandwidth reduction or selection of high signal frequency components.
+	\item dimension permutation which is usually applied to Fourier transformed data exchanging the storing order of the data for fast access to the frames.
 	\item frame permutation to reorder the frames within the data set.
-	\item data transposition which is usually applied to Fourier transformed data exchanges the storing order of the data for fast access to the frames.
 \end{enumerate}
 For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
 
-During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} can be used. If \inlvar{isBackgroundFrame} is not provided it is assumed that no background measurements are present. If frequency selection has been performed \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. Frame permutation if performed can be described by a permutation, i.e. a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
+During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} can be used. If \inlvar{isBackgroundFrame} is not provided it is assumed that no background measurements are present. If frequency selection has been performed \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by i.e. a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
 
-During measurements the analog signal measured is usually converted into $(r_1,\dots,r_{JV}) \in \mathbb Z^J \times \mathbb Z^V$ integer values per channel $c \in C$ and frame using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding unit of measurement, i.e. usually voltages. Note that these factors are also used to map (unsigned) integers to a floating point range.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
@@ -371,58 +372,58 @@ During measurements the analog signal measured is usually converted into $(r_1,\
 \inlvar{unit} & \inltab{String} & $1$ & no & SI unit of the measured quantity, usually V \\ \hline 
 \inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
 \inlvar{data} & \inltab{Number} & $N \times J \times C \times K\times 2$ or $ J \times C \times K\times N \times 2$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Processed data \\ \hline
-\inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
-\inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if a background has been corrected \\ \hline
-\inlvar{isFourierTransformed} & \inltab{Int8} & 1 & no & Flag, if the data is stored in frequency space \\ \hline
-\inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the transfer function has been corrected \\ \hline 
-\inlvar{isFrequencySelection} & \inltab{Int8} & 1 & no & Flag, if frequencies have been selected \\ \hline 
-\inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames have been changes \\ \hline 
-\inlvar{isTransposed} & \inltab{Int8} & 1 & no & Flag, if the spatial dimension $N$ has been moved to the last dimension (second last for complex data) \\ \hline
 \inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & yes & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
+\inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
+\inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
+\inlvar{isFourierTransformed} & \inltab{Int8} & 1 & no & Flag, if the data is stored in frequency space \\ \hline
+\inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the data has been corrected by the \inlvar{transferFunction}\\ \hline 
+\inlvar{isFrequencySelection} & \inltab{Int8} & 1 & no & Flag, if only a subset of frequencies has been selected and stored, see \inlvar{frequencySelection}\\ \hline 
+\inlvar{isPermuted} & \inltab{Int8} & 1 & no & Flag, if the frame dimension $N$ has been moved to the last dimension (second last for complex data) \\ \hline
+\inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames has been changed, see \inlvar{framePermutation} \\ \hline 
 \inlvar{frequencySelection} & \inltab{Integer} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
-\inlvar{framePermutation} & \inltab{Integer} & $N$ & \inlvar{isFramePermutation} & Permutation performed \\ \hline
+\inlvar{framePermutation} & \inltab{Integer} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \end{tabularx} 
 
-\subsection{Calibration (group: \inl{/calibration/}, optional)}
+\subsection{Calibration (group: \inlvar{/calibration/}, optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:}
-The calibration group describes a calibration experiment. Each of the raw measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the scanner and each of the raw background measurement is taken with the delta sample outside of the FOV of the scanner. Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and transposition of the data has been performed yielding $N$ processed calibration frames. $N$ includes the background measurements, whereas $O$ is the number of foreground scans. Which steps have been performed is documented in the \inl{/measurement/} group.
+The calibration group describes a calibration measurement (system matrix), although it does not hold the data itself. Each of the measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the device. (If available, the background measurements are taken with the delta sample outside of the FOV of the scanner.) Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and transposition of the data has been performed yielding $N$ processed calibration frames. $N$ includes the background measurements, whereas $O$ is the number of calibrated spatial positions scans. Which steps have been performed is documented in \inlvar{/measurement}.
 
-If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. Background measurements are collected at at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions.
+If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$ the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position and last with respect to their $z$ position. Background measurements are collected at at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points there is the possibility to explicitly store all $O$ positions. In case of acquiring a hybrid system matrix, the spatial positions may be emulated by applying \inlvar{offsetFields} to the measurement chamber.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{snr} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
-\inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of system matrix \\ \hline
-\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
-\inlvar{size} & \inltab{Integer} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
-\inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
-\inlvar{positions} & \inltab{Float64} & $O \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) triples \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $O \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position ($x$, $y$, $z$) \\ \hline
-\inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of delta sample used for calibration scan \\ \hline
 \inlvar{method} & \inltab{String} & 1 & & no & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
+\inlvar{size} & \inltab{Integer} & $3$ &  & yes & Number of voxels in each dimension, inner product is $O$ \\ \hline
+\inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
+\inlvar{positions} & \inltab{Float64} & $O \times 3$ & m & yes & Position of each of the grid points, stored as \mbox{($x$, $y$, $z$)} triples \\ \hline
+\inlvar{offsetFields} & \inltab{Float64} & $O \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position \mbox{($x$, $y$, $z$)}\\ \hline
+\inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of the delta sample used for calibration scan \\ \hline
+\inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of the system matrix \\ \hline
+\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the system matrix (relative to origin/center) \\ \hline
+\inlvar{snr} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \end{tabularx}
 
 
-\subsection{Reconstruction Results (group: \inl{/reconstruction/}, optional)}
+\subsection{Reconstruction Results (group: \inlvar{/reconstruction/}, optional)}
 
 \begin{multicols}{2}
-Reconstruction results are stored in the parameter \inl{data} in a $Q\times P \times S$ array, where $Q$ denotes the number of reconstructed frames within the data set, $P$ denotes the number of voxels and $S$ the number of multispectral channels. If no multispectral reconstruction is performed then one may set $S=1$. Depending on the reconstruction the grid of the reconstruction data can be different from the system matrix grid. Hence, grid parameters are mirrored in the \inl{/reconstruction/} group.
+Reconstruction results are stored using the parameter \inlvar{data} inside this group. \inlvar{data} contains a $Q\times P \times S$ array, where $Q$ denotes the number of reconstructed frames within the data set, $P$ denotes the number of voxels and $S$ the number of multispectral channels. If no multispectral reconstruction is performed then one may set $S=1$. Depending on the reconstruction the grid of the reconstruction data can be different from the system matrix grid. Hence, grid parameters are mirrored in the \inlvar{/reconstruction} group.
 
-For analysis of the MPI tomograms it is often required to know which parts of the reconstructed tomogram where covered by the trajectory of the field free region and which parts where not. In MPI one refers to the later region not covered by the trajectory as overscan region. Therefore, the optional field \inlvar{isOverscanRegion} can store for each voxel if it lies within the overscan region or not. If no voxel lies within the overscan region \inlvar{isOverscanRegion} may be omitted.
+For analysis of the MPI tomograms it is often required to know which parts of the reconstructed tomogram have been covered by the trajectory of the field free region. In MPI one refers to the non-covered region as overscan region. Therefore, the optional field \inlvar{isOverscanRegion} indicated for each voxel if it is part of the overscan region. If no voxel lies within the overscan region \inlvar{isOverscanRegion} may be omitted.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{data} & \inltab{Number} & $Q\times P \times S$ & & no & Reconstructed data \\ \hline
-\inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
-\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to scanner origin/center) \\ \hline 
-\inlvar{size} & \inltab{Integer} & $3$ &  & yes & Number of voxels in each dimension \\ \hline
+\inlvar{size} & \inltab{Integer} & $3$ &  & yes & Number of voxels in each dimension, inner product is $P$ \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $P \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
-\inlvar{isOverscanRegion} & \inltab{Int8} & $P$ &  & yes & mask indicating for each voxel if it lies in the overscan region (true) or not \\ \hline
+\inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
+\inlvar{fieldOfViewCenter} & \inltab{Float64} & $3$ & m & yes & Center of the reconstructed data (relative to scanner origin/center) \\ \hline 
+\inlvar{isOverscanRegion} & \inltab{Int8} & $P$ &  & yes & Mask indicating for each of the $P$ voxels if it is part of the overscan region (true) or not \\ \hline
 \end{tabularx}
 
 
@@ -465,7 +466,7 @@ For analysis of the MPI tomograms it is often required to know which parts of th
 	\item \textbf{TODO Tobi: record changes to \inlvar{/calibration} group here.}
 	\item Added possibility to mark the overscan region.
 	\item Added new section changelog to the MDF documentation to record the development of the MDF.
-	\item Updated \inl{README.md} on the github repository.
+	\item Updated \inlvar{README.md} on the github repository.
 \end{itemize}
 
 
