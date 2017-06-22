@@ -157,7 +157,6 @@ Several parameters within an MDF are linked in the dimensionality. We use short 
 		$V$ &  points sampled at receiver during one patch (product of drive field \inlvar{period}, \inlvar{numPeriods}, \inlvar{numAverages})\\ \hline
 		$W$ &  sampling points used to store processed data (usually $W=V$ if no frequency selection has been done)\\ \hline
 		$K$ &  frequencies describing processed data (usually $K=\frac{V}{2}+1$ if no frequency selection has been done)\\ \hline
-		$L$ &  frequencies describing the transfer function (usually $L=K$)\\ \hline
 		&\\
 		$P$ &  voxels in the reconstructed MPI data set\\ \hline
 		$Q$ &  frames in the reconstructed MPI data set\\ \hline
@@ -331,7 +330,7 @@ $$
 \begin{multicols}{2}
 \paragraph{Remarks:} The receiver subgroup describes details on the MPI receiver. For a multi-patch sequence it is assumed, that signal acquisition only takes place during particle excitation. During each drive-field cycle, $C$ receive channels record some quantity related to the magnetization dynamic. In most cases these will be a voltage signals induced into the $C$ receive coils, which are proportional to the change of the particle magnetization. 
 
-The MPI signal is acquired at $V$ equidistant time points. Note that in most cases the voltages are not measured directly at the receive coils but amplified and filtered first. To be able to compensate these changes the transfer function can optionally be stored in the parameter \inlvar{transferFunction}. It is stored in frequency space representation where $L=\frac{V}{2}+1$ is the number of discrete frequency components.
+The MPI signal is acquired at $V$ equidistant time points. Note that in most cases the voltages are not measured directly at the receive coils but amplified and filtered first. To be able to compensate these changes the transfer function can optionally be stored in the parameter \inlvar{transferFunction}. It is stored in frequency space representation where $K$ is the number of discrete frequency components.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -339,7 +338,7 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one patch, denoted by $V$ \\ \hline
-\inlvar{transferFunction} & \inltab{Float64} & $C \times L \times 2$ & \inlvar{unit} A$^{-1}$m$^{-2}$ 
+\inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ & \inlvar{unit} A$^{-1}$m$^{-2}$ 
 & yes & Transfer function of the receive channels in Fourier Domain. \inlvar{unit} is the field from the \inlvar{measurement} group \\ \hline
 \end{tabularx}
 
@@ -350,7 +349,7 @@ The MPI signal is acquired at $V$ equidistant time points. Note that in most cas
 \paragraph{Remarks:}
 MPI data is usually acquired by a series of measurements and optional background measurements. Here we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \textit{numFrames}), the frame dimension is the slowest to access. Along this dimension the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation each frame would be stored by $J \times C\times K \times 2$ data points with the last dimension accounting for the complex data and $K = \frac V 2 +1$.
 
-Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components from $L$ to $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
+Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ and/or to a reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
 	\item spectral leakage correction which may be applied to ensure that each individual frame is periodic.
 	\item background correction, where the background signal in subtracted.
@@ -362,7 +361,7 @@ Often it is not convenient to store the raw data but to perform certain processi
 \end{enumerate}
 For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
 
-During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} can be used. If \inlvar{isBackgroundFrame} is not provided it is assumed that no background measurements are present. If frequency selection has been performed \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components $\left\{ 1,2,\dots L \right\}$ if a frequency selection has been performed. Frame permutation if performed can be described by a permutation, i.e. a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
+During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} can be used. If \inlvar{isBackgroundFrame} is not provided it is assumed that no background measurements are present. If frequency selection has been performed \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. Frame permutation if performed can be described by a permutation, i.e. a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
 
 During measurements the analog signal measured is usually converted into $(r_1,\dots,r_{JV}) \in \mathbb Z^J \times \mathbb Z^V$ integer values per channel $c \in C$ and frame using analog to digital converters. Often this raw data is stored instead of the physical quantities they represent. To bring the raw values into a physical representation one can map $r_i \mapsto (a_c r_i + b_c) U$, where $a_c$ and $b_c$ are the characteristic dimensionless scaling factor and offset the receive channel $c \in C$ and $U$ is the corresponding unit of measurement, i.e. usually voltages. Note that these factors are also used to map (unsigned) integers to a floating point range.
 \end{multicols}
