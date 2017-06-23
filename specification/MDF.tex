@@ -207,13 +207,12 @@ There you will find the directory example, which contains a code example written
 \subsection{Study Description (group: \inlvar{/study/}, non-optional)}
 
 \begin{multicols}{2}
-	\paragraph{Remarks:} A study is supposed to group a series of experiments to support, refute, or validate a hypothesis. The study group has to contain \inlvar{name}, \inlvar{number}, \inlvar{uuid}, and \inlvar{description} of the study.
+	\paragraph{Remarks:} A study is supposed to group a series of experiments to support, refute, or validate a hypothesis. The study group has to contain \inlvar{name}, \inlvar{uuid}, and \inlvar{description} of the study.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{name} & \inltab{String} & 1 & & no & Name of the study \\ \hline
-\inlvar{number} & \inltab{Int64} & 1 & & no & Experiment number within study \\ \hline
 \inlvar{uuid} & \inltab{String} & 1 & 295258fe-b650-4e5f-96db-b83f11089a6c & no & Universally Unique Identifier (RFC 4122) of study \\ \hline 
 \inlvar{description} & \inltab{String} & 1 & & no & Short description of the study \\ \hline
 \end{tabularx}
@@ -228,7 +227,7 @@ There you will find the directory example, which contains a code example written
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{name} & \inltab{String} & 1 & & no & Experiment name \\ \hline
-\inlvar{number} & \inltab{Int64} & 1 & & no & Experiment number\\ \hline
+\inlvar{number} & \inltab{Int64} & 1 & & no & Experiment number within study\\ \hline
 \inlvar{uuid} & \inltab{String} & 1 & f96dbc48-1ebd-44c7-b04d-1b45da054693 & no & Universally Unique Identifier (RFC 4122) of experiment \\ \hline 
 \inlvar{description} & \inltab{String} & 1 & & no & Short description of the experiment \\ \hline
 \inlvar{subject} & \inltab{String} & 1 & & no & Name of the subject that was imaged \\ \hline 
