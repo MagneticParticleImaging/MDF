@@ -5,11 +5,11 @@ close all
 
 %% 2. Download measurement and systemMatrix from http://media.tuhh.de/ibi/mdf/
 
-filenameSM = 'systemMatrix.h5';
-filenameMeas = 'measurement.h5';
+filenameSM = 'systemMatrix.mdf';
+filenameMeas = 'measurement.mdf';
 
-urlwrite('http://media.tuhh.de/ibi/mdf/systemMatrix.h5',filenameSM)
-urlwrite('http://media.tuhh.de/ibi/mdf/measurement_5.h5',filenameMeas)
+urlwrite('http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf',filenameSM)
+urlwrite('http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf',filenameMeas)
 
 %% 3. Loading the data
 % For the System matrix (later named SM)
@@ -17,27 +17,30 @@ urlwrite('http://media.tuhh.de/ibi/mdf/measurement_5.h5',filenameMeas)
 % or read the format documentation
 
 % read the data, saved as real numbers
-S = h5read(filenameSM, '/calibration/dataFD');
+S = h5read(filenameSM, '/measurement/data');
 
 % reinterpret as complex numbers
-S = squeeze(S(1,:,:,:) + 1i*S(2,:,:,:));
+S = squeeze(S(1,:,:,:,:) + 1i*S(2,:,:,:,:));
 
 % For the measurements
 % read and convert the data as complex numbers
 % note that these data contain 500 measurements
-u = h5read(filenameMeas, '/measurement/dataFD');
-u = squeeze(u(1,:,:,:) + 1i*u(2,:,:,:));
+u = h5read(filenameMeas, '/measurement/data');
+%u = squeeze(u(1,:,:,:) + 1i*u(2,:,:,:));
+% TODO make the rfft
 
 %% 4. Pre-process - Remove the frequencies which are lower than 30 kHz, as they are unreliable due to the anologue filter in the scanner
 
-% Reading the frequency vector
-freq = h5read(filenameMeas, '/acquisition/receiver/frequencies');
+% generate frequency vector
+numFreq = div(h5read(filenameMeas, "/acquisition/receiver/numSamplingPoints"),2)+1
+rxBandwidth = h5read(filenameMeas, "/acquisition/receiver/bandwidth")
+freq = collect(0:(numFreq-1))./(numFreq-1).* rxBandwidth
 
 % we supose that the same frequencies are measured on all channel for 
-% the SM and the measurements
-idxFreq = freq > 30e3;
-S_truncated = S(:,idxFreq,:);
-u_truncated = u(idxFreq,:,:);
+% the SM and the measurements. use only x/y receive channels
+idxFreq = freq > 80e3;
+S_truncated = S(:,idxFreq,1:2);
+u_truncated = u(idxFreq,1:2,:);
 
 %% 5. Merge frequency and receive channel dimensions
 S_truncated = reshape(S_truncated, size(S_truncated,1), size(S_truncated,2)*size(S_truncated,3));
@@ -55,7 +58,7 @@ c_normReguArt = kaczmarzReg(S_truncated(:,:),...
 % and an regularized pseudoinverse approach
 [U,Sigma,V] = svd(S_truncated(:,:).','econ');
 Sigma2 = diag(Sigma);
-c_pseudoInverse = pseudoinverse(U,Sigma2,V,u_mean_truncated,5*10^3,1,1);
+c_pseudoInverse = pseudoinverse(U,Sigma2,V,u_mean_truncated,5*10^2,1,1);
 
 %% 8. Display an image
 % read the original size of an image
