@@ -18,3 +18,7 @@
 *.bbl
 
 *.blg
+
+*.mdf
+
+*.swp
