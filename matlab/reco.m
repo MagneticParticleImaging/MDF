@@ -27,14 +27,15 @@ S = squeeze(S(1,:,:,:,:) + 1i*S(2,:,:,:,:));
 % note that these data contain 500 measurements
 u = h5read(filenameMeas, '/measurement/data');
 %u = squeeze(u(1,:,:,:) + 1i*u(2,:,:,:));
-% TODO make the rfft
+u = fft(u);
+u = u(1:(size(u,1)/2+1),:,:,:);
 
 %% 4. Pre-process - Remove the frequencies which are lower than 30 kHz, as they are unreliable due to the anologue filter in the scanner
 
 % generate frequency vector
-numFreq = div(h5read(filenameMeas, "/acquisition/receiver/numSamplingPoints"),2)+1
-rxBandwidth = h5read(filenameMeas, "/acquisition/receiver/bandwidth")
-freq = collect(0:(numFreq-1))./(numFreq-1).* rxBandwidth
+numFreq = h5read(filenameMeas, '/acquisition/receiver/numSamplingPoints')/2+1;
+rxBandwidth = h5read(filenameMeas, '/acquisition/receiver/bandwidth');
+freq = linspace(0,1,numFreq) .* rxBandwidth;
 
 % we supose that the same frequencies are measured on all channel for 
 % the SM and the measurements. use only x/y receive channels
