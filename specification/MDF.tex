@@ -88,14 +88,7 @@ Version \textbf{\version}
 Magnetic particle imaging (MPI) is a tomographic method to determine the spatio-temporal distribution of magnetic nanoparticles. In this document, a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different devices worldwide. The focus of the MDF is on sequence parameters, measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format in version 5 (HDF5). This document discusses the MDF version \version, which is not backward compatible with version 1.x.y.
 \end{abstract}
 
-\begin{multicols}{2}[\section{Prior to release: ToDo}]		
- \begin{itemize}		
- 	\item Update arXiv version and the correspoonding entry in \inlvar{MDF.bib}		
- 	\item mention MPIFile.jl written in the Julia programming language \cite{Bezanson2012,Bezanson2014,Bezanson2014a}		
- 	\item Update Examples		
- 	\item Update Changelog		
- \end{itemize}		
-
+\begin{multicols}{2}%[\section{Prior to release: ToDo}]		
 
 \section{Introduction} \label{Sec:Introduction}
 
@@ -187,7 +180,14 @@ If you want to get a basic impression of how to handle MDF files you can visit t
   \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\	
 There you will find the directory example, which contains a code example written in Julia, MATLAB, and Python. More details can be found in the \texttt{README} of the repository.
  
+\subsection{Reference Implementation}		 
+
+A reference implementation for a high level MDF access is available at:\\
+  \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MPIFiles.jl}\\	
+\inlvar{MPIFiles.jl} is a package written in the programming language Julia \cite{Bezanson2012,Bezanson2014,Bezanson2014a}. It can read MDF V1, MDF V2, and the dataformat of Bruker MPI systems using a common interface. It also provides  functions to convert MDF V1 into MDF V2.
+
 \end{multicols}
+
 \clearpage
 
 \section{Data (group: \inlvar{/})}
@@ -451,39 +451,29 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 \subsection{v2.0.0}
 
 \begin{itemize}
+	\item Version 2 of the MDF is a major update breaking backwards compatibility with v1.x. The major update was necessary due to several shortcomings in the v1.x.
+	\item The naming of parameters was made more consistent. Furthermore, some parameters move from one group into another.
+	\item In v1.x it was not possible to store background data. This functionality has been added in v2.
+	\item We simplified the measurement group and made it much more expressive. In v1.x it was not entirely clear, which processing steps have been applied to the measurement data in the store dataset. The \inlvar{measurement} group now contains several flags that precisely describe the state of the stored data. Using this it is now possible to also store calibration data in the \inlvar{measurement} group. The calibration group in turn only stores metadata about a calibration experiment while the actual data is store in the measurement group.
 	\item Updated Affiliations in the MDF specification.
-	\item Made extensive improvements to the descriptions of fields and groups.
-	\item  In v1.x the MDF allowed many fields to have varying dimensions depending on the context. As of version 2.0.0 only one field offers this freedom. This change should make implementations handling MDF files less complex.
-	\item Specified supported data types.
-	\item Added table of all parameters in the MDF.
-	\item Added section describing the possibility to add custom fields to MDF files.
-	\item Added description for optional and non optional groups and conditional, optional, and non-optional data sets.
-    \item Added short section on the code examples on the Github repository.		
- 	\item Removed section on sanity check along side with sanity check.
-	\item Rename \inlvar{/date} to \inlvar{/time} for consistency reasons.
-	\item Remove \inlvar{/study/reference} since this functionality is now covered by the integrated background measurements.
-	\item Rename \inlvar{/study/simulation} to \inlvar{/study/isSimulation} for consistency reasons and changed type to \inlvar{Int8}.
-	\item Created new group \inlvar{/experiment} with fields \inlvar{/experiment/name}, \inlvar{/experiment/number} and \inlvar{/experiment/description} to be able to provide more fine grained information on study and experiment.
-	\item Moved \inlvar{/study/subject} and \inlvar{/study/isSimulation} to \inlvar{/experiment/subject} and \inlvar{/experiment/isSimulation}.
-	\item Renamed \inlvar{/tracer/time} to \inlvar{/tracer/injectionTime}.
-	\item Added the possibility store the tracer concentration also for non iron based tracer materials by adding the \inlvar{/tracer/solute} field and redefining the field \inlvar{tracer/concentration}.
-	\item Renamed field \inlvar{/tracer/time} to \inlvar{/tracer/injectionTime} to be more specific.
+	\item Improved the general descriptions of fields and groups.
+	\item In v1.x the MDF allowed many fields to have varying dimensions depending on the context. As of version 2.0.0 only one field offers this freedom. This change should make implementations handling MDF files less complex.
+	\item \inlvar{Number} and \inlvar{Integer} have been introduced as generic types. The type restriction for several parameters has been weakened to these types.
+	\item Added a table listing all variable names used in the descriptions of parameters.
+	\item Added a section describing the possibility to add custom fields to MDF files.
+	\item Added a description for optional and non-optional groups and conditional, optional, and non-optional datasets.
+    \item Added a short section on the code examples on the Github repository.
+	\item Support for triangle wave forms and fully arbitrary excitation waveforms has been added.
+	\item Support for multiple excitation frequencies on a drive-field channel has been added.
 	\item Added the dimension $A$ to all fields of the \inlvar{tracer} group to be able to describe settings where multiple tracers are used or tracers are administered multiple times.
-	\item Added field \inlvar{/scanner/boreSize} to describe the scanner.
-	\item Set all fields but \inlvar{topology} in the \inlvar{/scanner} group to be optional.
-	\item Rename \inlvar{/acquisition/time} to \inlvar{/acquisition/startTime}.
-	\item \inlvar{/acquisition/gradient} is now optional since it is now mandatory for MPS measurements.
-	\item Added \inlvar{/acquisition/offsetField} and \inlvar{/acquisition/offsetFieldShift} to describe homogeneous offset fields.
-	\item Support for triangle wave forms and fully arbitrary excitation waveforms has been added by adding the fields \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}.
-	\item Support for multiple excitation frequencies on a drive-field channel has been added by intoducing a new dimension $F$ to the fields \inlvar{/drivefield/strength}, \inlvar{/drivefield/phase}, \inlvar{/drivefield/customWaveform}, \inlvar{/drivefield/waveform}, and \inlvar{/drivefield/divider}.
-	\item Removed \inlvar{fieldOfView} and \inlvar{fieldOfViewCenter} from \inlvar{/drivefield} group. \inlvar{/acquisition/offsetField} and \inlvar{/acquisition/offsetFieldShift} replace \inlvar{fieldOfViewCenter}. The \inlvar{fieldOfView} can be derived from the gradient strength and drive field strength.
-	\item Moved \inlvar{/drivefield/averages} to \inlvar{/receiver/numAverages}
-	\item Remove \inlvar{/acquisition/receiver/frequencies} since it can be directly derived from \inlvar{/acquisition/receiver/bandwidth} and \inlvar{/acquisition/receiver/numSamplingPoints}.
-	\item \textbf{TODO Tobi: record changes to \inlvar{/measurement} group here.} Added possibility to store the transformation from raw data to a physical representation with units. Signal to noise ratios can now be stored for each patch indivisually. To do so the dimension $P$ was added to this field.
-	\item \textbf{TODO Tobi: record changes to \inlvar{/calibration} group here.}
+	\item Added the possibility to store the tracer concentration also for non iron based tracer materials by adding the \inlvar{/tracer/solute} field and redefining the field \inlvar{tracer/concentration}.
+ 	\item Improved documentation for the storage of receive transfer functions. It is also possible now to store the measurement data as integer data and use a \inlvar{dataConversionFactor} to describe the mapping to a physical representation (e.g. Volt)
+	\item Split the \inlvar{/study} group into the \inlvar{/experiment} group and the study group. This allows to provide more fine grained information on study and experiment.
 	\item Added possibility to mark the overscan region.
 	\item Added new section changelog to the MDF documentation to record the development of the MDF.
-	\item Updated \inlvar{README.md} on the github repository.
+	\item Updated \inlvar{README.md} in the github repository.
+	\item Updated code examples in the github repository.
+	\item Added a section on the MDF reference implementation MPIFiles.jl. Since sanity checks will be covered by this package, the description on sanity checks has been removed.
 \end{itemize}
 
 
