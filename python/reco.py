@@ -10,11 +10,11 @@ filenameSM = "systemMatrix.mdf"
 filenameMeas = "measurement.mdf"
 
 if not os.path.isfile(filenameSM):
-  fileSM = urllib.FancyURLopener()
+  fileSM = urllib.request.FancyURLopener()
   fileSM.retrieve('http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf', filenameSM)
 if not os.path.isfile(filenameMeas):
-  fileMeas = urllib.FancyURLopener()
-  fileMeas.retrieve('http://media.tuhh.de/ibi/mdf/measurement_V2.mdf', filenameMeas)
+  fileMeas = urllib.request.FancyURLopener()
+  fileMeas.retrieve('http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf', filenameMeas)
 
 fSM = h5py.File(filenameSM, 'r')
 fMeas = h5py.File(filenameMeas, 'r')
@@ -22,7 +22,12 @@ fMeas = h5py.File(filenameMeas, 'r')
 # read the full system matrix
 S = fSM['/measurement/data']
 # reinterpret to complex data
-S = S[:,:,:,:,:].view(complex64).squeeze()
+#S = S[:,:,:,:,:].view(complex64).squeeze()
+S = S[:,:,:,:,:].view(complex128).squeeze()
+# get rid of background frames
+isBG = fSM['/measurement/isBackgroundFrame'][:].view(bool)
+print(S.shape)
+S = S[:,:,isBG == False]
 
 # read the measurement data
 u = fMeas['/measurement/data']

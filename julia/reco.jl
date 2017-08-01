@@ -20,10 +20,13 @@ end
 S = h5read(filenameSM, "/measurement/data")
 # reinterpret to complex data
 S = reinterpret(Complex{eltype(S)}, S, (size(S,2),size(S,3),size(S,4),size(S,5)))
+# get rid of background frames
+isBG = h5read(filenameSM, "/measurement/isBackgroundFrame")
+S = S[isBG .== 0,:,:,:]
 
 # read the measurement data
 u = h5read(filenameMeas, "/measurement/data")
-u = map(Complex64, rfft(u,1))
+u = map(Complex128, rfft(u,1))
 
 numFreq = div(h5read(filenameMeas, "/acquisition/receiver/numSamplingPoints"),2)+1
 rxBandwidth = h5read(filenameMeas, "/acquisition/receiver/bandwidth")

@@ -49,10 +49,10 @@ function kaczmarzReg{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, s
     end
 
     if enforceReal && eltype(x) <: Complex
-      x = complex(real(x),0)
+      x = complex.(real.(x),0)
     end
     if enforcePositive
-      x[real(x) .< 0] = 0
+      x[real.(x) .< 0] = 0
     end
   end
 
