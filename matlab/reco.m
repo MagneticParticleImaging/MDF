@@ -22,8 +22,8 @@ S = h5read(filenameSM, '/measurement/data');
 % reinterpret as complex numbers
 S = squeeze(S(1,:,:,:,:) + 1i*S(2,:,:,:,:));
 % get rid of background frames
-isBG = h5read(filenameSM, '/measurement/isBackgroundFrame')
-S = S(isBG .== 0,:,:,:)
+isBG = h5read(filenameSM, '/measurement/isBackgroundFrame');
+S = S(isBG == 0,:,:,:);
 
 % For the measurements
 % read and convert the data as complex numbers
