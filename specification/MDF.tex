@@ -69,7 +69,7 @@
 \newcommand{\version}{2.0.0-pre}
 
 \author{
-T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladiss$^5$, C.~Kaethner$^5$, P.~Vogel$^6$, J.~Rahmer$^7$, M.~M\"oddel$^{1,2}$ \\ \\
+T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladiss$^5$, C.~Kaethner$^5$, A.~Neumann$^5$, P.~Vogel$^6$, J.~Rahmer$^7$, M.~M\"oddel$^{1,2}$ \\ \\
 $^1$Section for Biomedical Imaging, University Medical Center Hamburg-Eppendorf, Germany\\
 $^2$Institute for Biomedical Imaging, Hamburg University of Technology, Germany\\
 $^3$Institute of Electrical Measurement and Fundamental Electrical Engineering, TU Braunschweig, Germany\\
@@ -88,7 +88,7 @@ Version \textbf{\version}
 Magnetic particle imaging (MPI) is a tomographic method to determine the spatio-temporal distribution of magnetic nanoparticles. In this document, a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different devices worldwide. The focus of the MDF is on sequence parameters, measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format in version 5 (HDF5). This document discusses the MDF version \version, which is not backward compatible with version 1.x.y.
 \end{abstract}
 
-\begin{multicols}{2}%[\section{Prior to release: ToDo}]		
+\begin{multicols}{2}		
 
 \section{Introduction} \label{Sec:Introduction}
 
@@ -104,7 +104,7 @@ The MDF is mainly focused on storing measurement data, calibration data, or reco
 
 \subsection{Datatypes}
 
-MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}.
+MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. Whenever a data type has a big- and little-endian version, the little-endian data type should be used. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}. 
 
 The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. The same holds true for the \inltab{Integer} data type, which can be any of: \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
 
@@ -148,7 +148,7 @@ Several parameters within the MDF are linked in dimensionality. We use short var
 		$F$ &  frequencies describing the drive-field waveform \\ \hline
 		$U$ &  sampling points describing a custom drive-field waveform\\ \hline
 		&\\
-		$V$ &  points sampled at receiver during one patch (product of drive field \inlvar{period}, \inlvar{numPeriods}, \inlvar{numAverages})\\ \hline
+		$V$ &  points sampled at receiver during one patch (product of drive field period, number of periods, and number of averages)\\ \hline
 		$W$ &  sampling points containing processed data (\mbox{$W=V$} if no frequency selection or bandwidth reduction has been applied)\\ \hline
 		$K$ &  frequencies describing the processed data ($K=V/2+1$ if no frequency selection or bandwidth reduction has been applied)\\ \hline
 		&\\
