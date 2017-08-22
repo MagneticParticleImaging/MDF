@@ -106,7 +106,7 @@ The MDF is mainly focused on storing measurement data, calibration data, or reco
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. Whenever a data type has a big- and little-endian version, the little-endian data type should be used. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}. 
 
-The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. The same holds true for the \inltab{Integer} data type, which can be any of: \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
+The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
 
 For later identification of a data set, we store three Universally Unique Identifiers (UUIDs) (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs, we recommend to use version 4 of the UUID specification.
 
@@ -289,10 +289,10 @@ In MPI, a frame groups all data used to reconstruct a single MPI image/tomogram.
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline
 \inlvar{startTime} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
 \inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Time to complete a full frame (product of \inlvar{/drivefield/period}, \inlvar{numPeriods}, \inlvar{numAverages}, and \inlvar{numPatches}) \\ \hline
-\inlvar{numPeriods} & \inltab{Integer} & 1 & 1 & no & Number of drive-field periods per patch \\ \hline
-\inlvar{numAverages} & \inltab{Integer} & 1 & 1& no & Number of block averages per patch\\ \hline
-\inlvar{numPatches} & \inltab{Integer} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline
-\inlvar{numFrames} & \inltab{Integer} & 1 & 1& no & Number of available measurement frames $N$ \\ \hline
+\inlvar{numPeriods} & \inltab{Int64} & 1 & 1 & no & Number of drive-field periods per patch \\ \hline
+\inlvar{numAverages} & \inltab{Int64} & 1 & 1& no & Number of block averages per patch\\ \hline
+\inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline
+\inlvar{numFrames} & \inltab{Int64} & 1 & 1& no & Number of available measurement frames $N$ \\ \hline
 \inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
 \inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied for each patch in the measurement sequence \\ \hline
 \inlvar{offsetFieldShift} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
@@ -321,7 +321,7 @@ $$
 \inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad, $[-\pi,\pi)$ & no & Applied drive field phase $\varphi$\\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
 \inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
-\inlvar{divider} & \inltab{Integer} & $D \times F$ & 1 & no & Divider of the \inlvar{baseFrequency} to determine the drive field frequencies \\ \hline
+\inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider of the \inlvar{baseFrequency} to determine the drive field frequencies \\ \hline
 \inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
 \inlvar{period} & \inltab{Float64} & 1 & s & no & Trajectory period is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}\\ \hline
 \end{tabularx}
@@ -355,7 +355,7 @@ where $\hat{m}_k^\text{proj}$ is the orthogonal projection of the full magnetic 
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one patch, denoted by $V$ \\ \hline
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually Voltage V \\ \hline 
-\inlvar{dataConversionFactor} & \inltab{Number} & $C \times 2$ & \inlvar{unit} & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
+\inlvar{dataConversionFactor} & \inltab{Float64} & $C \times 2$ & \inlvar{unit} & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
 \inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ & 
 & yes & Transfer function of the receive channels in Fourier domain. \inlvar{unit} is the field from the \inlvar{/measurement} group \\ \hline
 \inlvar{inductionFactor} & \inltab{Float64} & $C$ & \inlvar{unit} A$^{-1}$m$^{-2}$ 
@@ -396,8 +396,8 @@ During processing one might want to keep track which of the final $N$ frames bel
 \inlvar{isFrequencySelection} & \inltab{Int8} & 1 & no & Flag, if only a subset of frequencies has been selected and stored, see \inlvar{frequencySelection}\\ \hline 
 \inlvar{isPermuted} & \inltab{Int8} & 1 & no & Flag, if the frame dimension $N$ has been moved to the last dimension (second last for complex data) \\ \hline
 \inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames has been changed, see \inlvar{framePermutation} \\ \hline 
-\inlvar{frequencySelection} & \inltab{Integer} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
-\inlvar{framePermutation} & \inltab{Integer} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
+\inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
+\inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \end{tabularx} 
 
 \newpage
@@ -413,7 +413,7 @@ If the measurements were taken on a regular grid of size $N_x \times N_y \times 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{method} & \inltab{String} & 1 & & no & Method used to obtain calibration data. Can for instance be robot, hybrid, or simulation \\ \hline
-\inlvar{size} & \inltab{Integer} & $3$ &  & yes & Number of voxels in each dimension, inner product is $O$ \\ \hline
+\inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension, inner product is $O$ \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $O \times 3$ & m & yes & Position of each of the grid points, stored as \mbox{($x$, $y$, $z$)} triples \\ \hline
 \inlvar{offsetFields} & \inltab{Float64} & $O \times 3$ & T$\mu_0^{-1}$ & yes & Applied offset field strength to emulate a spatial position \mbox{($x$, $y$, $z$)}\\ \hline
@@ -435,7 +435,7 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{data} & \inltab{Number} & $Q\times P \times S$ & & no & Reconstructed data \\ \hline
-\inlvar{size} & \inltab{Integer} & $3$ &  & yes & Number of voxels in each dimension, inner product is $P$ \\ \hline
+\inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension, inner product is $P$ \\ \hline
 \inlvar{order} & \inltab{String} & 1 & & yes & Ordering of the dimensions, default is \textit{xyz} \\ \hline
 \inlvar{positions} & \inltab{Float64} & $P \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \inlvar{fieldOfView} & \inltab{Float64} & $3$ & m & yes & Field of view of reconstructed data \\ \hline
@@ -458,7 +458,7 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 	\item Updated Affiliations in the MDF specification.
 	\item Improved the general descriptions of fields and groups.
 	\item In v1.x the MDF allowed many fields to have varying dimensions depending on the context. As of version 2.0.0 only one field offers this freedom. This change should make implementations handling MDF files less complex.
-	\item \inlvar{Number} and \inlvar{Integer} have been introduced as generic types. The type restriction for several parameters has been weakened to these types.
+	\item \inlvar{Number} has been introduced as generic types. The type restriction for several parameters has been weakened to these types.
 	\item Added a table listing all variable names used in the descriptions of parameters.
 	\item Added a section describing the possibility to add custom fields to MDF files.
 	\item Added a description for optional and non-optional groups and conditional, optional, and non-optional datasets.
