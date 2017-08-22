@@ -102,13 +102,15 @@ The MDF is mainly focused on storing measurement data, calibration data, or reco
 \item Reconstruction data
 \end{enumerate}
 
-\subsection{Datatypes}
+\subsection{Datatypes \& Storage Order}
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. Whenever a data type has a big- and little-endian version, the little-endian data type should be used. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}. 
 
 The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
 
 For later identification of a data set, we store three Universally Unique Identifiers (UUIDs) (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs, we recommend to use version 4 of the UUID specification.
+
+Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory lay out of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (col major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
 
 Since storing complex data in HDF5 is not standardized, we extend the dimensionality of an existing array and store the real and imaginary part in the last dimension with size 2 (index 0 = real part, index 1 = imaginary part). In this way, the real and imaginary part of a complex datum is stored sequentially.
 
@@ -130,9 +132,7 @@ Occasionally, it is necessary to store additional specific parameters or metadat
 
 \subsection{Naming Convention}
 
-Several parameters within the MDF are linked in dimensionality. We use short variable names to indicate these connections. The following table describes the meaning of each variable name used
-
-
+Several parameters within the MDF are linked in dimensionality. We use short variable names to indicate these connections. The following table describes the meaning of each variable name used.
 \setbox\ltmcbox\vbox{
 	\makeatletter\col@number\@ne
 	\noindent \begin{longtable}{p{0.12\columnwidth}p{0.8\columnwidth}} 
@@ -159,7 +159,6 @@ Several parameters within the MDF are linked in dimensionality. We use short var
 	\unskip
 	\unpenalty
 	\unpenalty}
-
 \unvbox\ltmcbox
 
 \subsection{Contact}
