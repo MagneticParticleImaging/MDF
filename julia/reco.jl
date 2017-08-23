@@ -2,6 +2,7 @@ using HDF5, PyPlot, Requests
 
 include("kaczmarzReg.jl")
 include("pseudoinverse.jl")
+include("utils.jl")
 
 # Download measurement and systemMatrix from http://media.tuhh.de/ibi/mdf/
 filenameSM = "systemMatrix.mdf"
@@ -17,9 +18,7 @@ if !isfile(filenameMeas)
 end
 
 # read the full system matrix
-S = h5read(filenameSM, "/measurement/data")
-# reinterpret to complex data
-S = reinterpret(Complex{eltype(S)}, S, (size(S,2),size(S,3),size(S,4),size(S,5)))
+S = readComplexArray(filenameSM, "/measurement/data")
 # get rid of background frames
 isBG = h5read(filenameSM, "/measurement/isBackgroundFrame")
 S = S[isBG .== 0,:,:,:]
