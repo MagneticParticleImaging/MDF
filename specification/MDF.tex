@@ -110,9 +110,9 @@ The datatype of the MPI measurement and calibration data offers more freedom and
 
 For later identification of a data set, we store three Universally Unique Identifiers (UUIDs) (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs, we recommend to use version 4 of the UUID specification.
 
-Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory lay out of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (col major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
+Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (col major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
 
-Since storing complex data in HDF5 is not standardized, we extend the dimensionality of an existing array and store the real and imaginary part in the last dimension with size 2 (index 0 = real part, index 1 = imaginary part). In this way, the real and imaginary part of a complex datum is stored sequentially.
+Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned floating point types to represent the real and the imaginary part of a complex number.
 
 \subsection{Units}
 
