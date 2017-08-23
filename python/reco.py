@@ -54,7 +54,7 @@ u = reshape(u, (shape(u)[0],shape(u)[1]*shape(u)[2]))
 u = mean(u,axis=0)
 
 # reconstruct
-c = kaczmarzReg(S,u,1,1e6,False,True,True)
+c = kaczmarzReg(S,u,3,norm(S,ord='fro')*1e-3,False,True,True)
 
 # reconstruct using signular value decomposition
 U, Sigm, V = svd(S, full_matrices=False)
