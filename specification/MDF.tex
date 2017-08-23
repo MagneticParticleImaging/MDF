@@ -106,13 +106,13 @@ The MDF is mainly focused on storing measurement data, calibration data, or reco
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. Whenever a data type has a big- and little-endian version, the little-endian data type should be used. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}. 
 
-The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, and \inl{H5T_NATIVE_INT64}. 
+The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. 
+
+Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned floating point types to represent the real and the imaginary part of a complex number. This representation was chosen because it is also the default behavior for complex numbers in Python using numpy and h5py. \inltab{Complex128} refers to the complex compound type with base type \inl{H5T_NATIVE_DOUBLE}.
 
 For later identification of a data set, we store three Universally Unique Identifiers (UUIDs) (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs, we recommend to use version 4 of the UUID specification.
 
-Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory lay out of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (col major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
-
-Since storing complex data in HDF5 is not standardized, we extend the dimensionality of an existing array and store the real and imaginary part in the last dimension with size 2 (index 0 = real part, index 1 = imaginary part). In this way, the real and imaginary part of a complex datum is stored sequentially.
+Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (col major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
 
 \subsection{Units}
 
@@ -355,7 +355,7 @@ where $\hat{m}_k^\text{proj}$ is the orthogonal projection of the full magnetic 
 \inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one patch, denoted by $V$ \\ \hline
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually Voltage V \\ \hline 
 \inlvar{dataConversionFactor} & \inltab{Float64} & $C \times 2$ & \inlvar{unit} & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{transferFunction} & \inltab{Float64} & $C \times K \times 2$ & 
+\inlvar{transferFunction} & \inltab{Complex128} & $C \times K$ & 
 & yes & Transfer function of the receive channels in Fourier domain. \inlvar{unit} is the field from the \inlvar{/measurement} group \\ \hline
 \inlvar{inductionFactor} & \inltab{Float64} & $C$ & \inlvar{unit} A$^{-1}$m$^{-2}$ 
 & yes & Induction factor mapping the projection of the magnetic moment to the voltage in the receive coil. \\ \hline
@@ -366,7 +366,7 @@ where $\hat{m}_k^\text{proj}$ is the orthogonal projection of the full magnetic 
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-MPI data is usually acquired by a series of measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K \times 2$ data points with the last dimension accounting for the complex data and $K = V/2 +1$.
+MPI data is usually acquired by a series of measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
 
 Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ or a corresponding reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
@@ -386,7 +386,7 @@ During processing one might want to keep track which of the final $N$ frames bel
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times K\times 2$ or $ J \times C \times K\times N \times 2$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Processed data \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Processed data \\ \hline
 \inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & yes & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
@@ -452,6 +452,7 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 \begin{itemize}
 	\item Version 2 of the MDF is a major update breaking backwards compatibility with v1.x. The major update was necessary due to several shortcomings in the v1.x.
 	\item The naming of parameters was made more consistent. Furthermore, some parameters move from one group into another.
+	\item Defined a complex datatype using a HDF5 compound type. 
 	\item In v1.x it was not possible to store background data. This functionality has been added in v2.
 	\item We simplified the measurement group and made it much more expressive. In v1.x it was not entirely clear, which processing steps have been applied to the measurement data in the store dataset. The \inlvar{measurement} group now contains several flags that precisely describe the state of the stored data. Using this it is now possible to also store calibration data in the \inlvar{measurement} group. The calibration group in turn only stores metadata about a calibration experiment while the actual data is store in the measurement group.
 	\item Updated Affiliations in the MDF specification.
