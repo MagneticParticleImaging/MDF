@@ -22,8 +22,7 @@ fMeas = h5py.File(filenameMeas, 'r')
 # read the full system matrix
 S = fSM['/measurement/data']
 # reinterpret to complex data
-#S = S[:,:,:,:,:].view(complex64).squeeze()
-S = S[:,:,:,:,:].view(complex128).squeeze()
+S = S[:,:,:,:].squeeze()
 # get rid of background frames
 isBG = fSM['/measurement/isBackgroundFrame'][:].view(bool)
 print(S.shape)
