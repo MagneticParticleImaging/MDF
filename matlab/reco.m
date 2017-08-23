@@ -20,7 +20,7 @@ urlwrite('http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf',filenameMeas)
 S = h5read(filenameSM, '/measurement/data');
 
 % reinterpret as complex numbers
-S = squeeze(S(1,:,:,:,:) + 1i*S(2,:,:,:,:));
+S = complex(S.r,S.i);
 % get rid of background frames
 isBG = h5read(filenameSM, '/measurement/isBackgroundFrame');
 S = S(isBG == 0,:,:,:);
@@ -30,7 +30,7 @@ S = S(isBG == 0,:,:,:);
 % note that these data contain 500 measurements
 u = h5read(filenameMeas, '/measurement/data');
 %u = squeeze(u(1,:,:,:) + 1i*u(2,:,:,:));
-u = fft(u);
+u = fft(cast(u,'double'));
 u = u(1:(size(u,1)/2+1),:,:,:);
 
 %% 4. Pre-process - Remove the frequencies which are lower than 30 kHz, as they are unreliable due to the anologue filter in the scanner
