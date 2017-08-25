@@ -393,7 +393,7 @@ During processing one might want to keep track which of the final $N$ frames bel
 \inlvar{isFourierTransformed} & \inltab{Int8} & 1 & no & Flag, if the data is stored in frequency space \\ \hline
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the data has been corrected by the \inlvar{transferFunction}\\ \hline 
 \inlvar{isFrequencySelection} & \inltab{Int8} & 1 & no & Flag, if only a subset of frequencies has been selected and stored, see \inlvar{frequencySelection}\\ \hline 
-\inlvar{isPermuted} & \inltab{Int8} & 1 & no & Flag, if the frame dimension $N$ has been moved to the last dimension (second last for complex data) \\ \hline
+\inlvar{isFastFrameAxis} & \inltab{Int8} & 1 & no & Flag, if the frame dimension $N$ has been moved to the last dimension\\ \hline
 \inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames has been changed, see \inlvar{framePermutation} \\ \hline 
 \inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
 \inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
