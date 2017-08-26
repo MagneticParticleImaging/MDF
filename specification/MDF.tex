@@ -280,24 +280,45 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \begin{multicols}{2}
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information, a subgroup containing information on the $D$ excitation channels, and a subgroup containing information on the $C$ receive channels.
 
-In MPI, a frame groups all data used to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{/drivefield/period}. The acquisition time increases by a factor of \inlvar{numAverages} if averaging is applied and by a factor of \inlvar{numPeriods} if data is recorded over several (averaged) cycles. In a multi-patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift}, where $J$ is the number of patches \inlvar{numPatches} of a multi-patch measurement. For each shift at least one full drive field cycle is used to acquire the measurement data. For instance, a Cartesian 2D trajectory with 100 lines could be realized by setting \mbox{\inlvar{numPatches} $ = 100$}.
+In MPI, a frame groups all data used to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{/drivefield/period}. The acquisition time increases by a factor of \inlvar{numAverages} if averaging is applied and by a factor of \inlvar{numPeriods} if data is recorded over several (averaged) cycles. 
+%In a multi-patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift}, where $J$ is the number of patches \inlvar{numPatches} of a multi-patch measurement. For each shift at least one full drive field cycle is used to acquire the measurement data. %For instance, a Cartesian 2D trajectory with 100 lines could be realized by setting \mbox{\inlvar{numPatches} $ = 100$}.
+
+\textcolor{red}{TODO: Discuss the dimension $Y$. It is usually equal to $J$ when considering a static multi-patch scenario. But it can also be finer resolved to describe continuous FF.}
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX}
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline
 \inlvar{startTime} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
-\inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Time to complete a full frame (product of \inlvar{/drivefield/period}, \inlvar{numPeriods}, \inlvar{numAverages}, and \inlvar{numPatches}) \\ \hline
-\inlvar{numPeriods} & \inltab{Int64} & 1 & 1 & no & Number of drive-field periods per patch \\ \hline
-\inlvar{numAverages} & \inltab{Int64} & 1 & 1& no & Number of block averages per patch\\ \hline
-\inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline
+\inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Time to complete a full frame (product of \inlvar{/drivefield/period}, \inlvar{numPeriods}, and \inlvar{numAverages} \\ \hline
+\inlvar{numPeriods} & \inltab{Int64} & 1 & 1 & no & Number of drive-field periods within a frame denoted by $J$ \\ \hline
+\inlvar{numAverages} & \inltab{Int64} & 1 & 1& no & Number of block averages per drive-field period \\ \hline
 \inlvar{numFrames} & \inltab{Int64} & 1 & 1& no & Number of available measurement frames $N$ \\ \hline
-\inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied for each patch in the measurement sequence \\ \hline
-\inlvar{offsetFieldShift} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
+\inlvar{gradient} & \inltab{Float64} & $Y \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
+\inlvar{fieldFreePoint} & \inltab{Float64} & $Y \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $Y \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied  \\ \hline
+
+
 \end{tabularx}
 
-\subsubsection{Drive Field (group: \inlvar{/acquisition/drivefield/}, non-optional)}
+\subsubsection{Generator Parameters (group: \inlvar{/acquisition/generator}, optional)}
+
+\begin{multicols}{2}
+\paragraph{Remarks:} The generator parameter group describes all field generating units despite the drive-fields that are described in a dedicated group
+
+\textcolor{red}{$Y$}
+
+\end{multicols}
+
+\noindent \begin{tabularx}{\columnwidth}{lllllX}
+\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline
+\inlvar{generatorField} & \inltab{Float64} & $Y \times R$ & T$\mu_0^{-1}$ & yes & Magnetic field of each field generator (despite drive-field)  \\ \hline
+\inlvar{generatorCurrent} & \inltab{Float64} & $Y \times R$ & A & yes & Current of each field generator (despite drive-field)  \\ \hline
+
+
+\end{tabularx}
+
+\subsubsection{Drive Field Parameters (group: \inlvar{/acquisition/drivefield/}, non-optional)}
 
 \begin{multicols}{2}
 \paragraph{Remarks:} The drive field subgroup describes the excitation details of the imaging protocol. On the lowest level, each MPI scanner contains $D$ channels for excitation. Since most drive-field parameters may change from patch to patch, they have a leading dimension $J$.
@@ -306,11 +327,7 @@ These excitation signals are usually sinusoidal and can be described by $D$ ampl
 $$
 H_d(t) = \sum_{l=1}^{F} A_l \Lambda_l (2\pi f_l t + \varphi_l)
 $$
-where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (\inlvar{baseFrequency}/\inlvar{divider}$_l$), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inlvar{waveform}. It can be set to \textit{sine}, \textit{triangle}, or \textit{custom}. If set to \textit{custom}, one can specify a custom waveform using the parameter \inlvar{customWaveform}. The number of sampling points of the \inlvar{customWaveform} is denoted by $U$. The triangle is defined to be a $2\pi$ periodization of the
-triangle function:
-$$
- \Lambda_\text{tri}(t) = \left\vert t+\frac{\pi}{2}\right\vert - \frac{\pi}{2} \quad \text{with} \quad -\frac{3}{2}\pi\leq t \leq \frac{\pi}{2}.
-$$
+where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (\inlvar{baseFrequency}/\inlvar{divider}$_l$), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inlvar{waveform}. It can be set to \textit{sine}, \textit{triangle}, or \textit{custom}. 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -319,7 +336,6 @@ $$
 \inlvar{strength} & \inltab{Float64} & $J \times D \times F $ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
 \inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad, $[-\pi,\pi)$ & no & Applied drive field phase $\varphi$\\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
-\inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider of the \inlvar{baseFrequency} to determine the drive field frequencies \\ \hline
 \inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
 \inlvar{period} & \inltab{Float64} & 1 & s & no & Trajectory period is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}\\ \hline
@@ -386,7 +402,7 @@ During processing one might want to keep track which of the final $N$ frames bel
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Processed data \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Measured data at a specific processing stage \\ \hline
 \inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & no & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
