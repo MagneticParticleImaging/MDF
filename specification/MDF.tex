@@ -126,9 +126,13 @@ Any optional parameter can be omitted, whereas any non-optional parameter in a n
 
 If a group is optional all of its parameters may be omitted, if this group is not used. The groups \inlvar{/}, \inlvar{/study}, \inlvar{/experiment}, \inlvar{/scanner}, \inlvar{/acquisition} contain mostly metadata and are mandatory. The \inlvar{/tracer} group is only mandatory if magnetic material has been placed in the MPI system. The groups \inlvar{/measurement}, \inlvar{/calibration}, and \inlvar{/reconstruction} are all optional. In case of calibration measurements, the \inlvar{/calibration} group is mandatory. The reconstruction data is stored in \inlvar{/reconstruction}. 
 
-\subsection{Parameter Extension}
+\subsection{User defined parameters}
 
-Occasionally, it is necessary to store additional specific parameters or metadata that are not covered in the specifications, such as the temperature of the room in which your MPI device is operated. In this case, you are free to add new parameters to any of the existing groups. Moreover, if necessary, you are also free to introduce new groups. In order to be able to distinguish these datasets and groups from the specified ones, we recommend to use the prefix ``\inlvar{\_}'' for all parameters and groups. As an example, one could add a new group \inlvar{/\_room} that includes the dataset \inlvar{\_temperature}.
+For all user defined parameters or groups the MDF format reserves the prefix `\inlvar{\_}' and the group \inlvar{/detail} in any specified group. User defined parameters/groups within the group \inlvar{/detail} may be stored without the prefix `\inlvar{\_}'. This step is necessary to avoid any name clashes between parameters/groups possibly specified in the future and user defined ones. 
+
+As an example for a user defined parameters, one could add a new group \inlvar{/\_room} that includes the dataset \inlvar{\_temperature} to one of the specified groups or add the group \inlvar{/detail} and then add the group (\inlvar{/room}) and the dataset (\inlvar{temperature}) to it without the prefix `\inlvar{\_}'.
+
+Although the specification will not enforce the naming schema for user defined parameters/groups, using it is strongly recommended. (This means: If a future version of the MDF breaks your code because your are not following the recommendation you are not allowed to blame it on the specification.)
 
 \subsection{Naming Convention}
 
