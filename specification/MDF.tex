@@ -128,7 +128,7 @@ If a group is optional all of its parameters may be omitted, if this group is no
 
 \subsection{User defined parameters}
 
-For all user defined parameters or groups the MDF format reserves the prefix `\inlvar{\_}' and the group \inlvar{/detail} in any specified group. User defined parameters/groups within the group \inlvar{/detail} may be stored without the prefix `\inlvar{\_}'. This step is necessary to avoid any name clashes between parameters/groups possibly specified in the future and user defined ones. 
+For all user defined parameters or groups the MDF format reserves the prefix `\inlvar{\_}' and the subgroup \inlvar{/detail} in any specified group. User defined parameters/groups within the group \inlvar{/detail} may be stored without the prefix `\inlvar{\_}'. This step is necessary to avoid any name clashes between parameters/groups possibly specified in the future and user defined ones. 
 
 As an example for user defined parameters, one could add a new group \inlvar{/\_room} that includes the dataset \inlvar{\_temperature} to one of the specified groups or add the group \inlvar{/detail} and then add the group (\inlvar{/room}) and the dataset (\inlvar{temperature}) to it without the prefix `\inlvar{\_}'.
 
