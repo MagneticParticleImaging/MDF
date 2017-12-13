@@ -120,15 +120,15 @@ With one exception, physical quantities are given in SI units. The magnetic fiel
 
 \subsection{Optional Parameters}
 
-The MDF has 8 main groups in the root directory and 2 sub-groups. We distinguish between optional and non-optional groups as well as optional, non-optional, and conditional parameters. 
+The MDF has 8 main groups in the root directory and 3 sub-groups. We distinguish between optional and non-optional groups as well as optional, non-optional, and conditional parameters. 
 
 Any optional parameter can be omitted, whereas any non-optional parameter in a non-optional group is mandatory. Conditional parameters are linked to Boolean parameters and have to be provided, if these parameters are true and can be omitted if they are false. If a parameter is optional, non-optional, or conditional is indicated by yes, no, or the corresponding Boolean parameter.
 
 If a group is optional all of its parameters may be omitted, if this group is not used. The groups \inlvar{/}, \inlvar{/study}, \inlvar{/experiment}, \inlvar{/scanner}, \inlvar{/acquisition} contain mostly metadata and are mandatory. The \inlvar{/tracer} group is only mandatory if magnetic material has been placed in the MPI system. The groups \inlvar{/measurement}, \inlvar{/calibration}, and \inlvar{/reconstruction} are all optional. In case of calibration measurements, the \inlvar{/calibration} group is mandatory. The reconstruction data is stored in \inlvar{/reconstruction}. 
 
-\subsection{Parameter Extension}
+\subsection{User defined parameters}
 
-Occasionally, it is necessary to store additional specific parameters or metadata that are not covered in the specifications, such as the temperature of the room in which your MPI device is operated. In this case, you are free to add new parameters to any of the existing groups. Moreover, if necessary, you are also free to introduce new groups. In order to be able to distinguish these datasets and groups from the specified ones, we recommend to use the prefix ``\inlvar{\_}'' for all parameters and groups. As an example, one could add a new group \inlvar{/\_room} that includes the dataset \inlvar{\_temperature}.
+It is possible to store user defined parameters in an MDF. For instance one may want to store the temperature of the room in which your MPI device is operated. In this case, one is free to add new parameters to any of the existing groups. Moreover, if necessary, one can also introduce new groups. In order to be able to distinguish these datasets and groups from the specified ones, it is mandatory to use the prefix ``\inlvar{\_}'' for all parameters and groups. As an example, one could add a new group \inlvar{/\_room} that includes the dataset \inlvar{\_temperature}. Using the prefix ``\inlvar{\_}'' will ensure that the stored dataset is compatible with future versions of the MDF.
 
 \subsection{Naming Convention}
 
