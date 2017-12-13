@@ -463,19 +463,19 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 
 \begin{itemize}
 	\item Version 2 of the MDF is a major update breaking backwards compatibility with v1.x. The major update was necessary due to several shortcomings in the v1.x.
-	\item The naming of parameters was made more consistent. Furthermore, some parameters move from one group into another.
+	\item The naming of parameters was made more consistent. Furthermore, some parameters moved from one group into another.
 	\item Defined a complex datatype using a HDF5 compound type. 
 	\item In v1.x it was not possible to store background data. This functionality has been added in v2.
-	\item We simplified the measurement group and made it much more expressive. In v1.x it was not entirely clear, which processing steps have been applied to the measurement data in the store dataset. The \inlvar{measurement} group now contains several flags that precisely describe the state of the stored data. Using this it is now possible to also store calibration data in the \inlvar{measurement} group. The calibration group in turn only stores metadata about a calibration experiment while the actual data is store in the measurement group.
+	\item We simplified the measurement group and made it much more expressive. In v1.x it was not entirely clear, which processing steps have been applied to the measurement data in the stored dataset. The \inlvar{measurement} group now contains several flags that precisely describe the state of the stored data. Using this it is now possible to also store calibration data in the \inlvar{measurement} group. The calibration group in turn only stores metadata about a calibration experiment while the actual data is store in the measurement group.
 	\item Updated Affiliations in the MDF specification.
 	\item Improved the general descriptions of fields and groups.
 	\item In v1.x the MDF allowed many fields to have varying dimensions depending on the context. As of version 2.0.0 only one field offers this freedom. This change should make implementations handling MDF files less complex.
-	\item \inlvar{Number} has been introduced as generic types. The type restriction for several parameters has been weakened to these types.
+	\item \inlvar{Number} has been introduced as a generic type. 
 	\item Added a table listing all variable names used in the descriptions of parameters.
-	\item Added a section describing the possibility to add custom fields to MDF files.
+	\item Added a section describing the possibility to add user defined parameters to MDF files.
 	\item Added a description for optional and non-optional groups and conditional, optional, and non-optional datasets.
     \item Added a short section on the code examples on the Github repository.
-	\item Support for triangle wave forms and fully arbitrary excitation waveforms has been added.
+	\item Support for triangle wave forms has been added.
 	\item Support for multiple excitation frequencies on a drive-field channel has been added.
 	\item Added the dimension $A$ to all fields of the \inlvar{tracer} group to be able to describe settings where multiple tracers are used or tracers are administered multiple times.
 	\item Added the possibility to store the tracer concentration also for non iron based tracer materials by adding the \inlvar{/tracer/solute} field and redefining the field \inlvar{tracer/concentration}.
