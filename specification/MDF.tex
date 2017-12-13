@@ -141,14 +141,13 @@ Several parameters within the MDF are linked in dimensionality. We use short var
 		& \\
 		$N$ &  acquired frames, same as a spatial position for calibration\\ \hline
 		$O$ &  acquired frames w/o background frames\\ \hline
-		$J$ &  focus-field patches\\ \hline
+		$J$ &  periods within one frame\\ \hline
 		&\\
 		$C$ &  receive channels \\ \hline
 		$D$ &  drive-field channels \\ \hline
+		$R$ &  field generator channels (without drive-field generators) \\ \hline
 		$F$ &  frequencies describing the drive-field waveform \\ \hline
-		$U$ &  sampling points describing a custom drive-field waveform\\ \hline
-		&\\
-		$V$ &  points sampled at receiver during one patch (product of drive field period, number of periods, and number of averages)\\ \hline
+		$V$ &  points sampled at receiver during one drive-field period\\ \hline
 		$W$ &  sampling points containing processed data (\mbox{$W=V$} if no frequency selection or bandwidth reduction has been applied)\\ \hline
 		$K$ &  frequencies describing the processed data ($K=V/2+1$ if no frequency selection or bandwidth reduction has been applied)\\ \hline
 		&\\
@@ -183,7 +182,7 @@ There you will find the directory example, which contains a code example written
 
 A reference implementation for a high level MDF access is available at:\\
   \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MPIFiles.jl}\\	
-\inlvar{MPIFiles.jl} is a package written in the programming language Julia \cite{Bezanson2012,Bezanson2014,Bezanson2014a}. It can read MDF V1, MDF V2, and the dataformat of Bruker MPI systems using a common interface. It also provides  functions to convert MDF V1 into MDF V2.
+\inlvar{MPIFiles.jl} is a package written in the programming language Julia \cite{Bezanson2012,Bezanson2014,Bezanson2014a}. It can read MDF V1, MDF V2, and the dataformat of Bruker MPI systems using a common interface. It also provides functions to convert MDF V1 or Bruker MPI files into MDF V2.
 
 \end{multicols}
 
@@ -239,7 +238,7 @@ A reference implementation for a high level MDF access is available at:\\
 \subsection{Tracer Parameters (group: \inlvar{/tracer/}, optional)}
 
 \begin{multicols}{2}
-\paragraph{Remarks:} The tracer parameter group contains information about the MPI tracers used during the experiment. For each of the $A$ tracers \inlvar{name}, \inlvar{batch}, \inlvar{vendor}, \inlvar{volume},  and molar \inlvar{concentration} of \inlvar{solute} per liter must be provided. Additionally, the time point of injection can be noted.
+\paragraph{Remarks:} The tracer parameter group contains information about the MPI tracers used during the experiment. For each of the $A$ tracers \inlvar{name}, \inlvar{batch}, \inlvar{vendor}, \inlvar{volume},  and molar \inlvar{concentration} of \inlvar{solute} per liter must be provided. Additionally, the time point of injection can be stored.
 
 This version of the MDF can handle two basic scenarios. In the first one, static tracer phantoms are used. In this case, the phantom contains $A$ distinct tracers. For example, these might be particles of different core sizes, mobile or immobilized particles. In this case, \inlvar{injectionTime} is not used. In the second case, $A$ boli (e.g. pulsed boli) are administrated during the measurement, in which case the approximate administration volume, tracer type and time point of injection can be provided. Note that the injection clock recording the injection time should be synchronized with the clock, which provides the starting time of the measurement.
 
@@ -280,37 +279,51 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \begin{multicols}{2}
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information, a subgroup containing information on the $D$ excitation channels, and a subgroup containing information on the $C$ receive channels.
 
-In MPI, a frame groups all data used to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{/drivefield/period}. The acquisition time increases by a factor of \inlvar{numAverages} if averaging is applied and by a factor of \inlvar{numPeriods} if data is recorded over several (averaged) cycles. In a multi-patch setting $J$ \inlvar{offsetField}s or mechanical movements shift the gradient field by \inlvar{offsetFieldShift}, where $J$ is the number of patches \inlvar{numPatches} of a multi-patch measurement. For each shift at least one full drive field cycle is used to acquire the measurement data. For instance, a Cartesian 2D trajectory with 100 lines could be realized by setting \mbox{\inlvar{numPatches} $ = 100$}.
+In MPI, a frame groups all data used to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{/drivefield/period}. The acquisition time increases by a factor of \inlvar{numAverages} if averaging is applied. In case that the static selection field is changed over time one will measure several drive-field periods each with a different gradient field setting. In a classical multi-patch sequence the gradient field will be shifted in space from period to period. A full frame consists of $J$ or \inlvar{numPeriodsPerFrame} periods with different gradient settings. The gradient settings are described by the fields \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField}. Both parameters have $Y$ entries and in each entry either the diagonal of the applied gradient field or the applied offset field strength are stored. In case of a static multi-patch sequence one will set $Y=J$ so that each drive-field cycle has an associated gradient and offset field entry. For continuous sequences it is, however, also possible to chose $Y>J$ so that finer changes in the sequence can be resolved. For convenience, $Y$ should always be a multiple of $J$. The value stored in \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField} is always considered to be the value at the start of the drive field period.
+
+It should be noted that \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField} both make assumptions on the field linearity. They only make sense if the shifting field is highly homogeneous and the gradient field is highly linear. For a more fine grained control the sequence settings can also be store by the generator settings specified in \inlvar{/acquisition/generator}.
+
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX}
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline
 \inlvar{startTime} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
-\inlvar{framePeriod} & \inltab{Float64} & 1 & s & no & Time to complete a full frame (product of \inlvar{/drivefield/period}, \inlvar{numPeriods}, \inlvar{numAverages}, and \inlvar{numPatches}) \\ \hline
-\inlvar{numPeriods} & \inltab{Int64} & 1 & 1 & no & Number of drive-field periods per patch \\ \hline
-\inlvar{numAverages} & \inltab{Int64} & 1 & 1& no & Number of block averages per patch\\ \hline
-\inlvar{numPatches} & \inltab{Int64} & 1 & 1 & no & Number of patches within a frame denoted by $J$ \\ \hline
+\inlvar{numAverages} & \inltab{Int64} & 1 & 1& no & Number of block averages per drive-field period. \\ \hline
+\inlvar{numPeriodsPerFrame} & \inltab{Int64} & 1 & 1 & no & Number of drive-field periods within a frame denoted by $J$ \\ \hline
 \inlvar{numFrames} & \inltab{Int64} & 1 & 1& no & Number of available measurement frames $N$ \\ \hline
-\inlvar{gradient} & \inltab{Float64} & $J \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $J \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied for each patch in the measurement sequence \\ \hline
-\inlvar{offsetFieldShift} & \inltab{Float64} & $J \times 3$ & m & yes & Position of the field free point (relative to origin/center) \\ \hline
+\inlvar{gradient} & \inltab{Float64} & $Y \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $Y \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied  \\ \hline
+
+
 \end{tabularx}
 
-\subsubsection{Drive Field (group: \inlvar{/acquisition/drivefield/}, non-optional)}
+\subsubsection{Generator Parameters (group: \inlvar{/acquisition/generator}, optional)}
 
 \begin{multicols}{2}
-\paragraph{Remarks:} The drive field subgroup describes the excitation details of the imaging protocol. On the lowest level, each MPI scanner contains $D$ channels for excitation. Since most drive-field parameters may change from patch to patch, they have a leading dimension $J$.
+\paragraph{Remarks:} The generator parameter group describes all field generating units despite the drive-fields that are described in a dedicated group \inlvar{/acquisition/drivefield/}. For instance the selection field can be generated by one or several electromagnetic coils. Each coil unit is driven by an amplifier that applies a defined current to the coils. The number of different generator channels is given by $R$. In an MPI scanner with highly linear selection field and highly homogeneous focus field the currents will be directly linked to \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField}. In case of non-linear fields the later fields will be omitted and just the currents will be stored.
+
+The generator group may include a description of the coil sensitivities in the future.
+
+\end{multicols}
+
+\noindent \begin{tabularx}{\columnwidth}{lllllX}
+\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline
+\inlvar{current} & \inltab{Float64} & $Y \times R$ & A & yes & Current of each field generator (despite drive-field)  \\ \hline
+
+
+\end{tabularx}
+
+\subsubsection{Drive Field Parameters (group: \inlvar{/acquisition/drivefield/}, non-optional)}
+
+\begin{multicols}{2}
+\paragraph{Remarks:} The drive field subgroup describes the excitation details of the imaging protocol. On the lowest level, each MPI scanner contains $D$ channels for excitation. Since most drive-field parameters may change from period to period, they have a leading dimension $J$.
 
 These excitation signals are usually sinusoidal and can be described by $D$ amplitudes (drive field strengths), $D$ phases, a base frequency, and $D$ dividers. In a more general setting, the generated drive field of channel $d$ can be described by
 $$
 H_d(t) = \sum_{l=1}^{F} A_l \Lambda_l (2\pi f_l t + \varphi_l)
 $$
-where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (\inlvar{baseFrequency}/\inlvar{divider}$_l$), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inlvar{waveform}. It can be set to \textit{sine}, \textit{triangle}, or \textit{custom}. If set to \textit{custom}, one can specify a custom waveform using the parameter \inlvar{customWaveform}. The number of sampling points of the \inlvar{customWaveform} is denoted by $U$. The triangle is defined to be a $2\pi$ periodization of the
-triangle function:
-$$
- \Lambda_\text{tri}(t) = \left\vert t+\frac{\pi}{2}\right\vert - \frac{\pi}{2} \quad \text{with} \quad -\frac{3}{2}\pi\leq t \leq \frac{\pi}{2}.
-$$
+where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (\inlvar{baseFrequency}/\inlvar{divider}$_l$), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inlvar{waveform}. It can be set to \textit{sine}, \textit{triangle}, or \textit{custom}. 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -319,10 +332,9 @@ $$
 \inlvar{strength} & \inltab{Float64} & $J \times D \times F $ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
 \inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad, $[-\pi,\pi)$ & no & Applied drive field phase $\varphi$\\ \hline
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
-\inlvar{customWaveform} & \inltab{Float64} & $D \times F \times U$ & 1 & yes & Custom waveform table \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider of the \inlvar{baseFrequency} to determine the drive field frequencies \\ \hline
 \inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
-\inlvar{period} & \inltab{Float64} & 1 & s & no & Trajectory period is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}\\ \hline
+\inlvar{period} & \inltab{Float64} & 1 & s & no & Trajectory period is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}. It will not change when averaging was applied. The duration for measuring the $V$ data points is given by the product of  \inlvar{period} and \inlvar{numAverages} \\ \hline
 \end{tabularx}
 
 
@@ -352,7 +364,7 @@ where $\hat{m}_k^\text{proj}$ is the orthogonal projection of the full magnetic 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
-\inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one patch, denoted by $V$ \\ \hline
+\inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one period, denoted by $V$ \\ \hline
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually Voltage V \\ \hline 
 \inlvar{dataConversionFactor} & \inltab{Float64} & $C \times 2$ & \inlvar{unit} & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
 \inlvar{transferFunction} & \inltab{Complex128} & $C \times K$ & 
@@ -366,7 +378,7 @@ where $\hat{m}_k^\text{proj}$ is the orthogonal projection of the full magnetic 
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-MPI data is usually acquired by a series of measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all patches in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
+MPI data is usually acquired by a series of measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all periods in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
 
 Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ or a corresponding reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
@@ -386,7 +398,7 @@ During processing one might want to keep track which of the final $N$ frames bel
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Processed data \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Measured data at a specific processing stage \\ \hline
 \inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & no & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
@@ -406,7 +418,7 @@ During processing one might want to keep track which of the final $N$ frames bel
 \paragraph{Remarks:}
 The calibration group describes a calibration measurement (system matrix), although it does not hold the data itself. Each of the measurements is taken with a calibration sample (delta sample) at a fixed position inside the FOV of the device. (If available, the background measurements are taken with the delta sample outside of the FOV of the scanner.) Usually, the calibration measurements are not stored as raw measurements but as processed data, where at least averaging, Fourier transformation, frame permutation and transposition of the data has been performed yielding $N$ processed calibration frames. $N$ includes the background measurements, whereas $O$ is the number of calibrated spatial positions scans. Which steps have been performed is documented in \inlvar{/measurement}.
 
-If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$, the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position, and last with respect to their $z$ position. Background measurements are collected at at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows a fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points, there is the possibility to explicitly store all $O$ positions. In case of acquiring a hybrid system matrix, the spatial positions may be emulated by applying \inlvar{offsetFields} to the measurement chamber.
+If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$, the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position, and last with respect to their $z$ position. Background measurements are collected at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows a fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points, there is the possibility to explicitly store all $O$ positions. In case of acquiring a hybrid system matrix, the spatial positions may be emulated by applying \inlvar{offsetFields} to the measurement chamber.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
