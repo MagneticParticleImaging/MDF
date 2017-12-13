@@ -357,7 +357,9 @@ For MPS systems one can additionally store a parameter that maps the induced vol
 \begin{align*}
 \hat{u}_k^\text{coil} = 2\pi \textrm{i} k \beta \hat{m}_k^\text{proj} , \quad k=1,\dots,K.
 \end{align*}
-where $\hat{m}_k^\text{proj}$ is the orthogonal projection of the full magnetic moment at the scanner center and $\beta$ is the channel dependent conversion factor that is stored in the parameter  \inlvar{inductionFactor}.
+where  
+$\hat m_k^\text{proj}$ is the orthogonal projection of the magnetic moment onto the coil sensitivity at the scanner center
+and $\beta$ is the channel dependent conversion factor that is stored in the parameter  \inlvar{inductionFactor}.
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
@@ -370,7 +372,7 @@ where $\hat{m}_k^\text{proj}$ is the orthogonal projection of the full magnetic 
 \inlvar{transferFunction} & \inltab{Complex128} & $C \times K$ & 
 & yes & Transfer function of the receive channels in Fourier domain. \inlvar{unit} is the field from the \inlvar{/measurement} group \\ \hline
 \inlvar{inductionFactor} & \inltab{Float64} & $C$ & \inlvar{unit} A$^{-1}$m$^{-2}$ 
-& yes & Induction factor mapping the projection of the magnetic moment to the voltage in the receive coil. \\ \hline
+& yes & Induction factor mapping the projection of the magnetic moment to the voltage in the receive coil.  \\ \hline
 \end{tabularx}
 
 
