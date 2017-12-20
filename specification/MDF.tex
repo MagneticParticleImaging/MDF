@@ -293,8 +293,8 @@ where $\mathbf J_{\mathbf H}(\mathbf r_0)$ is the Jacobian of $\mathbf H$ at $\m
 \inlvar{numAverages} & \inltab{Int64} & 1 & 1& no & Number of block averages per drive-field period. \\ \hline
 \inlvar{numPeriodsPerFrame} & \inltab{Int64} & 1 & 1 & no & Number of drive-field periods within a frame denoted by $J$ \\ \hline
 \inlvar{numFrames} & \inltab{Int64} & 1 & 1& no & Number of available measurement frames $N$ \\ \hline
-\inlvar{gradient} & \inltab{Float64} & $Y \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
-\inlvar{offsetField} & \inltab{Float64} & $Y \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied  \\ \hline
+\inlvar{gradient} & \inltab{Float64} & $J \times Y \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
+\inlvar{offsetField} & \inltab{Float64} & $J \times Y \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied  \\ \hline
 \end{tabularx}
 
 %\subsubsection{Generator Parameters (group: \inlvar{/acquisition/generator}, optional)}
