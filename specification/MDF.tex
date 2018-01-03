@@ -66,7 +66,7 @@
 \begin{document}
 
 \title{MDF: Magnetic Particle Imaging Data Format}
-\newcommand{\version}{2.0.0-pre}
+\newcommand{\version}{2.0.0}
 
 \author{
 T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladiss$^5$, C.~Kaethner$^5$, A.~Neumann$^5$, P.~Vogel$^6$, J.~Rahmer$^7$, M.~M\"oddel$^{1,2}$ \\ \\
@@ -106,21 +106,21 @@ The MDF is mainly focused on storing measurement data, calibration data, or reco
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. Whenever a data type has a big- and little-endian version, the little-endian data type should be used. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}. 
 
-The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \inl{H5T_NATIVE_INT8}, \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. 
+The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. 
 
 Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned floating point types to represent the real and the imaginary part of a complex number. This representation was chosen because it is also the default behavior for complex numbers in Python using numpy and h5py. \inltab{Complex128} refers to the complex compound type with base type \inl{H5T_NATIVE_DOUBLE}.
 
 For later identification of a data set, we store three Universally Unique Identifiers (UUIDs) (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs, we recommend to use version 4 of the UUID specification.
 
-Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (col major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
+Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (column major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
 
 \subsection{Units}
 
-With one exception, physical quantities are given in SI units. The magnetic field strength is reported in T$\mu_0^{-1} = 4 \pi$Am$^{-1}\mu_0^{-1}$. This convention has been proposed in the first MPI publication \cite{Gleich2005} and consistently been used in most MPI related publications. The aims of this convention are to report the numbers on a Tesla scale, which most readers with a background in magnetic resonance imaging are familiar with.
+With one exception, physical quantities are given in SI units. The magnetic field strength is reported in T$\mu_0^{-1} = 4 \pi$Am$^{-1}\mu_0^{-1}$. This convention has been proposed in the first MPI publication \cite{Gleich2005} and consistently been used in most MPI related publications. The aim of this convention is to report the numbers on a Tesla scale, which most readers with a background in magnetic resonance imaging are familiar with.
 
 \subsection{Optional Parameters}
 
-The MDF has 8 main groups in the root directory and 3 sub-groups. We distinguish between optional and non-optional groups as well as optional, non-optional, and conditional parameters. 
+The MDF has 8 main groups in the root directory and 2 sub-groups. We distinguish between optional and non-optional groups as well as optional, non-optional, and conditional parameters. 
 
 Any optional parameter can be omitted, whereas any non-optional parameter in a non-optional group is mandatory. Conditional parameters are linked to Boolean parameters and have to be provided, if these parameters are true and can be omitted if they are false. If a parameter is optional, non-optional, or conditional is indicated by yes, no, or the corresponding Boolean parameter.
 
@@ -132,7 +132,7 @@ It is possible to store user defined parameters in an MDF. For instance one may 
 
 \subsection{Naming Convention}
 
-Several parameters within the MDF are linked in dimensionality. We use short variable names to indicate these connections. The following table describes the meaning of each variable name used.
+Several parameters within the MDF are linked in dimensionality. We use short variable names to indicate these connections. The following table describes the meaning of each variable name used in this specification.
 \setbox\ltmcbox\vbox{
 	\makeatletter\col@number\@ne
 	\noindent \begin{longtable}{p{0.12\columnwidth}p{0.8\columnwidth}} 
@@ -254,7 +254,7 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \inlvar{injectionTime} & \inltab{String} & $A$ & yyyy-mm-ddThh:mm:ss.ms & yes & UTC time at which tracer injection started \\ \hline
 \end{tabularx}
 
-
+\newpage
 \subsection{Scanner Parameters (group: \inlvar{/scanner/}, non-optional)}
 
 \begin{multicols}{2}
@@ -277,13 +277,15 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \begin{multicols}{2}
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information, a subgroup containing information on the $D$ excitation channels, and a subgroup containing information on the $C$ receive channels.
 
-In MPI, a frame groups all data used to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{/drivefield/period}. The acquisition time increases by a factor of \inlvar{numAverages} if averaging is applied. In case that the static selection field is changed over time one will measure several drive-field periods each with a different gradient field setting. In a classical multi-patch sequence the gradient field will be shifted in space from period to period. A full frame consists of \inlvar{numPeriodsPerFrame} (J) periods. The gradient settings within each period are described by the fields \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField}. Both parameters have $J \times Y \times 3$ entries, where $Y$ is the partition number of a single period and $3$ corresponds to their spacial components. Each period is split into $Y$ equidistantly spaced time points with the beginning and end of each period as first and last point. In case $Y=1$ the fields at the beginning of the period $J$ are provided, which can be used to describe a static multi-patch sequence. Higher numbers of $Y$ allow the description of an arbitrarily fine grained gradient and offset field sequence.
+The term \textit{frame} refers to the data collected in one acquisition cycle. Usually all data within a frame will be combined to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{drivefield/cycle}. The acquisition time increases by a factor of \inlvar{numAverages} if block-averaging is applied. One averaged drive-field cycle will be referred to as one \textit{drive-field period}. The drive-field period is thus the product of \inlvar{drivefield/cycle} and \inlvar{numAverages}.
 
-It should be noted that the gradient and offset fields can be expressed locally around any point $\mathbf r_0\in \mathbb R^3$ via their Taylor expansion
+In case that the static selection field is changed over time one will measure several drive-field periods each with a different gradient field setting. In a classical multi-patch sequence the gradient field will be shifted in space from period to period. A full frame consists of \inlvar{numPeriodsPerFrame} ($J$) periods. The gradient settings within each period are described by the fields \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField}. \inlvar{/acquisition/gradient} has $J \times Y \times 3 \times 3$ entries whereas \inlvar{/acquisition/offsetField} is of dimension $J \times Y \times 3$. While $J$ describes the current drive-field period, $Y$ can be used to describe sequences where the gradient and offset field change during a drive-field period. Each period is split into $Y$ equidistantly spaced time intervals whereas the values stored in \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField} correspond to the beginning of each time interval. In case $Y=1$ the fields at the beginning of the period $J$ are provided, which can be used to describe a static multi-patch sequence. Higher numbers of $Y$ allow the description of an arbitrarily fine grained gradient and offset field sequence.
+
+It should be noted that the combined gradient and offset field can be expressed locally around the scanner center $\mathbf r_\text{c}\in \mathbb R^3$ via the Taylor expansion
 \begin{equation}
-	\mathbf H(\mathbf r) = \mathbf H(\mathbf r_0) + \mathbf J_{\mathbf H}(\mathbf r_0) (\mathbf r - \mathbf r_0) + \dots,
+	\mathbf H(\mathbf r) = \mathbf H(\mathbf r_\text{c}) + \mathbf J_{\mathbf H}(\mathbf r_\text{c}) (\mathbf r - \mathbf r_\text{c}) + \dots,
 \end{equation}
-where $\mathbf J_{\mathbf H}(\mathbf r_0)$ is the Jacobian of $\mathbf H$ at $\mathbf r_0$. \inlvar{/acquisition/offsetField} stores the field at the center of the scanner and \inlvar{/acquisition/gradient} stores the diagonal entries of $\mathbf J_{\mathbf H}$ at the current location of the field free point (FFP). For field free point (FFP) systems it is convenient to define the scanner center as initial location of the FFP. \textbf{What about FFL systems Tobi?} Both parameters should be used to provide a sufficient description of the system to allow the repetition of the experiment.
+where $\mathbf J_{\mathbf H}(\mathbf r_\text{c})$ is the Jacobian of $\mathbf H$ at $\mathbf r_\text{c}$. \inlvar{/acquisition/offsetField} stores the field (i.e. $\mathbf H(\mathbf r_\text{c})$) and \inlvar{/acquisition/gradient} stores the $3\times 3$ matrix $\mathbf J_{\mathbf H}$. Both parameters are for most scanner topologies sufficient to uniquely describe the applied field sequence. In case of non-linear fields and/or a higher degree of freedom in the number of applied field generators, one may need additional custom fields in order to uniquely define the sequence parameters.
 
 \end{multicols}
 
@@ -293,7 +295,7 @@ where $\mathbf J_{\mathbf H}(\mathbf r_0)$ is the Jacobian of $\mathbf H$ at $\m
 \inlvar{numAverages} & \inltab{Int64} & 1 & 1& no & Number of block averages per drive-field period. \\ \hline
 \inlvar{numPeriodsPerFrame} & \inltab{Int64} & 1 & 1 & no & Number of drive-field periods within a frame denoted by $J$ \\ \hline
 \inlvar{numFrames} & \inltab{Int64} & 1 & 1& no & Number of available measurement frames $N$ \\ \hline
-\inlvar{gradient} & \inltab{Float64} & $J \times Y \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
+\inlvar{gradient} & \inltab{Float64} & $J \times Y \times 3 \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
 \inlvar{offsetField} & \inltab{Float64} & $J \times Y \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied  \\ \hline
 \end{tabularx}
 
@@ -331,7 +333,7 @@ where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field 
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider of the \inlvar{baseFrequency} to determine the drive field frequencies \\ \hline
 \inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
-\inlvar{period} & \inltab{Float64} & 1 & s & no & Trajectory period is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}. It will not change when averaging was applied. The duration for measuring the $V$ data points is given by the product of  \inlvar{period} and \inlvar{numAverages} \\ \hline
+\inlvar{cycle} & \inltab{Float64} & 1 & s & no & Trajectory cycle is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}. It will not change when averaging was applied. The duration for measuring the $V$ data points (i.e. the drive-field period) is given by the product of  \inlvar{period} and \inlvar{numAverages} \\ \hline
 \end{tabularx}
 
 
