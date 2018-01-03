@@ -3,35 +3,45 @@ from pseudoinverse import *
 from pylab import *
 import h5py
 import urllib
+import os
 
 # Download measurement and systemMatrix from http://media.tuhh.de/ibi/mdf/
-filenameSM = "systemMatrix.h5"
-filenameMeas = "measurement.h5"
+filenameSM = "systemMatrix.mdf"
+filenameMeas = "measurement.mdf"
 
-fileSM = urllib.FancyURLopener()
-fileSM.retrieve('http://media.tuhh.de/ibi/mdf/systemMatrix.h5', filenameSM)
-fileMeas = urllib.FancyURLopener()
-fileMeas.retrieve('http://media.tuhh.de/ibi/mdf/measurement_5.h5', filenameMeas)
+if not os.path.isfile(filenameSM):
+  fileSM = urllib.request.FancyURLopener()
+  fileSM.retrieve('http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf', filenameSM)
+if not os.path.isfile(filenameMeas):
+  fileMeas = urllib.request.FancyURLopener()
+  fileMeas.retrieve('http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf', filenameMeas)
 
 fSM = h5py.File(filenameSM, 'r')
 fMeas = h5py.File(filenameMeas, 'r')
 
 # read the full system matrix
-S = fSM['/calibration/dataFD']
+S = fSM['/measurement/data']
 # reinterpret to complex data
-S = S[:,:,:,:].view(complex64).squeeze()
+S = S[:,:,:,:].squeeze()
+# get rid of background frames
+isBG = fSM['/measurement/isBackgroundFrame'][:].view(bool)
+print(S.shape)
+S = S[:,:,isBG == False]
 
 # read the measurement data
-u = fMeas['/measurement/dataFD']
-u = u[:,:,:,:].view(complex64).squeeze()
+u = fMeas['/measurement/data']
+u = u[:,:,:,:].squeeze()
+u = rfft(u)
 
-# we now load the frequencies
-freq = fMeas['/acquisition/receiver/frequencies']
+# generate frequency vector
+numFreq = round(fMeas['/acquisition/receiver/numSamplingPoints'].value/2)+1
+rxBandwidth = fMeas['/acquisition/receiver/bandwidth'].value
+freq = arange(0,numFreq)/(numFreq-1)*rxBandwidth
 
-# remove frequencies below 30 kHz
-idxMin = find(freq[:] > 30e3)[0]
-S = S[:,idxMin:-1,:]
-u = u[:,:,idxMin:-1]
+# remove frequencies below 80 kHz and use only x/y receive channels
+idxMin = find(freq[:] > 80e3)[0]
+S = S[0:2,idxMin:-1,:]
+u = u[:,0:2,idxMin:-1]
 
 print(shape(S))
 print(shape(u))
@@ -44,12 +54,11 @@ u = reshape(u, (shape(u)[0],shape(u)[1]*shape(u)[2]))
 u = mean(u,axis=0)
 
 # reconstruct
-c = kaczmarzReg(S,u,1,1e6,False,True,True)
-
+c = kaczmarzReg(S,u,3,norm(S,ord='fro')*1e-3,False,True,True)
 
 # reconstruct using signular value decomposition
 U, Sigm, V = svd(S, full_matrices=False)
-csvd = pseudoinverse(U, Sigm, V, u, 5e3, True, True)
+csvd = pseudoinverse(U, Sigm, V, u, 5e2, True, True)
 
 # reshape into an image
 N = fSM['/calibration/size'][:]

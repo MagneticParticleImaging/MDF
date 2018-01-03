@@ -21,15 +21,3 @@ include("reco.jl")
 ```
 
 Note that the measurement and system matrix MDF files will be automatically downloaded into your MDF directory.
-
-## Sanity Check
-To help bring forward your own implementation of the Magnetic Particle Imaging Data Format a sanitycheck is provided wit the Julia code.
-
-To check a file simply run
-
-```julia
-include("sanitycheck.jl")
-isvalid_mdf("/path/to/your/testfile")
-```
-
-If your `testfile` passes all tests `isvalid_mdf` will return `true`, else warnings will be given to point out were your `testfile`does not agree with the MDF specifications.

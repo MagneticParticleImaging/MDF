@@ -2,32 +2,39 @@ using HDF5, PyPlot, Requests
 
 include("kaczmarzReg.jl")
 include("pseudoinverse.jl")
+include("utils.jl")
 
 # Download measurement and systemMatrix from http://media.tuhh.de/ibi/mdf/
-filenameSM = "systemMatrix.h5"
-filenameMeas = "measurement.h5"
+filenameSM = "systemMatrix.mdf"
+filenameMeas = "measurement.mdf"
 
-streamSM = get("http://media.tuhh.de/ibi/mdf/systemMatrix.h5")
-save(streamSM, filenameSM)
-streamMeas = get("http://media.tuhh.de/ibi/mdf/measurement_5.h5")
-save(streamMeas, filenameMeas)
+if !isfile(filenameSM)
+  streamSM = get("http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf")
+  save(streamSM, filenameSM)
+end
+if !isfile(filenameMeas)
+  streamMeas = get("http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf")
+  save(streamMeas, filenameMeas)
+end
 
 # read the full system matrix
-S = h5read(filenameSM, "/calibration/dataFD")
-# reinterpret to complex data
-S = reinterpret(Complex{eltype(S)}, S, (size(S,2),size(S,3),size(S,4)))
+S = readComplexArray(filenameSM, "/measurement/data")
+# get rid of background frames
+isBG = h5read(filenameSM, "/measurement/isBackgroundFrame")
+S = S[isBG .== 0,:,:,:]
 
 # read the measurement data
-u = h5read(filenameMeas, "/measurement/dataFD")
-u = reinterpret(Complex{eltype(u)}, u, (size(u,2), size(u,3), size(u,4)))
+u = h5read(filenameMeas, "/measurement/data")
+u = map(Complex128, rfft(u,1))
 
-# we now load the frequencies
-freq = h5read(filenameMeas, "/acquisition/receiver/frequencies")
+numFreq = div(h5read(filenameMeas, "/acquisition/receiver/numSamplingPoints"),2)+1
+rxBandwidth = h5read(filenameMeas, "/acquisition/receiver/bandwidth")
+freq = collect(0:(numFreq-1))./(numFreq-1).* rxBandwidth
 
-# remove frequencies below 30 kHz
-idxMin = findfirst( freq .> 30e3)
-S = S[:,idxMin:end,:]
-u = u[idxMin:end,:,:]
+# remove frequencies below 80 kHz and use only x/y receive channels
+idxMin = findfirst( freq .> 80e3)
+S = S[:,idxMin:end,1:2,:,1] # 1 is the multi patch dimension
+u = u[idxMin:end,1:2,1,:]
 
 # merge frequency and receive channel dimensions
 S = reshape(S, size(S,1), size(S,2)*size(S,3))
@@ -41,7 +48,7 @@ c = kaczmarzReg(S,u,1,1e6,false,true,true)
 
 # reconstruct using signular value decomposition
 U, Σ, V = svd(S.')
-csvd = pseudoinverse(U, Σ, V, u, 5e3, true, true)
+csvd = pseudoinverse(U, Σ, V, u, 5e2, true, true)
 
 # reshape into an image
 N = h5read(filenameSM, "/calibration/size")

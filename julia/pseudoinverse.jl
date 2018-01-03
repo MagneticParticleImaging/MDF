@@ -25,7 +25,7 @@ function pseudoinverse{T}(U::Matrix, Σ::Vector, V::Matrix, b::Vector{T}, lambd,
 
 	# apply constraints
 	if enforceReal && eltype(c) <: Complex
-		c = complex(real(c),0)
+		c = complex.(real.(c),0)
 	end
 	if enforcePositive
 		c[real(c) .< 0] = 0
