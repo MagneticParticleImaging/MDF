@@ -277,15 +277,15 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \begin{multicols}{2}
 \paragraph{Remarks:} The acquisition parameter group can describe different imaging protocols and trajectory settings. The corresponding data is organized into general information, a subgroup containing information on the $D$ excitation channels, and a subgroup containing information on the $C$ receive channels.
 
-The term \textit{frame} refers to the data collected in one acquisition cycle. Usually all data within a frame will be combined to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{drivefield/cycle}. The acquisition time increases by a factor of \inlvar{numAverages} if block-averaging is applied. One averaged drive-field cycle will be referred to as one \textit{drive-field period}. The drive-field period is thus the product of \inlvar{drivefield/cycle} and \inlvar{numAverages}.
+The term \textit{frame} refers to the data collected during one acquisition period. Usually all data within a frame will be combined to reconstruct a single MPI image/tomogram. In the simplest scenario, this data is acquired during one \inlvar{drivefield/cycle}. If block-averaging is applied the amount of data captured stays the same while the acquisition time increases by a factor of \inlvar{numAverages}. In this document we will refer to the product of one \inlvar{drivefield/cycle} and \inlvar{numAverages} as \textit{one drive-field period}.
 
-In case that the static selection field is changed over time one will measure several drive-field periods each with a different gradient field setting. In a classical multi-patch sequence the gradient field will be shifted in space from period to period. A full frame consists of \inlvar{numPeriodsPerFrame} ($J$) periods. The gradient settings within each period are described by the fields \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField}. \inlvar{/acquisition/gradient} has $J \times Y \times 3 \times 3$ entries whereas \inlvar{/acquisition/offsetField} is of dimension $J \times Y \times 3$. While $J$ describes the current drive-field period, $Y$ can be used to describe sequences where the gradient and offset field change during a drive-field period. Each period is split into $Y$ equidistantly spaced time intervals whereas the values stored in \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField} correspond to the beginning of each time interval. In case $Y=1$ the fields at the beginning of the period $J$ are provided, which can be used to describe a static multi-patch sequence. Higher numbers of $Y$ allow the description of an arbitrarily fine grained gradient and offset field sequence.
+In case that the static selection field is changed over time one will measure several drive-field periods each with a different gradient field setting. In a stepped multi-patch sequence the gradient field will be spatially shifted and/or scaled in between drive-field periods and remain constant within. In such a scenario a full frame consists of \inlvar{numPeriodsPerFrame} ($J$) periods. The gradient scaling or shift within each period are described by the fields \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField}. The former has $J \times Y \times 3 \times 3$ entries whereas the later is of dimension $J \times Y \times 3$. While $J$ labels the drive-field periods, $Y$ can be used to describe dynamic multi-patch sequences where the gradient and offset field change during a drive-field period. Each period is discretized into $Y$ equidistantly spaced time intervals. The values in \inlvar{/acquisition/gradient} and \inlvar{/acquisition/offsetField} describe the gradient and offset field at the beginning of each time interval. In case $Y=1$ the fields at the beginning of the period $J$ are provided, which can be used to describe a static multi-patch sequence. Higher numbers of $Y$ allow the description of an arbitrarily fine grained gradient and offset field sequence.
 
 It should be noted that the combined gradient and offset field can be expressed locally around the scanner center $\mathbf r_\text{c}\in \mathbb R^3$ via the Taylor expansion
 \begin{equation}
 	\mathbf H(\mathbf r) = \mathbf H(\mathbf r_\text{c}) + \mathbf J_{\mathbf H}(\mathbf r_\text{c}) (\mathbf r - \mathbf r_\text{c}) + \dots,
 \end{equation}
-where $\mathbf J_{\mathbf H}(\mathbf r_\text{c})$ is the Jacobian of $\mathbf H$ at $\mathbf r_\text{c}$. \inlvar{/acquisition/offsetField} stores the field (i.e. $\mathbf H(\mathbf r_\text{c})$) and \inlvar{/acquisition/gradient} stores the $3\times 3$ matrix $\mathbf J_{\mathbf H}$. Both parameters are for most scanner topologies sufficient to uniquely describe the applied field sequence. In case of non-linear fields and/or a higher degree of freedom in the number of applied field generators, one may need additional custom fields in order to uniquely define the sequence parameters.
+where $\mathbf J_{\mathbf H}(\mathbf r_\text{c})$ is the Jacobian of $\mathbf H$ at $\mathbf r_\text{c}$. \inlvar{/acquisition/offsetField} stores the field $\mathbf H(\mathbf r_\text{c})$ and \inlvar{/acquisition/gradient} stores the $3\times 3$ matrix $\mathbf J_{\mathbf H}$. Both parameters are for most scanner topologies sufficient to uniquely describe the applied field sequence. In case of non-linear fields and/or a higher degree of freedom in the number of applied field generators, one may need additional custom fields in order to uniquely define the sequence parameters.
 
 \end{multicols}
 
@@ -312,6 +312,8 @@ where $\mathbf J_{\mathbf H}(\mathbf r_\text{c})$ is the Jacobian of $\mathbf H$
 %\textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline
 %\inlvar{current} & \inltab{Float64} & $Y \times R$ & A & yes & Current of each field generator (despite drive-field)  \\ \hline
 %\end{tabularx}
+
+\newpage
 
 \subsubsection{Drive Field Parameters (group: \inlvar{/acquisition/drivefield/}, non-optional)}
 
@@ -486,7 +488,7 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 	\item Split the \inlvar{/study} group into the \inlvar{/experiment} group and the study group. This allows to provide more fine grained information on study and experiment.
 	\item Added possibility to mark the overscan region.
 	\item Added new section changelog to the MDF documentation to record the development of the MDF.
-	\item Updated \inlvar{README.md} in the github repository.
+	\item Updated \inlvar{README.md} and \inlvar{MDF.bib} in the github repository.
 	\item Updated code examples in the github repository.
 	\item Added a section on the MDF reference implementation MPIFiles.jl. Since sanity checks will be covered by this package, the description on sanity checks has been removed.
 \end{itemize}
