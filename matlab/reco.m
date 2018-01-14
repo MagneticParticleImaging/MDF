@@ -8,8 +8,8 @@ close all
 filenameSM = 'systemMatrix.mdf';
 filenameMeas = 'measurement.mdf';
 
-urlwrite('http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf',filenameSM)
-urlwrite('http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf',filenameMeas)
+websave(filenameSM,'http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf')
+websave(filenameMeas,'http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf')
 
 %% 3. Loading the data
 % For the System matrix (later named SM)
