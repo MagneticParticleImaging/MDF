@@ -25,7 +25,7 @@ S = S[isBG .== 0,:,:,:]
 
 # read the measurement data
 u = h5read(filenameMeas, "/measurement/data")
-u = map(Complex128, rfft(u,1))
+u = map(Complex64, rfft(u,1))
 
 numFreq = div(h5read(filenameMeas, "/acquisition/receiver/numSamplingPoints"),2)+1
 rxBandwidth = h5read(filenameMeas, "/acquisition/receiver/bandwidth")
