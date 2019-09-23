@@ -66,7 +66,7 @@
 \begin{document}
 
 \title{MDF: Magnetic Particle Imaging Data Format}
-\newcommand{\version}{2.0.1}
+\newcommand{\version}{2.1.0}
 
 \author{
 T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladiss$^5$, C.~Kaethner$^5$, A.~Neumann$^5$, P.~Vogel$^6$, J.~Rahmer$^7$, M.~M\"oddel$^{1,2}$ \\ \\
@@ -106,7 +106,7 @@ The MDF is mainly focused on storing measurement data, calibration data, or reco
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. Whenever a data type has a big- and little-endian version, the little-endian data type should be used. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}. 
 
-The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. 
+The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. In the case that the calibration data is compressed, the indices are stored as \inltab{Integer}, which can be any of the following HDF5 data types: \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64}.
 
 Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned floating point types to represent the real and the imaginary part of a complex number. This representation was chosen because it is also the default behavior for complex numbers in Python using numpy and h5py. \inltab{Complex128} refers to the complex compound type with base type \inl{H5T_NATIVE_DOUBLE}.
 
@@ -139,7 +139,9 @@ Several parameters within the MDF are linked in dimensionality. We use short var
 		\textbf{Variable} & \textbf{Number of}  \\ \hline
 		$A$ &  tracer materials/injections for multi-color MPI \\ \hline
 		$N$ &  acquired frames, same as a spatial position for calibration\\ \hline
-		$O$ &  acquired frames w/o background frames\\ \hline
+		$E$ &  acquired background frames\\ \hline
+		$O$ &  acquired frames without background frames ($O=N-E$)\\ \hline
+		$B$ &  coefficients stored after basis transformation ($B\leq O$)\\ \hline
 		$J$ &  periods within one frame\\ \hline
 		$Y$ &  partitions of each patch position\\ \hline
 		$C$ &  receive channels \\ \hline
@@ -361,7 +363,7 @@ and $\beta$ is the channel dependent conversion factor that is stored in the par
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually Voltage V \\ \hline 
 \end{tabularx}
 
-
+\newpage
 \subsection{Measurement (group: \inlvar{/measurement/}, optional)}
 \begin{multicols}{2}
 
@@ -382,15 +384,20 @@ For each of the steps above there is a corresponding flag within this group indi
 
 During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} should be used. If frequency selection has been performed, \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
 
+The motivation for reducing the number of frequency components is the reduction of the file size. Another, even more effective method is applying a (linear) transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This option is only available if \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed}, and \inlvar{isFramePermutation} are all set to true. The frames need to be permuted in such a way that first $O$ frames are the foreground frames and the last $E$ frames are the background frames. The basis transformation is only applied to the $O$ foreground frames. In case of compressed data, the flag \inlvar{isBasisTransformed} is set to \inltab{true} and two additional fields \inlvar{basisTransformation} and \inlvar{basisIndices} need to be stored. \inlvar{basisTransformation} contains the name of the applied transformation, where we use the following standard identifiers: DCT-I, DCT-II, DCT-III, DCT-IV, FFT all of which have standard meaning. Additional transformations are non-standard and need to be integrated into this specification prior usage. In case that the $O$ foreground frames lay on a 2D or 3D grid (see \inlvar{/calibration/size}) we consider the multidimensional versions of the transformations. The basis transformation applied along the $O$ foreground frames yields $O$ coefficients. One then applies a threshold and stores only the $B\leq O$ most significant coefficients. The indices of these coefficients are stored in \inlvar{basisIndices}.
+
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Measured data at a specific processing stage \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times W \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
+\inlvar{basisIndices} & \inltab{Integer} & $ J \times C \times W \times B$ & \inlvar{isBasisTransformed} & Indices of the coefficients (between $1$ and $O$)\\ \hline
+\inlvar{basisTransformation} & \inltab{String} & 1 & \inlvar{isBasisTransformed} & Name of the transformation that has been applied\\ \hline
 \inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
-\inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & no & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
+\inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & no & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
+\inlvar{isBasisTransformed} & \inltab{Int8} & 1 & no & Flag, if the data is transformed along the (foreground) frame dimension \\ \hline
 \inlvar{isFastFrameAxis} & \inltab{Int8} & 1 & no & Flag, if the frame dimension $N$ has been moved to the last dimension\\ \hline
 \inlvar{isFourierTransformed} & \inltab{Int8} & 1 & no & Flag, if the data is stored in frequency space \\ \hline
 \inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames has been changed, see \inlvar{framePermutation} \\ \hline 
