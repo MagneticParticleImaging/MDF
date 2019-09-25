@@ -1,4 +1,11 @@
-using HDF5, PyPlot, Requests
+using Pkg
+# Install required packages
+for P in ["HDF5", "FFTW", "HTTP", "PyPlot"]
+  !haskey(Pkg.installed(), P) && Pkg.add(P)
+end
+
+using HDF5, PyPlot, HTTP, FFTW
+using LinearAlgebra, Random, Statistics
 
 include("kaczmarzReg.jl")
 include("pseudoinverse.jl")
@@ -9,12 +16,18 @@ filenameSM = "systemMatrix.mdf"
 filenameMeas = "measurement.mdf"
 
 if !isfile(filenameSM)
-  streamSM = get("http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf")
-  save(streamSM, filenameSM)
+  HTTP.open("GET", "http://media.tuhh.de/ibi/mdfv2/systemMatrix_V2.mdf") do http
+    open(filenameSM, "w") do file
+        write(file, http)
+    end
+  end
 end
 if !isfile(filenameMeas)
-  streamMeas = get("http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf")
-  save(streamMeas, filenameMeas)
+  HTTP.open("GET", "http://media.tuhh.de/ibi/mdfv2/measurement_V2.mdf") do http
+    open(filenameMeas, "w") do file
+        write(file, http)
+    end
+  end
 end
 
 # read the full system matrix
@@ -25,7 +38,7 @@ S = S[isBG .== 0,:,:,:]
 
 # read the measurement data
 u = h5read(filenameMeas, "/measurement/data")
-u = map(Complex64, rfft(u,1))
+u = map(ComplexF32, rfft(u,1))
 
 numFreq = div(h5read(filenameMeas, "/acquisition/receiver/numSamplingPoints"),2)+1
 rxBandwidth = h5read(filenameMeas, "/acquisition/receiver/bandwidth")
@@ -41,13 +54,13 @@ S = reshape(S, size(S,1), size(S,2)*size(S,3))
 u = reshape(u, size(u,1)*size(u,2), size(u,3))
 
 # average over all temporal frames
-u = vec(mean(u,2))
+u = vec(mean(u,dims=2))
 
 # reconstruct using kaczmarz algorithm
 c = kaczmarzReg(S,u,1,1e6,false,true,true)
 
 # reconstruct using signular value decomposition
-U, Σ, V = svd(S.')
+U, Σ, V = svd(copy(transpose(S)))
 csvd = pseudoinverse(U, Σ, V, u, 5e2, true, true)
 
 # reshape into an image
@@ -58,9 +71,9 @@ csvd = reshape(csvd,N[1],N[2])
 # plot kaczmarz reconstruction
 figure()
 gray()
-imshow(real(c), interpolation="None")
+imshow(real.(c), interpolation="None")
 
 # plot pseudoinverse reconstruction
 figure()
 gray()
-imshow(real(csvd), interpolation="None")
+imshow(real.(csvd), interpolation="None")

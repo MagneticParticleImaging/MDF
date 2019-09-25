@@ -1,5 +1,5 @@
-@doc """
-The regularized kaczmarz algorithm solves the Thikonov regularized least squares Problem 
+"""
+The regularized kaczmarz algorithm solves the Thikonov regularized least squares Problem
 argminₓ(‖Ax-b‖² + λ‖b‖²).
 
 # Arguments
@@ -11,8 +11,9 @@ argminₓ(‖Ax-b‖² + λ‖b‖²).
 * `shuff::Bool`: Enables random shuffeling of rows during iterations in the kaczmarz algorithm
 * `enforceReal::Bool`: Enable projection of solution on real plane during iteration
 * `enforcePositive::Bool`: Enable projection of solution onto positive halfplane during iteration
-""" ->
-function kaczmarzReg{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, shuff, enforceReal, enforcePositive )
+"""
+function kaczmarzReg(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, shuff,
+                     enforceReal, enforcePositive) where T
   M = size(A,2)
   N = size(A,1)
 
@@ -23,7 +24,7 @@ function kaczmarzReg{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, s
   for m=1:M
     energy[m] = norm(A[:,m])
   end
-    
+
   rowIndexCycle = collect(1:M)
 
   if shuff
@@ -31,15 +32,15 @@ function kaczmarzReg{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, s
   end
 
   lambdIter = lambd
-  
+
   for l=1:iterations
     for m=1:M
       k = rowIndexCycle[m]
       if energy[k] > 0
         tmp = dot_with_matrix_row(A,x,k)
-      
-        beta = (b[k] - tmp - sqrt(lambdIter)*residual[k]) / (energy[k]^2 + lambd) 
-        
+
+        beta = (b[k] - tmp - sqrt(lambdIter)*residual[k]) / (energy[k]^2 + lambd)
+
         for n=1:size(A,1)
           x[n] += beta*conj(A[n,k])
         end
@@ -49,17 +50,17 @@ function kaczmarzReg{T}(A::AbstractMatrix{T}, b::Vector{T}, iterations, lambd, s
     end
 
     if enforceReal && eltype(x) <: Complex
-      x = complex.(real.(x),0)
+      x = complex.(real.(x), 0)
     end
     if enforcePositive
-      x[real.(x) .< 0] = 0
+      x[real.(x) .< 0] .= 0
     end
   end
 
   return x
 end
 
-@doc """
+"""
 Calculates the dot product between x and the k-th matrix row of A.
 
 # Arguments
@@ -67,7 +68,7 @@ Calculates the dot product between x and the k-th matrix row of A.
 * `A::AbstractMatrix`: System matrix A
 * `x::Vector`: Measurement vector b
 * `k::Int: matrix row
-"""->
+"""
 function dot_with_matrix_row(A, x, k)
   tmp = 0.0
   for n=1:size(A,1)

@@ -1,5 +1,5 @@
-@doc """
-This algorithm solves the Thikonov regularized least squares Problem 
+"""
+This algorithm solves the Thikonov regularized least squares Problem
 argminₓ(‖Ax-b‖² + λ‖b‖²) using the singular value decomposition of A.
 
 # Arguments
@@ -9,10 +9,11 @@ argminₓ(‖Ax-b‖² + λ‖b‖²) using the singular value decomposition of 
 * `lambd::Float64`: The regularization parameter, relative to the matrix trace
 * `enforceReal::Bool`: Enable projection of solution on real plane during iteration
 * `enforcePositive::Bool`: Enable projection of solution onto positive halfplane during iteration
-""" ->
-function pseudoinverse{T}(U::Matrix, Σ::Vector, V::Matrix, b::Vector{T}, lambd, enforceReal, enforcePositive)
+"""
+function pseudoinverse(U::AbstractMatrix, Σ::AbstractVector, V::AbstractMatrix, b::Vector{T}, lambd,
+	                     enforceReal, enforcePositive) where T
 	# perform regularization
-	D = zeros(Σ)
+	D = zeros(length(Σ))
 	for i=1:length(Σ)
 		σi = Σ[i]
 		D[i] = σi/(σi^2+lambd^2)
@@ -21,15 +22,15 @@ function pseudoinverse{T}(U::Matrix, Σ::Vector, V::Matrix, b::Vector{T}, lambd,
 	# calculate pseudoinverse
 	tmp = BLAS.gemv('C', one(T), U, b)
 	tmp .*=  D
-	c = BLAS.gemv('N', one(T), V, tmp)
+	c = BLAS.gemv('N', one(T), copy(V.parent'), tmp)
 
 	# apply constraints
 	if enforceReal && eltype(c) <: Complex
 		c = complex.(real.(c),0)
 	end
 	if enforcePositive
-		c[real(c) .< 0] = 0
+		c[real.(c) .< 0] .= 0
 	end
-	
+
 	return c
 end

@@ -1,20 +1,20 @@
 # MDF julia code
 
-This folder contains examplary Julia code for a simple MPI reconstruction.
+This folder contains example Julia code for a simple MPI reconstruction.
 
 ## Set up
-In order to use this code one first has to download Julia and apply the packages `HDF5` and `PyPlot` by executing
+In order to use this code one first has to download Julia (version 1.x) and install the  packages `HDF5`, `FFTW`, `HTTP` and `PyPlot` by executing
 
 ```julia
+using
 Pkg.add("HDF5")
-Pkg.add("Requests")
+Pkg.add("FFTW")
+Pkg.add("HTTP")
 Pkg.add("PyPlot")
 ```
 
-The later requires a functional Python/Matplotlib installation such as the one provided by the Anaconda Python distribution.
-
 ## Reconstruction Examples
-After the set up the reconstruction example script can executed. To do so change into the MDF directory, run the Julia REPL and execute the reconstruction script
+After installation the reconstruction example script can executed. To do so, move into the MDF directory, run the Julia REPL and execute the reconstruction script
 
 ```julia
 include("reco.jl")
