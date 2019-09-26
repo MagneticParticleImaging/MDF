@@ -85,7 +85,7 @@ Version \textbf{\version}
 \end{center}
 
 \begin{abstract}
-Magnetic particle imaging (MPI) is a tomographic method to determine the spatio-temporal distribution of magnetic nanoparticles. In this document, a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different devices worldwide. The focus of the MDF is on sequence parameters, measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format in version 5 (HDF5). This document discusses the MDF version \version, which is not backward compatible with version 1.x.y.
+Magnetic particle imaging (MPI) is a tomographic method for determining the spatio-temporal distribution of magnetic nanoparticles. In this document, a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different devices worldwide. The focus of the MDF is on sequence parameters, measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format in version 5 (HDF5). This document discusses the MDF version \version, which is not backward compatible with version 1.x.y.
 \end{abstract}
 
 \begin{multicols}{2}		
@@ -108,11 +108,11 @@ MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attrib
 
 The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. In the case that the calibration data is compressed, the indices are stored as \inltab{Integer}, which can be any of the following HDF5 data types: \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64}.
 
-Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned floating point types to represent the real and the imaginary part of a complex number. This representation was chosen because it is also the default behavior for complex numbers in Python using numpy and h5py. \inltab{Complex128} refers to the complex compound type with base type \inl{H5T_NATIVE_DOUBLE}.
+Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned number types to represent the real and the imaginary part of a complex number. This representation was chosen because it is also the default behavior for complex numbers in Python using numpy and h5py as well as in Julia using the HDF5.jl package. \inltab{Complex128} refers to the complex compound type with base type \inl{H5T_NATIVE_DOUBLE}.
 
 For later identification of a data set, we store three Universally Unique Identifiers (UUIDs) (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs, we recommend to use version 4 of the UUID specification.
 
-Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (column major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
+Whenever multidimensional data is stored, dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (column major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
 
 \subsection{Units}
 
@@ -169,20 +169,20 @@ As the file format is versionized it will be possible to extend it for future ne
 \subsection{arXiv}
 As of version 1.0.1, the most recent release of these specifications can also be also found at:\\
 \hspace*{1cm}\url{https://arxiv.org/abs/1602.06072}\\
-If you use MDF, please cite us using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
+If you use MDF, please cite this document using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
 
 
 \subsection{Code examples}		 
   		  
 If you want to get a basic impression of how to handle MDF files you can visit the gitub repository of the MDF project:\\		
   \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\	
-There you will find the directory example, which contains a code example written in Julia, MATLAB, and Python. More details can be found in the \texttt{README} of the repository.
+There you will find the example directory, which contains a code example written in Julia, MATLAB, and Python. More details can be found in the \texttt{README} of the repository.
  
 \subsection{Reference Implementation}		 
 
 A reference implementation for a high level MDF access is available at:\\
   \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MPIFiles.jl}\\	
-\inlvar{MPIFiles.jl} is a package written in the programming language Julia \cite{Bezanson2012,Bezanson2014,Bezanson2014a}. It can read MDF V1, MDF V2, and the dataformat of Bruker MPI systems using a common interface. It also provides functions to convert MDF V1 or Bruker MPI files into MDF V2.
+\inlvar{MPIFiles.jl} \cite{knopp2019mpifiles} is a package written in the programming language Julia \cite{Bezanson2012,Bezanson2014,Bezanson2014a}. It can read MDF V1, MDF V2, and the dataformat of Bruker MPI systems using a common interface. It also provides functions to convert MDF V1 or Bruker MPI files into MDF V2.
 
 \end{multicols}
 
@@ -385,7 +385,17 @@ For each of the steps above there is a corresponding flag within this group indi
 
 During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} should be used. If frequency selection has been performed, \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
 
-The motivation for reducing the number of frequency components is the reduction of the file size. Another, even more effective method is applying a (linear) transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This method was initially proposed in \cite{lampe2012fast} where a global compression of the system matrix was used. The compression uses the concept introduced in \cite{knopp2015compression}, where a fixed number of coefficients is stored for each frequency component. The compression option is only available the processing stages indicated by \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed}, and \inlvar{isFramePermutation} have all been applied. The frames need to be permuted in such a way that first $O$ frames are the foreground frames and the last $E$ frames are the background frames. The sparsity transformation is only applied to the $O$ foreground frames. In case of compressed data, the flag \inlvar{isSparsityTransformed} is set to \inltab{true} and two additional fields \inlvar{sparsityTransformation} and \inlvar{subsamplingIndices} need to be stored. \inlvar{sparsityTransformation} contains the name of the applied transformation, where we use the following standard identifiers: DCT-I, DCT-II, DCT-III, DCT-IV, FFT. In all cases we consider those variants where a pre-factor is chosen to make the transformations unitary / orthogonal. In case of the FFT we consider the version where frequency and position are in the center of the image (i.e. the indices run from $-\frac{\tilde{N}}{2}$ to $\frac{\tilde{N}}{2}+1$ where $\tilde{N}$ is the length of the size in the respective spatial dimension. In most programming languages this involves applying an \inlvar{fftshift} before and after applying the \inlvar{fft}. Additional transformations are non-standard and need to be integrated into this specification prior usage. In case that the $O$ foreground frames lay on a 2D or 3D grid (see \inlvar{/calibration/size}) we consider the multidimensional versions of the transformations. The sparsity transformation applied along the $O$ foreground frames yields $O$ coefficients. One then applies a threshold and stores only the $B\leq O$ most significant coefficients. The indices of these coefficients are stored in \inlvar{subsamplingIndices}.
+The motivation for reducing the number of frequency components is the reduction of the file size. Another, even more effective method is to compress the data by applying a (linear) sparsity transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This method was initially proposed in \cite{lampe2012fast} where a global compression of the system matrix was used. This specification follows the concept introduced in \cite{knopp2015compression}, where a fixed number of coefficients is stored for each frequency component. 
+The compression option, indicated by the flag \inlvar{isSparsityTransformed}, is only available if the processing stages indicated by \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed}, and \inlvar{isFramePermutation} have been applied. The frames need to be permuted in such a way that first $O$ frames are the foreground frames and the last $E$ frames are the background frames. The sparsity transformation is only applied to the $O$ foreground frames. Let $\hat{u}_{j,c,w,o}$ be the measured foreground data with $j=1,\dots,J$, $c=1,\dots,C$, $w=1,\dots,W$, and $o=1,\dots,O$. The processing indicated by \inlvar{isSparsityTransformed} is mathematically described by 
+\begin{equation*}
+ \tilde{u}_{j,c,w,n} = \sum_{o=1}^{O} \Gamma_{o,n} \hat{u}_{j,c,w,o}, \quad \text{for} \quad n=1,\dots,O
+\end{equation*}
+where $\mathbf{\Gamma} = \left( \Gamma_{n,o} \right)_{n=1,\dots,O; o=1,\dots,O}$ is the transformation matrix.
+Instead of storing $\tilde{u}_{j,c,w,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,w,\beta_{j,c,w,b}}$ where $\beta_{j,c,w,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{u}_{j,c,w,o}$, one first needs to restore $\tilde{u}_{j,c,w,n}$ by setting it to the stored value if $n=\beta_{j,c,w,b}$ for $b=1,\dots,B$ and setting it to 0 for all $n$ that are not contained in $\beta_{j,c,w,b}$. Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied.
+
+The name of the applied transformation $\mathbf{\Gamma}$ is stored in the field \inlvar{sparsityTransformation}. Currently, the following transformations are allowed: DCT-I, DCT-II, DCT-III, DCT-IV. In all cases we consider the orthogonal / unitary variant of the transformation. For details on the precise definition of the transformations, we refer to the documentation of the FFTW library \cite{FFTW05}. 
+%In case of the FFT we consider the version where frequency and position are in the center of the image (i.e. the indices run from $-\frac{\tilde{N}}{2}$ to $\frac{\tilde{N}}{2}+1$ where $\tilde{N}$ is the length of the size in the respective spatial dimension. In most programming languages this involves applying an \inlvar{fftshift} before and after applying the \inlvar{fft}. 
+Additional transformations are not standardized and must be integrated into this specification before use.. In case that the $O$ foreground frames lay on a 2D or 3D grid we consider the multidimensional versions of the transformations. The dimensionality of the transformation can be derived from the number of non-singleton dimensions in \inlvar{/calibration/size}. 
 
 \end{multicols}
 
@@ -393,7 +403,7 @@ The motivation for reducing the number of frequency components is the reduction 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times W \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
 \inlvar{subsamplingIndices} & \inltab{Integer} & $ J \times C \times W \times B$ & \inlvar{isSparsityTransformed} & Indices of the coefficients (between $1$ and $O$)\\ \hline
-\inlvar{sparsityTransformation} & \inltab{String} & 1 & \inlvar{isSparsityTransformed} & Name of the transformation that has been applied\\ \hline
+\inlvar{sparsityTransformation} & \inltab{String} & 1 & \inlvar{isSparsityTransformed} & Name of the applied sparsity transformation\\ \hline
 \inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
