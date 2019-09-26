@@ -138,9 +138,9 @@ Several parameters within the MDF are linked in dimensionality. We use short var
 	\noindent \begin{longtable}{p{0.12\columnwidth}p{0.8\columnwidth}} 
 		\textbf{Variable} & \textbf{Number of}  \\ \hline
 		$A$ &  tracer materials/injections for multi-color MPI \\ \hline
-		$N$ &  acquired frames, same as a spatial position for calibration\\ \hline
-		$E$ &  acquired background frames\\ \hline
-		$O$ &  acquired frames without background frames ($O=N-E$)\\ \hline
+		$N$ &  acquired frames ($N=O+E$), same as a spatial position for calibration\\ \hline
+		$E$ &  acquired background frames ($E=N-O$)\\ \hline
+		$O$ &  acquired foreground frames ($O=N-E$)\\ \hline
 		$B$ &  coefficients stored after sparsity transformation ($B\leq O$)\\ \hline
 		$J$ &  periods within one frame\\ \hline
 		$Y$ &  partitions of each patch position\\ \hline
@@ -368,7 +368,7 @@ and $\beta$ is the channel dependent conversion factor that is stored in the par
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-MPI data is usually acquired by a series of measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all periods in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
+MPI data is usually acquired by a series of foreground measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all periods in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
 
 Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ or a corresponding reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
