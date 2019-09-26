@@ -379,19 +379,20 @@ Often it is not convenient to store the raw data but to perform certain processi
 	\item Frequency selection to reduce the number of frequency components, e.g. bandwidth reduction or selection of high signal frequency components.
 	\item Dimension permutation, which is usually applied to Fourier transformed data exchanging the storing order of the data for fast access to the frames.
 	\item Frame permutation to reorder the frames within the data set.
+	\item Sparsity transformation to compress the data by storing only significant coefficients.
 \end{enumerate}
 For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
 
 During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} should be used. If frequency selection has been performed, \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
 
-The motivation for reducing the number of frequency components is the reduction of the file size. Another, even more effective method is applying a (linear) transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This option is only available if \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed}, and \inlvar{isFramePermutation} are all set to true. The frames need to be permuted in such a way that first $O$ frames are the foreground frames and the last $E$ frames are the background frames. The sparsity transformation is only applied to the $O$ foreground frames. In case of compressed data, the flag \inlvar{isSparsityTransformed} is set to \inltab{true} and two additional fields \inlvar{sparsityTransformation} and \inlvar{sparsityIndices} need to be stored. \inlvar{sparsityTransformation} contains the name of the applied transformation, where we use the following standard identifiers: DCT-I, DCT-II, DCT-III, DCT-IV, FFT all of which have standard meaning. Additional transformations are non-standard and need to be integrated into this specification prior usage. In case that the $O$ foreground frames lay on a 2D or 3D grid (see \inlvar{/calibration/size}) we consider the multidimensional versions of the transformations. The sparsity transformation applied along the $O$ foreground frames yields $O$ coefficients. One then applies a threshold and stores only the $B\leq O$ most significant coefficients. The indices of these coefficients are stored in \inlvar{sparsityIndices}.
+The motivation for reducing the number of frequency components is the reduction of the file size. Another, even more effective method is applying a (linear) transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This option is only available if \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed}, and \inlvar{isFramePermutation} are all set to true. The frames need to be permuted in such a way that first $O$ frames are the foreground frames and the last $E$ frames are the background frames. The sparsity transformation is only applied to the $O$ foreground frames. In case of compressed data, the flag \inlvar{isSparsityTransformed} is set to \inltab{true} and two additional fields \inlvar{sparsityTransformation} and \inlvar{sparseDataIndices} need to be stored. \inlvar{sparsityTransformation} contains the name of the applied transformation, where we use the following standard identifiers: DCT-I, DCT-II, DCT-III, DCT-IV, FFT. In all cases we consider those variants where a pre-factor is chosen to make the transformations unitary / orthogonal. In case of the FFT we consider the version where frequency and position are in the center of the image (i.e. the indices run from $-\frac{\tilde{N}}{2}$ to $\frac{\tilde{N}}{2}+1$ where $\tilde{N}$ is the length of the size in the respective spatial dimension. In most programming languages this involves applying an \inlvar{fftshift} before and after applying the \inlvar{fft}. Additional transformations are non-standard and need to be integrated into this specification prior usage. In case that the $O$ foreground frames lay on a 2D or 3D grid (see \inlvar{/calibration/size}) we consider the multidimensional versions of the transformations. The sparsity transformation applied along the $O$ foreground frames yields $O$ coefficients. One then applies a threshold and stores only the $B\leq O$ most significant coefficients. The indices of these coefficients are stored in \inlvar{sparseDataIndices}.
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times W \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
-\inlvar{sparsityIndices} & \inltab{Integer} & $ J \times C \times W \times B$ & \inlvar{isSparsityTransformed} & Indices of the coefficients (between $1$ and $O$)\\ \hline
+\inlvar{sparseDataIndices} & \inltab{Integer} & $ J \times C \times W \times B$ & \inlvar{isSparsityTransformed} & Indices of the coefficients (between $1$ and $O$)\\ \hline
 \inlvar{sparsityTransformation} & \inltab{String} & 1 & \inlvar{isSparsityTransformed} & Name of the transformation that has been applied\\ \hline
 \inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
@@ -454,6 +455,12 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 \section{Changelog}
 
 \begin{multicols}{2}
+\subsection{v2.1.0}
+
+\begin{itemize}
+	\item Added the possibility to store compressed calibration data using a sparsity transformation. To this end, the \inlvar{data} field in the  \inlvar{measurement} group has been extended and the fields \inlvar{isSparsityTransformed}, \inlvar{sparsityTransformation} and \inlvar{sparseDataIndices} have been introduced.
+\end{itemize}
+
 \subsection{v2.0.1}
 
 \begin{itemize}
