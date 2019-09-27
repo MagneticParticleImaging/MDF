@@ -62,6 +62,7 @@
 \newcommand{\inl}[1]{\lstinline[columns=fixed]{#1}}
 \newcommand{\inltab}[1]{{\ttfamily\bfseries\color{blue}#1}}
 \newcommand{\inlvar}[1]{{\ttfamily#1}}
+\newcommand{\adj}{{\vdash \hspace*{-1.752mm} \dashv}}
 
 \begin{document}
 
@@ -393,8 +394,10 @@ Let $\hat{u}_{j,c,w,o}$ be the measured foreground data with $j=1,\dots,J$, $c=1
  \tilde{u}_{j,c,w,n} = \sum_{o=1}^{O} \Gamma_{o,n} \hat{u}_{j,c,w,o}, \quad \text{for} \quad n=1,\dots,O
 \end{equation*}
 where $\mathbf{\Gamma} = \left( \Gamma_{n,o} \right)_{n=1,\dots,O; o=1,\dots,O}$ is the transformation matrix.
-Instead of storing $\tilde{u}_{j,c,w,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,w,\beta_{j,c,w,b}}$ where $\beta_{j,c,w,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{u}_{j,c,w,o}$, one first needs to restore $\tilde{u}_{j,c,w,n}$ by setting it to the stored value if $n=\beta_{j,c,w,b}$ for $b=1,\dots,B$ and setting it to 0 for all $n$ that are not contained in $\beta_{j,c,w,b}$. Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied.
-
+Instead of storing $\tilde{u}_{j,c,w,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,w,\beta_{j,c,w,b}}$ where $\beta_{j,c,w,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{u}_{j,c,w,o}$, one first needs to restore $\tilde{u}_{j,c,w,n}$ by setting it to the stored value if $n=\beta_{j,c,w,b}$ for $b=1,\dots,B$ and setting it to 0 for all $n$ that are not contained in $\beta_{j,c,w,b}$. Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied. In case of unitary transformations, the inversion can done by applying the adjoint transformation $\mathbf{\Gamma}^{\adj}$, i.e.
+\begin{equation*}
+ \hat{u}_{j,c,w,o} = \sum_{o=1}^{O} \overline{\Gamma}_{o,n} \tilde{u}_{j,c,w,n}, \quad \text{for} \quad n=1,\dots,O
+\end{equation*}
 The name of the applied transformation $\mathbf{\Gamma}$ is stored in the field \inlvar{sparsityTransformation}. Currently, the following transformations are allowed: DCT-I, DCT-II, DCT-III, DCT-IV. In all cases we consider the orthogonal / unitary variant of the transformation. For details on the precise definition of the transformations, we refer to the documentation of the FFTW library \cite{FFTW05}. 
 %In case of the FFT we consider the version where frequency and position are in the center of the image (i.e. the indices run from $-\frac{\tilde{N}}{2}$ to $\frac{\tilde{N}}{2}+1$ where $\tilde{N}$ is the length of the size in the respective spatial dimension. In most programming languages this involves applying an \inlvar{fftshift} before and after applying the \inlvar{fft}. 
 Additional transformations are not standardized and must be integrated into this specification before use.. In case that the $O$ foreground frames lay on a 2D or 3D grid we consider the multidimensional versions of the transformations. The dimensionality of the transformation can be derived from the number of non-singleton dimensions in \inlvar{/calibration/size}. 
