@@ -389,26 +389,24 @@ During processing one might want to keep track which of the final $N$ frames bel
 The motivation for reducing the number of frequency components is the reduction of the file size. Another even more effective method is to compress the data by applying a (linear) sparsity transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This method was initially proposed in \cite{lampe2012fast} where a global compression of the system matrix was used. This specification follows the concept introduced in \cite{knopp2015compression}, where a fixed number of coefficients is stored for each frequency component. 
 The compression option, indicated by the flag \inlvar{isSparsityTransformed}, is only available if the processing stages indicated by \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed} have been applied. Furthermore, the frames have to be ordered in such a way that the leading $O$ frames are the foreground frames and the last $E$ frames are the background frames. The order of the frames can be verified by checking the boolean vector \inlvar{isBackgroundFrame}. The sparsity transformation is only applied to the $O$ foreground frames. 
 
-Let $\hat{u}_{j,c,w,o}$ be the measured foreground data with $j=1,\dots,J$, $c=1,\dots,C$, $w=1,\dots,W$, and $o=1,\dots,O$. The processing indicated by \inlvar{isSparsityTransformed} is mathematically described by 
+Let $\hat{u}_{j,c,k,o}$ be the measured foreground data in frequency domain with $j=1,\dots,J$, $c=1,\dots,C$, $k=1,\dots,K$, and $o=1,\dots,O$. The processing indicated by \inlvar{isSparsityTransformed} is mathematically described by 
 \begin{equation*}
- \tilde{u}_{j,c,w,n} = \sum_{o=1}^{O} \Gamma_{o,n} \hat{u}_{j,c,w,o}, \quad \text{for} \quad n=1,\dots,O
+ \tilde{u}_{j,c,k,n} = \sum_{o=1}^{O} \Gamma_{o,n} \hat{u}_{j,c,k,o}, \quad \text{for} \quad n=1,\dots,O
 \end{equation*}
 where $\mathbf{\Gamma} = \left( \Gamma_{n,o} \right)_{n=1,\dots,O; o=1,\dots,O}$ is the transformation matrix.
-Instead of storing $\tilde{u}_{j,c,w,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,w,\beta_{j,c,w,b}}$ where $\beta_{j,c,w,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{v}_{j,c,w,o} \approx \hat{u}_{j,c,w,o}$, one first needs to restore $\tilde{v}_{j,c,w,n}$ by setting it to the stored value if $n=\beta_{j,c,w,b}$ for $b=1,\dots,B$ and setting it to 0 elsewhere. Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied. In case of unitary transformations, the inversion can be done by applying the adjoint transformation $\mathbf{\Gamma}^{\adj}$, i.e.
+Instead of storing $\tilde{u}_{j,c,k,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,k,\beta_{j,c,k,b}}$ where $\beta_{j,c,k,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{v}_{j,c,k,o} \approx \hat{u}_{j,c,k,o}$, one first needs to restore $\tilde{v}_{j,c,k,n}$ by setting it to the stored value if $n=\beta_{j,c,k,b}$ for $b=1,\dots,B$ and setting it to 0 elsewhere. Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied. In case of unitary transformations, the inversion can be done by applying the adjoint transformation $\mathbf{\Gamma}^{\adj}$, i.e.
 \begin{equation*}
- \hat{v}_{j,c,w,o} = \sum_{o=1}^{O} \overline{\Gamma}_{o,n} \tilde{v}_{j,c,w,n}, \quad \text{for} \quad n=1,\dots,O
+ \hat{v}_{j,c,k,o} = \sum_{o=1}^{O} \overline{\Gamma}_{o,n} \tilde{v}_{j,c,k,n}, \quad \text{for} \quad n=1,\dots,O
 \end{equation*}
-We note that $\hat{v}_{j,c,w,o}$ is only an approximation of $\hat{u}_{j,c,w,o}$ and that the accuracy of this approximation depends on the compression rate that is given by $\frac{B}{O}$.
+We note that $\hat{v}_{j,c,k,o}$ is only an approximation of $\hat{u}_{j,c,k,o}$ and that the accuracy of this approximation depends on the compression rate that is given by $\frac{B}{O}$.
 
-The name of the applied transformation $\mathbf{\Gamma}$ is stored in the field \inlvar{sparsityTransformation}. Currently, the following transformations are allowed: DCT-I, DCT-II, DCT-III, DCT-IV. In all cases we consider the orthogonal / unitary variant of the transformation. For details on the precise definition of the transformations, we refer to the documentation of the FFTW library \cite{FFTW05}. 
-%In case of the FFT we consider the version where frequency and position are in the center of the image (i.e. the indices run from $-\frac{\tilde{N}}{2}$ to $\frac{\tilde{N}}{2}+1$ where $\tilde{N}$ is the length of the size in the respective spatial dimension. In most programming languages this involves applying an \inlvar{fftshift} before and after applying the \inlvar{fft}. 
-Additional transformations are not standardized and must be integrated into this specification before use.. In case that the $O$ foreground frames lay on a 2D or 3D grid we consider the multidimensional versions of the transformations. The dimensionality of the transformation can be derived from the number of non-singleton dimensions in \inlvar{/calibration/size}. 
+The name of the applied transformation $\mathbf{\Gamma}$ is stored in the field \inlvar{sparsityTransformation}. Currently, the following transformations are allowed: DCT-I, DCT-II, DCT-III, DCT-IV. In all cases we consider the orthogonal / unitary variant of the transformation. For details on the precise definition of the transformations, we refer to the documentation of the FFTW library \cite{FFTW05}. Additional transformations are not standardized and must be integrated into this specification before use.. In case that the $O$ foreground frames lay on a 2D or 3D grid we consider the multidimensional versions of the transformations. The dimensionality of the transformation can be derived from the number of non-singleton dimensions in \inlvar{/calibration/size}. 
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times W \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times K \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
 \inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
@@ -421,7 +419,7 @@ Additional transformations are not standardized and must be integrated into this
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the data has been corrected by the \inlvar{transferFunction}\\ \hline 
 \inlvar{sparsityTransformation} & \inltab{String} & 1 & \inlvar{isSparsityTransformed} & Name of the applied sparsity transformation\\ \hline
-\inlvar{subsamplingIndices} & \inltab{Integer} & $ J \times C \times W \times B$ & \inlvar{isSparsityTransformed} & Subsampling indices $\beta_{j,c,w,b}$\\ \hline
+\inlvar{subsamplingIndices} & \inltab{Integer} & $ J \times C \times K \times B$ & \inlvar{isSparsityTransformed} & Subsampling indices $\beta_{j,c,k,b}$\\ \hline
 \end{tabularx} 
 
 \newpage
