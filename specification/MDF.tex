@@ -62,11 +62,12 @@
 \newcommand{\inl}[1]{\lstinline[columns=fixed]{#1}}
 \newcommand{\inltab}[1]{{\ttfamily\bfseries\color{blue}#1}}
 \newcommand{\inlvar}[1]{{\ttfamily#1}}
+\newcommand{\adj}{{\vdash \hspace*{-1.752mm} \dashv}}
 
 \begin{document}
 
 \title{MDF: Magnetic Particle Imaging Data Format}
-\newcommand{\version}{2.0.1}
+\newcommand{\version}{2.1.0}
 
 \author{
 T.~Knopp$^{1,2}$, T.~Viereck$^3$, G.~Bringout$^4$, M.~Ahlborg$^5$, A.~von~Gladiss$^5$, C.~Kaethner$^5$, A.~Neumann$^5$, P.~Vogel$^6$, J.~Rahmer$^7$, M.~M\"oddel$^{1,2}$ \\ \\
@@ -85,7 +86,7 @@ Version \textbf{\version}
 \end{center}
 
 \begin{abstract}
-Magnetic particle imaging (MPI) is a tomographic method to determine the spatio-temporal distribution of magnetic nanoparticles. In this document, a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different devices worldwide. The focus of the MDF is on sequence parameters, measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format in version 5 (HDF5). This document discusses the MDF version \version, which is not backward compatible with version 1.x.y.
+Magnetic particle imaging (MPI) is a tomographic method for determining the spatio-temporal distribution of magnetic nanoparticles. In this document, a file format for the standardized storage of MPI and magnetic particle spectroscopy (MPS) data is introduced. The aim of the Magnetic Particle Imaging Data Format (MDF) is to provide a coherent way of exchanging MPI and MPS data acquired with different devices worldwide. The focus of the MDF is on sequence parameters, measurement data, calibration data, and reconstruction data. The format is based on the hierarchical document format in version 5 (HDF5). This document discusses the MDF version \version, which is not backward compatible with version 1.x.y.
 \end{abstract}
 
 \begin{multicols}{2}		
@@ -106,13 +107,13 @@ The MDF is mainly focused on storing measurement data, calibration data, or reco
 
 MPI parameters are stored as regular \textit{HDF5 datasets}. \textit{HDF5 attributes} are not used in the current specification of the MDF. For most datasets, a fixed datatype is used, for example the drive-field amplitudes are stored as \inl{H5T_NATIVE_DOUBLE} values. Whenever a data type has a big- and little-endian version, the little-endian data type should be used. For our convenience, we refer to the HDF5 datatypes \inl{H5T_STRING}, \inl{H5T_NATIVE_DOUBLE}, and \inl{H5T_NATIVE_INT64} as \inltab{String}, \inltab{Float64} and \inltab{Int64}. Boolean data is stored as \inl{H5T_NATIVE_INT8}, which we refer to as \inltab{Int8}. 
 
-The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. 
+The datatype of the MPI measurement and calibration data offers more freedom and is denoted by \inltab{Number}, which can be any of the following HDF5 data types: \inl{H5T_NATIVE_FLOAT}, \mbox{\inl{H5T_NATIVE_DOUBLE},} \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64} or a complex number as defined below. In the case that the calibration data is compressed, the indices are stored as \inltab{Integer}, which can be any of the following HDF5 data types: \mbox{\inl{H5T_NATIVE_INT8},} \inl{H5T_NATIVE_INT16}, \inl{H5T_NATIVE_INT32}, \inl{H5T_NATIVE_INT64}.
 
-Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned floating point types to represent the real and the imaginary part of a complex number. This representation was chosen because it is also the default behavior for complex numbers in Python using numpy and h5py. \inltab{Complex128} refers to the complex compound type with base type \inl{H5T_NATIVE_DOUBLE}.
+Since storing complex data in HDF5 is not standardized, we define a compound datatype \inl{H5T_COMPOUND} in HDF5 with fields \inl{r} and \inl{i} using one of the above mentioned number types to represent the real and the imaginary part of a complex number. This representation was chosen because it is also the default behavior for complex numbers in Python using numpy and h5py as well as in Julia using the HDF5.jl package. \inltab{Complex128} refers to the complex compound type with base type \inl{H5T_NATIVE_DOUBLE}.
 
 For later identification of a data set, we store three Universally Unique Identifiers (UUIDs) (RFC~4122)~\cite{leach2005universally} in its canonical textual representation as 32 hexadecimal digits, displayed in five groups separated by hyphens \inlvar{8-4-4-4-12} as for example \inlvar{ee94cb6d-febf-47d9-bec9-e3afa59bfaf8}. For the generation of the UUIDs, we recommend to use version 4 of the UUID specification.
 
-Whenever multidimensional data is stored dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (column major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
+Whenever multidimensional data is stored, dimensions are arranged in a way that cache is utilized best for fast reconstruction or fast frame selection for example. The leading dimension in the MDF specification is slowest to access and the last dimension is the fastest to access (contiguous memory access). That also means that dependent on the memory layout of your programming language the order of the dimensions will be just as in the MDF specifications (row major) or reversed (column major). Please take this into account when reading or writing MDF files, which includes the usage of HDF5 viewers.
 
 \subsection{Units}
 
@@ -138,8 +139,10 @@ Several parameters within the MDF are linked in dimensionality. We use short var
 	\noindent \begin{longtable}{p{0.12\columnwidth}p{0.8\columnwidth}} 
 		\textbf{Variable} & \textbf{Number of}  \\ \hline
 		$A$ &  tracer materials/injections for multi-color MPI \\ \hline
-		$N$ &  acquired frames, same as a spatial position for calibration\\ \hline
-		$O$ &  acquired frames w/o background frames\\ \hline
+		$N$ &  acquired frames ($N=O+E$), same as a spatial position for calibration\\ \hline
+		$E$ &  acquired background frames ($E=N-O$)\\ \hline
+		$O$ &  acquired foreground frames ($O=N-E$)\\ \hline
+		$B$ &  coefficients stored after sparsity transformation ($B\leq O$)\\ \hline
 		$J$ &  periods within one frame\\ \hline
 		$Y$ &  partitions of each patch position\\ \hline
 		$C$ &  receive channels \\ \hline
@@ -167,20 +170,20 @@ As the file format is versionized it will be possible to extend it for future ne
 \subsection{arXiv}
 As of version 1.0.1, the most recent release of these specifications can also be also found at:\\
 \hspace*{1cm}\url{https://arxiv.org/abs/1602.06072}\\
-If you use MDF, please cite us using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
+If you use MDF, please cite this document using the arXiv reference, which is also available for download as \texttt{MDF.bib} from GitHub.
 
 
 \subsection{Code examples}		 
   		  
 If you want to get a basic impression of how to handle MDF files you can visit the gitub repository of the MDF project:\\		
   \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MDF}\\	
-There you will find the directory example, which contains a code example written in Julia, MATLAB, and Python. More details can be found in the \texttt{README} of the repository.
+There you will find the example directory, which contains a code example written in Julia, MATLAB, and Python. More details can be found in the \texttt{README} of the repository.
  
 \subsection{Reference Implementation}		 
 
 A reference implementation for a high level MDF access is available at:\\
   \hspace*{1cm}\url{https://github.com/MagneticParticleImaging/MPIFiles.jl}\\	
-\inlvar{MPIFiles.jl} is a package written in the programming language Julia \cite{Bezanson2012,Bezanson2014,Bezanson2014a}. It can read MDF V1, MDF V2, and the dataformat of Bruker MPI systems using a common interface. It also provides functions to convert MDF V1 or Bruker MPI files into MDF V2.
+\inlvar{MPIFiles.jl} \cite{knopp2019mpifiles} is a package written in the programming language Julia \cite{Bezanson2012,Bezanson2014,Bezanson2014a}. It can read MDF V1, MDF V2, and the dataformat of Bruker MPI systems using a common interface. It also provides functions to convert MDF V1 or Bruker MPI files into MDF V2.
 
 \end{multicols}
 
@@ -361,12 +364,12 @@ and $\beta$ is the channel dependent conversion factor that is stored in the par
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually Voltage V \\ \hline 
 \end{tabularx}
 
-
+%\newpage
 \subsection{Measurement (group: \inlvar{/measurement/}, optional)}
 \begin{multicols}{2}
 
 \paragraph{Remarks:}
-MPI data is usually acquired by a series of measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all periods in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
+MPI data is usually acquired by a series of foreground measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all periods in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
 
 Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ or a corresponding reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
@@ -377,26 +380,48 @@ Often it is not convenient to store the raw data but to perform certain processi
 	\item Frequency selection to reduce the number of frequency components, e.g. bandwidth reduction or selection of high signal frequency components.
 	\item Dimension permutation, which is usually applied to Fourier transformed data exchanging the storing order of the data for fast access to the frames.
 	\item Frame permutation to reorder the frames within the data set.
+	\item Compression of the $O$ foreground frames by applying a sparsity transformation and storing only significant coefficients.
 \end{enumerate}
 For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
 
-During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. Therefore, the binary mask \inlvar{isBackgroundFrame} should be used. If frequency selection has been performed, \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
+During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. To this end, the binary mask \inlvar{isBackgroundFrame} should be used. If frequency selection has been performed, \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
+
+The motivation for reducing the number of frequency components is the reduction of the file size. Another even more effective method is to compress the data by applying a (linear) sparsity transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This method was initially proposed in \cite{lampe2012fast} where a global compression of the system matrix was used. This specification follows the concept introduced in \cite{knopp2015compression}, where a fixed number of coefficients is stored for each frequency component. 
+The compression option, indicated by the flag \inlvar{isSparsityTransformed}, is only available if the processing stages indicated by \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed} have been applied. Furthermore, the frames have to be ordered in such a way that the leading $O$ frames are the foreground frames and the last $E$ frames are the background frames. The order of the frames can be verified by checking the boolean vector \inlvar{isBackgroundFrame}. The sparsity transformation is only applied to the $O$ foreground frames. 
+
+Let $\hat{u}_{j,c,w,o}$ be the measured foreground data with $j=1,\dots,J$, $c=1,\dots,C$, $w=1,\dots,W$, and $o=1,\dots,O$. The processing indicated by \inlvar{isSparsityTransformed} is mathematically described by 
+\begin{equation*}
+ \tilde{u}_{j,c,w,n} = \sum_{o=1}^{O} \Gamma_{o,n} \hat{u}_{j,c,w,o}, \quad \text{for} \quad n=1,\dots,O
+\end{equation*}
+where $\mathbf{\Gamma} = \left( \Gamma_{n,o} \right)_{n=1,\dots,O; o=1,\dots,O}$ is the transformation matrix.
+Instead of storing $\tilde{u}_{j,c,w,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,w,\beta_{j,c,w,b}}$ where $\beta_{j,c,w,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{v}_{j,c,w,o} \approx \hat{u}_{j,c,w,o}$, one first needs to restore $\tilde{v}_{j,c,w,n}$ by setting it to the stored value if $n=\beta_{j,c,w,b}$ for $b=1,\dots,B$ and setting it to 0 elsewhere. Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied. In case of unitary transformations, the inversion can be done by applying the adjoint transformation $\mathbf{\Gamma}^{\adj}$, i.e.
+\begin{equation*}
+ \hat{v}_{j,c,w,o} = \sum_{o=1}^{O} \overline{\Gamma}_{o,n} \tilde{v}_{j,c,w,n}, \quad \text{for} \quad n=1,\dots,O
+\end{equation*}
+We note that $\hat{v}_{j,c,w,o}$ is only an approximation of $\hat{u}_{j,c,w,o}$ and that the accuracy of this approximation depends on the compression rate that is given by $\frac{B}{O}$.
+
+The name of the applied transformation $\mathbf{\Gamma}$ is stored in the field \inlvar{sparsityTransformation}. Currently, the following transformations are allowed: DCT-I, DCT-II, DCT-III, DCT-IV. In all cases we consider the orthogonal / unitary variant of the transformation. For details on the precise definition of the transformations, we refer to the documentation of the FFTW library \cite{FFTW05}. 
+%In case of the FFT we consider the version where frequency and position are in the center of the image (i.e. the indices run from $-\frac{\tilde{N}}{2}$ to $\frac{\tilde{N}}{2}+1$ where $\tilde{N}$ is the length of the size in the respective spatial dimension. In most programming languages this involves applying an \inlvar{fftshift} before and after applying the \inlvar{fft}. 
+Additional transformations are not standardized and must be integrated into this specification before use.. In case that the $O$ foreground frames lay on a 2D or 3D grid we consider the multidimensional versions of the transformations. The dimensionality of the transformation can be derived from the number of non-singleton dimensions in \inlvar{/calibration/size}. 
 
 \end{multicols}
 
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ & no & Measured data at a specific processing stage \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times W \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
 \inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
-\inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & no & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
+\inlvar{isBackgroundFrame} & \inltab{Int8} & $N$ & no & Mask indicating for each of the $N$ frames if it is a background measurement (true) or not \\ \hline
 \inlvar{isFastFrameAxis} & \inltab{Int8} & 1 & no & Flag, if the frame dimension $N$ has been moved to the last dimension\\ \hline
 \inlvar{isFourierTransformed} & \inltab{Int8} & 1 & no & Flag, if the data is stored in frequency space \\ \hline
 \inlvar{isFramePermution} & \inltab{Int8} & 1 & no & Flag, if the order of frames has been changed, see \inlvar{framePermutation} \\ \hline 
 \inlvar{isFrequencySelection} & \inltab{Int8} & 1 & no & Flag, if only a subset of frequencies has been selected and stored, see \inlvar{frequencySelection}\\ \hline 
+\inlvar{isSparsityTransformed} & \inltab{Int8} & 1 & no & Flag, if the foreground frames are compressed along the frame dimension \\ \hline
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the data has been corrected by the \inlvar{transferFunction}\\ \hline 
+\inlvar{sparsityTransformation} & \inltab{String} & 1 & \inlvar{isSparsityTransformed} & Name of the applied sparsity transformation\\ \hline
+\inlvar{subsamplingIndices} & \inltab{Integer} & $ J \times C \times W \times B$ & \inlvar{isSparsityTransformed} & Subsampling indices $\beta_{j,c,w,b}$\\ \hline
 \end{tabularx} 
 
 \newpage
@@ -447,6 +472,12 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 \section{Changelog}
 
 \begin{multicols}{2}
+\subsection{v2.1.0}
+
+\begin{itemize}
+	\item Added the possibility to store compressed calibration data using a sparsity transformation. To this end, the \inlvar{data} field in the  \inlvar{measurement} group has been extended and the fields \inlvar{isSparsityTransformed}, \inlvar{sparsityTransformation} and \inlvar{subsamplingIndices} have been introduced.
+\end{itemize}
+
 \subsection{v2.0.1}
 
 \begin{itemize}
