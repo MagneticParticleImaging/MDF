@@ -190,18 +190,19 @@ A reference implementation for a high level MDF access is available at:\\
 \clearpage
 
 \section{Data (group: \inlvar{/})}
- \setlength\extrarowheight{5pt}
 
 \begin{multicols}{2}
 \paragraph{Remarks:} Within the root group, the metadata about the file itself is stored. Within several subgroups, the metadata about the experimental setting, the MPI tracer, and the MPI scanner can be provided. The actual data is stored in dedicated groups about measurement data and reconstruction data.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC creation time of MDF data set \\ \hline
 \inlvar{uuid} & \inltab{String} & 1 & 3170fdf8-f8e1-4cbf-ac73-41520b41f6ee & no & Universally Unique Identifier (RFC 4122) of MDF file \\ \hline 
 \inlvar{version} & \inltab{String} & 1 & \version & no & Version of the file format \\ \hline
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 
 \subsection{Study Description (group: \inlvar{/study/}, non-optional)}
@@ -210,6 +211,7 @@ A reference implementation for a high level MDF access is available at:\\
 	\paragraph{Remarks:} A study is supposed to group a series of experiments to support, refute, or validate a hypothesis. The study group should contain \inlvar{name}, \inlvar{number}, \inlvar{uuid}, and \inlvar{description} of the study.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{description} & \inltab{String} & 1 & & no & Short description of the study \\ \hline
@@ -218,6 +220,7 @@ A reference implementation for a high level MDF access is available at:\\
 \inlvar{time} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & yes & UTC creation time of study \\ \hline
 \inlvar{uuid} & \inltab{String} & 1 & 295258fe-b650-4e5f-96db-b83f11089a6c & no & Universally Unique Identifier (RFC 4122) of study \\ \hline 
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 
 \subsection{Experiment Description (group: \inlvar{/experiment/}, non-optional)}
@@ -226,6 +229,7 @@ A reference implementation for a high level MDF access is available at:\\
 \paragraph{Remarks:} For each experiment within a study a \inlvar{name}, \inlvar{number}, \inlvar{uuid}, and \inlvar{description} have to be provided. Additionally, the name of the \inlvar{subject} imaged and the flag \inlvar{isSimulation} indicating if data has been obtained via simulations have to be stored.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{description} & \inltab{String} & 1 & & no & Short description of the experiment \\ \hline
@@ -235,6 +239,7 @@ A reference implementation for a high level MDF access is available at:\\
 \inlvar{subject} & \inltab{String} & 1 & & no & Name of the subject that was imaged \\ \hline 
 \inlvar{uuid} & \inltab{String} & 1 & f96dbc48-1ebd-44c7-b04d-1b45da054693 & no & Universally Unique Identifier (RFC 4122) of experiment \\ \hline 
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 
 \subsection{Tracer Parameters (group: \inlvar{/tracer/}, optional)}
@@ -247,6 +252,7 @@ This version of the MDF can handle two basic scenarios. In the first one, static
 In case of a background measurement with no applied tracers in the scanner, the optional tracer group can be omitted.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{batch} & \inltab{String} & $A$ & & no & Batch of tracer \\ \hline
@@ -257,6 +263,7 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \inlvar{vendor} & \inltab{String} & $A$ & & no & Name of tracer supplier \\ \hline
 \inlvar{volume} & \inltab{Float64} & $A$ & L & no & Total volume of applied tracer \\ \hline
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 \newpage
 \subsection{Scanner Parameters (group: \inlvar{/scanner/}, non-optional)}
@@ -265,6 +272,7 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \paragraph{Remarks:} The scanner parameter group contains information about the MPI scanner used, such as \inlvar{name}, \inlvar{manufacturer}, \inlvar{boreSize}, field \inlvar{topology}, \inlvar{facility} where the scanner is installed, and the \inlvar{operator}.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX}
 \noindent \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{boreSize} & \inltab{Float64} & 1 & m & yes & Diameter of the bore \\ \hline 
@@ -274,6 +282,7 @@ In case of a background measurement with no applied tracers in the scanner, the 
 \inlvar{operator} & \inltab{String} & 1 & & no & User who operates the MPI scanner \\ \hline 
 \inlvar{topology} & \inltab{String} & 1 & & no & Scanner topology (e.g. FFP, FFL, MPS)\\ \hline 
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 \newpage
 \subsection{Acquisition Parameters (group: \inlvar{/acquisition/}, non-optional)}
@@ -293,6 +302,7 @@ where $\mathbf J_{\mathbf H}(\mathbf r_\text{c})$ is the Jacobian of $\mathbf H$
 
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX}
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline
 \inlvar{gradient} & \inltab{Float64} & $J \times Y \times 3 \times 3$ & Tm$^{-1}\mu_0^{-1}$ & yes & Gradient strength of the selection field in $x$, $y$, and $z$ directions \\ \hline
@@ -302,6 +312,7 @@ where $\mathbf J_{\mathbf H}(\mathbf r_\text{c})$ is the Jacobian of $\mathbf H$
 \inlvar{offsetField} & \inltab{Float64} & $J \times Y \times 3$ & T$\mu_0^{-1}$ & yes & Offset field applied  \\ \hline
 \inlvar{startTime} & \inltab{String} & 1 & yyyy-mm-ddThh:mm:ss.ms & no & UTC start time of MPI measurement \\ \hline
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 \newpage
 
@@ -317,6 +328,7 @@ $$
 where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field strength, $\phi_l$ is the phase, $f_l$ is the frequency (\inlvar{baseFrequency}/\inlvar{divider}$_l$), and $\Lambda_l$ is the waveform. The waveform is specified by a dedicated parameter \inlvar{waveform}. It can be set to \textit{sine}, \textit{triangle}, or \textit{custom}. 
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
@@ -327,6 +339,7 @@ where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field 
 \inlvar{strength} & \inltab{Float64} & $J \times D \times F $ & T$\mu_0^{-1}$ & no & Applied drive field strength \\ \hline
 \inlvar{waveform} & \inltab{String} & $D \times F$ & 1 & no & Waveform type: \textit{sine}, \textit{triangle} or \textit{custom} \\ \hline
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 
 \subsubsection{Receiver (group: \inlvar{/acquisition/receiver/}, non-optional)}
@@ -353,6 +366,7 @@ $\hat m_k^\text{proj}$ is the orthogonal projection of the magnetic moment onto 
 and $\beta$ is the channel dependent conversion factor that is stored in the parameter  \inlvar{inductionFactor}.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
@@ -363,6 +377,7 @@ and $\beta$ is the channel dependent conversion factor that is stored in the par
 \inlvar{transferFunction} & \inltab{Complex128} & $C \times K$ & & yes & Transfer function of the receive channels in Fourier domain. \inlvar{unit} is the field from the \inlvar{/measurement} group \\ \hline
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually Voltage V \\ \hline 
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 %\newpage
 \subsection{Measurement (group: \inlvar{/measurement/}, optional)}
@@ -371,44 +386,51 @@ and $\beta$ is the channel dependent conversion factor that is stored in the par
 \paragraph{Remarks:}
 MPI data is usually acquired by a series of foreground measurements and optional background measurements. Here, we refer to background measurements as MPI data captured, when any signal generating material, e.g. a phantom or a delta sample is removed from the scanner bore. Initially, all data is available in time domain, where the data of a single frame consists of the signal recorded for all periods in each receive channel, i.e. $J \times C \times V$ data points per set with the temporal index being the fastest to access.  If several measurements are acquired (indicated by \inlvar{numFrames}), the frame dimension is the slowest to access. Along this dimension, the frames are ordered with respect to the time at which they were acquired starting with the measurement acquired first and stopping with the measurement acquired last. We refer to this data as raw measurement data. In Fourier representation, each frame would be stored by $J \times C\times K$ complex data points and $K = V/2 +1$.
 
-Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction of the number of sampling points from $V$ to $W$ or a corresponding reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
+Often it is not convenient to store the raw data but to perform certain processing steps and store the processed data. These steps may lead to a reduction in the number of sampling points from $V$ to $W$ or a corresponding reduction of frequency components $K$ depending on the final representation in which the raw/processed data is stored. The most common processing steps are:
 \begin{enumerate}
 	\item Spectral leakage correction, which may be applied to ensure that each individual frame is periodic.
 	\item Background correction, where the background signal in subtracted.
-	\item Fourier transformation bringing the data from time into the Fourier representation an storing them in Fourier representation.
+	\item Fourier transformation bringing the data from time into the Fourier representation and storing them in Fourier representation.
 	\item Transfer function correction to obtain the magnetic moment or induced voltage that has been measured.
-	\item Frequency selection to reduce the number of frequency components, e.g. bandwidth reduction or selection of high signal frequency components.
+	\item Frequency selection to reduce the number of frequency components, e.g. bandwidth reduction or selection of high-signal frequency components.
 	\item Dimension permutation, which is usually applied to Fourier transformed data exchanging the storing order of the data for fast access to the frames.
 	\item Frame permutation to reorder the frames within the data set.
 	\item Compression of the $O$ foreground frames by applying a sparsity transformation and storing only significant coefficients.
 \end{enumerate}
 For each of the steps above there is a corresponding flag within this group indicating if the corresponding processing step has been carried out. 
 
-During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. To this end, the binary mask \inlvar{isBackgroundFrame} should be used. If frequency selection has been performed, \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ of the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
+During processing one might want to keep track which of the final $N$ frames belong to background measurements and which do not. To this end, the binary mask \inlvar{isBackgroundFrame} should be used. If frequency selection has been performed, \inlvar{frequencySelection} stores the $K$ frequency components (subset) selected from the set of acquired frequency components. If performed, a frame permutation can be described by a bijective mapping $\sigma : \left\{ 1,2,\dots,N \right\} \rightarrow \left\{ 1,2,\dots,N \right\}$ from the set of frame indices to itself. If such a permutation is performed, $\sigma$ is stored in the one-line notation as $\sigma(1)$, $\sigma(2)$, $\dots$, $\sigma(N)$ in \inlvar{framePermutation}.
 
 The motivation for reducing the number of frequency components is the reduction of the file size. Another even more effective method is to compress the data by applying a (linear) sparsity transformation to the data along the frame dimension and storing only the most significant of the resulting coefficients. This method was initially proposed in \cite{lampe2012fast} where a global compression of the system matrix was used. This specification follows the concept introduced in \cite{knopp2015compression}, where a fixed number of coefficients is stored for each frequency component. 
 The compression option, indicated by the flag \inlvar{isSparsityTransformed}, is only available if the processing stages indicated by \inlvar{isFastFrameAxis}, \inlvar{isFourierTransformed} have been applied. Furthermore, the frames have to be ordered in such a way that the leading $O$ frames are the foreground frames and the last $E$ frames are the background frames. The order of the frames can be verified by checking the boolean vector \inlvar{isBackgroundFrame}. The sparsity transformation is only applied to the $O$ foreground frames. 
 
-Let $\hat{u}_{j,c,w,o}$ be the measured foreground data with $j=1,\dots,J$, $c=1,\dots,C$, $w=1,\dots,W$, and $o=1,\dots,O$. The processing indicated by \inlvar{isSparsityTransformed} is mathematically described by 
+Let $\hat{u}_{j,c,k,o}$ be the measured foreground data in frequency domain with $j=1,\dots,J$, $c=1,\dots,C$, $k=1,\dots,K$, and $o=1,\dots,O$. The processing indicated by \inlvar{isSparsityTransformed} is mathematically described by 
 \begin{equation*}
- \tilde{u}_{j,c,w,n} = \sum_{o=1}^{O} \Gamma_{o,n} \hat{u}_{j,c,w,o}, \quad \text{for} \quad n=1,\dots,O
+ \tilde{u}_{j,c,k,n} = \sum_{o=1}^{O} \Gamma_{n,o} \hat{u}_{j,c,k,o}, \quad \text{for} \quad n=1,\dots,O
 \end{equation*}
-where $\mathbf{\Gamma} = \left( \Gamma_{n,o} \right)_{n=1,\dots,O; o=1,\dots,O}$ is the transformation matrix.
-Instead of storing $\tilde{u}_{j,c,w,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,w,\beta_{j,c,w,b}}$ where $\beta_{j,c,w,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{v}_{j,c,w,o} \approx \hat{u}_{j,c,w,o}$, one first needs to restore $\tilde{v}_{j,c,w,n}$ by setting it to the stored value if $n=\beta_{j,c,w,b}$ for $b=1,\dots,B$ and setting it to 0 elsewhere. Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied. In case of unitary transformations, the inversion can be done by applying the adjoint transformation $\mathbf{\Gamma}^{\adj}$, i.e.
+where $\mathbf{\Gamma} = \left( \Gamma_{n,o} \right)_{n,o=1,\dots,O}$ is the transformation matrix.
+Instead of storing $\tilde{u}_{j,c,k,n}$ completely, the field \inlvar{data} contains a subset $\tilde{u}_{j,c,k,\beta_{j,c,k,b}}$ where $\beta_{j,c,k,b}$ with $b=1,\dots,B$ contains the subsampling indices, which are stored in the field \inlvar{subsamplingIndices}. In order to recover the data $\hat{v}_{j,c,k,o} \approx \hat{u}_{j,c,k,o}$, one first needs to restore $\tilde{v}_{j,c,k,n}$ by 
 \begin{equation*}
- \hat{v}_{j,c,w,o} = \sum_{o=1}^{O} \overline{\Gamma}_{o,n} \tilde{v}_{j,c,w,n}, \quad \text{for} \quad n=1,\dots,O
+	\tilde{v}_{j,c,k,n} = 
+	\begin{cases}
+		\tilde{u}_{j,c,k,n}, & \text{if}\ n =\beta_{j,c,k,b} \\
+		0, & \text{otherwise.}
+	\end{cases}
 \end{equation*}
-We note that $\hat{v}_{j,c,w,o}$ is only an approximation of $\hat{u}_{j,c,w,o}$ and that the accuracy of this approximation depends on the compression rate that is given by $\frac{B}{O}$.
+Then, the inverse transformation $\mathbf{\Gamma}^{-1}$ needs to be applied. In case of unitary transformations, the inversion can be done by applying the adjoint transformation $\mathbf{\Gamma}^{\adj}$, i.e.
+\begin{equation*}
+ \hat{v}_{j,c,k,o} = \sum_{n=1}^{O} \overline{\Gamma}_{n,o} \tilde{v}_{j,c,k,n}, \quad \text{for} \quad o=1,\dots,O
+\end{equation*}
+We note that $\hat{v}_{j,c,k,o}$ is only an approximation of $\hat{u}_{j,c,k,o}$ and that the accuracy of this approximation depends on the compression rate that is given by $\frac{B}{O}$.
 
-The name of the applied transformation $\mathbf{\Gamma}$ is stored in the field \inlvar{sparsityTransformation}. Currently, the following transformations are allowed: DCT-I, DCT-II, DCT-III, DCT-IV. In all cases we consider the orthogonal / unitary variant of the transformation. For details on the precise definition of the transformations, we refer to the documentation of the FFTW library \cite{FFTW05}. 
-%In case of the FFT we consider the version where frequency and position are in the center of the image (i.e. the indices run from $-\frac{\tilde{N}}{2}$ to $\frac{\tilde{N}}{2}+1$ where $\tilde{N}$ is the length of the size in the respective spatial dimension. In most programming languages this involves applying an \inlvar{fftshift} before and after applying the \inlvar{fft}. 
-Additional transformations are not standardized and must be integrated into this specification before use.. In case that the $O$ foreground frames lay on a 2D or 3D grid we consider the multidimensional versions of the transformations. The dimensionality of the transformation can be derived from the number of non-singleton dimensions in \inlvar{/calibration/size}. 
+The name of the applied transformation $\mathbf{\Gamma}$ is stored in the field \inlvar{sparsityTransformation}. Currently, the following transformations are supported: DCT-I, DCT-II, DCT-III, DCT-IV. In all cases we consider the orthogonal / unitary variant of the transformation. For details on the precise definition of the transformations, we refer to the documentation of the FFTW library \cite{FFTW05}. Additional transformations are not standardized and must be integrated into this specification before use. In case that the $O$ foreground frames lay on a 2D or 3D grid we consider the multidimensional versions of the transformations. The dimensionality of the transformation can be derived from the number of non-singleton dimensions in \inlvar{/calibration/size}. 
 
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}lX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} &  \textbf{Optional} & \textbf{Description} \\ \hline 
-\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times W \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
+\inlvar{data} & \inltab{Number} & $N \times J \times C \times K$ or $ J \times C \times K\times N$ or $N \times J \times C \times W$ or $ J \times C \times W \times N$ or $J \times C \times K \times (B+E)$ & no & Measured data at a specific processing stage \\ \hline
 \inlvar{framePermutation} & \inltab{Int64} & $N$ & \inlvar{isFramePermutation} & Indices of original frame order\\ \hline
 \inlvar{frequencySelection} & \inltab{Int64} & K & \inlvar{isFrequencySelection} & Indices of selected frequency components \\ \hline
 \inlvar{isBackgroundCorrected} & \inltab{Int8} & 1 & no & Flag, if the background has been subtracted \\ \hline
@@ -421,8 +443,9 @@ Additional transformations are not standardized and must be integrated into this
 \inlvar{isSpectralLeakageCorrected} & \inltab{Int8} & 1 & no & Flag, if spectral leakage correction has been applied \\ \hline
 \inlvar{isTransferFunctionCorrected} & \inltab{Int8} & 1 & no & Flag, if the data has been corrected by the \inlvar{transferFunction}\\ \hline 
 \inlvar{sparsityTransformation} & \inltab{String} & 1 & \inlvar{isSparsityTransformed} & Name of the applied sparsity transformation\\ \hline
-\inlvar{subsamplingIndices} & \inltab{Integer} & $ J \times C \times W \times B$ & \inlvar{isSparsityTransformed} & Subsampling indices $\beta_{j,c,w,b}$\\ \hline
+\inlvar{subsamplingIndices} & \inltab{Integer} & $ J \times C \times K \times B$ & \inlvar{isSparsityTransformed} & Subsampling indices $\beta_{j,c,k,b}$\\ \hline
 \end{tabularx} 
+\setlength\extrarowheight{0pt}
 
 \newpage
 \subsection{Calibration (group: \inlvar{/calibration/}, optional)}
@@ -434,6 +457,7 @@ The calibration group describes a calibration measurement (system matrix), altho
 If the measurements were taken on a regular grid of size $N_x \times N_y \times N_z$, the permutation is usually done such that measurements are ordered with respect to their $x$ position first, second with respect to their $y$ position, and last with respect to their $z$ position. Background measurements are collected at the end in \inlvar{/measurement/data}, which in combination with reordering of the measurements allows a fast access to the system matrix. If a different storage order is used this can be documented using the optional parameter \inlvar{order}. For non-regular sampling points, there is the possibility to explicitly store all $O$ positions. If the calibration measurement is performed in a MPS system, the spatial positions are usually emulated by applying offset fields, which can be stored in \inlvar{offsetFields}.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{llp{3cm}llX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{deltaSampleSize} & \inltab{Float64} & 3 & m & yes & Size of the delta sample used for calibration scan \\ \hline
@@ -446,6 +470,7 @@ If the measurements were taken on a regular grid of size $N_x \times N_y \times 
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension, inner product is $O$ \\ \hline
 \inlvar{snr} & \inltab{Float64} & $J \times C \times K$ &  & yes & Signal-to-noise estimate for recorded frequency components \\ \hline
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 \newpage
 \subsection{Reconstruction Results (group: \inlvar{/reconstruction/}, optional)}
@@ -456,6 +481,7 @@ Reconstruction results are stored using the parameter \inlvar{data} inside this 
 For analysis of the MPI tomograms, it is often required to know which parts of the reconstructed tomogram have been covered by the trajectory of the field free region. In MPI, one refers to the non-covered region as overscan region. Therefore, the optional binary field \inlvar{isOverscanRegion} stores for each voxel if it is part of the overscan region. If no voxel lies within the overscan region, \inlvar{isOverscanRegion} may be omitted.
 \end{multicols}
 
+\setlength\extrarowheight{5pt}
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{data} & \inltab{Number} & $Q\times P \times S$ & & no & Reconstructed data \\ \hline
@@ -466,6 +492,7 @@ For analysis of the MPI tomograms, it is often required to know which parts of t
 \inlvar{positions} & \inltab{Float64} & $P \times 3$ & m & yes & Position of each of the grid points, stored as ($x$, $y$, $z$) tripels \\ \hline
 \inlvar{size} & \inltab{Int64} & $3$ &  & yes & Number of voxels in each dimension, inner product is $P$ \\ \hline
 \end{tabularx}
+\setlength\extrarowheight{0pt}
 
 
 \clearpage
