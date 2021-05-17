@@ -349,7 +349,7 @@ where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field 
 \begin{equation*}
 	u_{ci}^{ADC} = a_c r_{ci} +b_c.
 \end{equation*}
-Here, $a_c$ and $b_c$ are the scaling and offset factors corresponding to channel $c$, which can be stored in \inlvar{dataConversionFactor}. In case the conversion was already performed the \inlvar{dataConversionFactor} can be ommited.
+Here, $a_c$ and $b_c$ are the scaling and offset factors corresponding to channel $c$, which can be stored in \inlvar{dataConversionFactor}. In case the conversion was already performed the \inlvar{dataConversionFactor} can be ommited. The bandwidth of the receiver is stored in \inlvar{bandwidth} and is defined as the limit of the first Nyquist zone. With a sampling rate $f_s$ this would be $f_\text{s}/2$. If a decimation $d$ is applied after sampling, the bandwidth is equal to $f_\text{s}/d/2$.
 
 The MPI measurement signal is acquired at $V$ equidistant time points. For inductive measurement systems the signal is usually not measured directly at the receive coils but amplified and filtered first, which may damp and distort the signal. Therefore, a transfer function can be stored in the parameter \inlvar{transferFunction}, which relates the Fourier domain voltage induced at the receive coil $\hat{u}_k^\text{coil}$ and the Fourier domain voltage $\hat{u}_k^\text{ADC}$ measured at the ADC by
 \begin{equation*}
