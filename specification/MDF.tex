@@ -371,10 +371,10 @@ and $\beta$ is the channel dependent conversion factor that is stored in the par
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{bandwidth} & \inltab{Float64} & $1$ & Hz & no & Bandwidth of the receiver unit \\ \hline
 \inlvar{dataConversionFactor} & \inltab{Float64} & $C \times 2$ & \inlvar{unit} & yes & Dimension less scaling factor and offset $(a_c, b_c)$ to convert raw data into a physical quantity with corresponding unit of measurement \inlvar{unit} \\ \hline 
-\inlvar{inductionFactor} & \inltab{Float64} & $C$ & \inlvar{unit} A$^{-1}$m$^{-2}$ & yes & Induction factor mapping the projection of the magnetic moment to the voltage in the receive coil.  \\ \hline
+\inlvar{inductionFactor} & \inltab{Float64} & $C$ & \inlvar{unit} A$^{-1}$m$^{-2}$ & yes & Induction factor mapping the projection of the magnetic moment to the voltage in the receive coil  \\ \hline
 \inlvar{numChannels} & \inltab{Int64} & 1 & & no & Number of receive channels $C$ \\ \hline 
 \inlvar{numSamplingPoints} & \inltab{Int64} & $1$ &  & no & Number of sampling points during one period, denoted by $V$ \\ \hline
-\inlvar{transferFunction} & \inltab{Complex128} & $C \times K$ & & yes & Transfer function of the receive channels in Fourier domain. \inlvar{unit} is the field from the \inlvar{/measurement} group \\ \hline
+\inlvar{transferFunction} & \inltab{Complex128} & $C \times K$ & & yes & Transfer function of the receive channels in Fourier domain with corresponding unit of measurement \inlvar{unit} \\ \hline
 \inlvar{unit} & \inltab{String} & $1$ & & no & SI unit of the measured quantity, usually Voltage V \\ \hline 
 \end{tabularx}
 \setlength\extrarowheight{0pt}
