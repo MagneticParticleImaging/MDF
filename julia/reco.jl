@@ -1,7 +1,18 @@
 using Pkg
+using UUIDs
+
 # Install required packages
-for P in ["HDF5", "FFTW", "HTTP", "PyPlot"]
-  !haskey(Pkg.installed(), P) && Pkg.add(P)
+
+# Due to the removal of Pkg.installed() (https://discourse.julialang.org/t/how-to-use-pkg-dependencies-instead-of-pkg-installed/36416/7), we need to know the UUIDs of the packages.
+packageUUIDs = Dict{String, UUID}(
+"HDF5" => UUID("f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"),
+"FFTW" => UUID("7a1cc6ca-52ef-59f5-83cd-3a7055c09341"),
+"HTTP" => UUID("cd3eb016-35fb-5094-929b-558a96fad6f3"),
+"PyPlot" => UUID("d330b81b-6aea-500a-939a-2ce795aea3ee"),
+)
+
+for P in keys(packageUUIDs)
+  !haskey(Pkg.dependencies(), packageUUIDs[P]) && Pkg.add(P)
 end
 
 using HDF5, PyPlot, HTTP, FFTW
