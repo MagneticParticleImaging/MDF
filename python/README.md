@@ -7,7 +7,7 @@ The data (`systemMatrix.h5` and `measurement_5.h5`) provided [here] (http://www.
 In order to run this example code a Python distribution including the Numpy and 
 Matplotlib package have to be installed (e.g. the Anaconda Python distribution)
 
-## Runing the example
+## Running the example
 
 To run the script one has to start 
 
