@@ -332,7 +332,7 @@ where $F$ is the number of frequencies on the channel, $A_l$ is the drive-field 
 \noindent \begin{tabularx}{\columnwidth}{lllllX} 
 \textbf{Parameter} & \textbf{Type} & \textbf{Dim} & \textbf{Unit/Format} & \textbf{Optional} & \textbf{Description} \\ \hline 
 \inlvar{baseFrequency} & \inltab{Float64} & 1 & Hz & no & Base frequency to derive drive field frequencies \\ \hline
-\inlvar{cycle} & \inltab{Float64} & 1 & s & no & Trajectory cycle is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}. It will not change when averaging was applied. The duration for measuring the $V$ data points (i.e. the drive-field period) is given by the product of  \inlvar{period} and \inlvar{numAverages} \\ \hline
+\inlvar{cycle} & \inltab{Float64} & 1 & s & no & Trajectory cycle is determined by lcm(\inlvar{divider})/\inlvar{baseFrequency}. It will not change when averaging was applied. The duration for measuring the $V$ data points (i.e. the drive-field period) is given by the product of \inlvar{cycle} and \inlvar{numAverages} \\ \hline
 \inlvar{divider} & \inltab{Int64} & $D \times F$ & 1 & no & Divider of the \inlvar{baseFrequency} to determine the drive field frequencies \\ \hline
 \inlvar{numChannels} & \inltab{Int64} & 1 & 1 & no & Number of drive field channels, denoted by $D$ \\ \hline
 \inlvar{phase} & \inltab{Float64} & $J \times D \times F$ & rad, $[-\pi,\pi)$ & no & Applied drive field phase $\varphi$\\ \hline
